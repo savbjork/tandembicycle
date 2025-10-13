@@ -9,13 +9,12 @@ export const HouseholdStackNavigator: React.FC = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerShown: true,
+        headerShown: false,
       }}
     >
       <Stack.Screen
         name="HouseholdOverview"
         component={HouseholdOverviewScreen}
-        options={{ title: 'Household' }}
       />
     </Stack.Navigator>
   );

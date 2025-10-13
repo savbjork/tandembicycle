@@ -1,7 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { Screen } from '@shared/components/layout';
-import { Card, CardHeader, Avatar, Button, Badge } from '@shared/components/ui';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { 
   getMockHousehold, 
   getMockHouseholdMembers,
@@ -13,115 +11,264 @@ export const HouseholdOverviewScreen: React.FC = () => {
   const household = getMockHousehold();
   const members = getMockHouseholdMembers();
   const balance = getMockCardBalance();
+  const totalCards = balance.user1Count + balance.user2Count;
+  const balancePercentage = (balance.user1Count / totalCards) * 100;
+  const isFair = Math.abs(50 - balancePercentage) <= 10;
 
   return (
-    <Screen>
-      <ScrollView className="flex-1 px-4 py-6">
-        {/* Header */}
-        <View className="mb-6">
-          <Text className="text-2xl font-bold text-gray-900 mb-1">
-            {household.name}
-          </Text>
-          <Text className="text-gray-600">
-            {members.length} members • {balance.user1Count + balance.user2Count} active cards
+    <ScrollView style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.screenTitle}>{household.name}</Text>
+        <Text style={styles.screenSubtitle}>
+          {members.length} members • {totalCards} active cards
+        </Text>
+      </View>
+
+      {/* Members Card */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Household Members</Text>
+        
+        {members.map((member) => {
+          const memberCards = getMockUserCards(member.id);
+          const isCreator = member.id === household.createdBy;
+          
+          return (
+            <TouchableOpacity 
+              key={member.id}
+              style={styles.memberCard}
+            >
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>
+                  {member.name.split(' ').map(n => n[0]).join('')}
+                </Text>
+              </View>
+              <View style={styles.memberInfo}>
+                <View style={styles.memberNameRow}>
+                  <Text style={styles.memberName}>{member.name}</Text>
+                  {isCreator && (
+                    <View style={styles.adminBadge}>
+                      <Text style={styles.adminBadgeText}>Admin</Text>
+                    </View>
+                  )}
+                </View>
+                <Text style={styles.memberEmail}>{member.email}</Text>
+                <Text style={styles.memberCards}>Managing {memberCards.length} cards</Text>
+              </View>
+            </TouchableOpacity>
+          );
+        })}
+        
+        <TouchableOpacity style={styles.inviteButton}>
+          <Text style={styles.inviteButtonText}>Invite Members</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Household Stats Card */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Household Statistics</Text>
+        
+        <View style={styles.statRow}>
+          <Text style={styles.statLabel}>Total Cards</Text>
+          <Text style={styles.statValue}>{totalCards}</Text>
+        </View>
+        <View style={styles.statRow}>
+          <Text style={styles.statLabel}>Members</Text>
+          <Text style={styles.statValue}>{members.length}</Text>
+        </View>
+        <View style={styles.statRow}>
+          <Text style={styles.statLabel}>Created</Text>
+          <Text style={styles.statValue}>
+            {household.createdAt.toLocaleDateString()}
           </Text>
         </View>
+        <View style={[styles.statRow, styles.statRowLast]}>
+          <Text style={styles.statLabel}>Balance Status</Text>
+          <View style={[styles.statusBadge, isFair ? styles.statusBadgeSuccess : styles.statusBadgeWarning]}>
+            <Text style={[styles.statusBadgeText, isFair ? styles.statusBadgeTextSuccess : styles.statusBadgeTextWarning]}>
+              {isFair ? 'Fair' : 'Review'}
+            </Text>
+          </View>
+        </View>
+      </View>
 
-        {/* Members */}
-        <Card className="mb-4">
-          <CardHeader title="Household Members" />
-          <View className="space-y-3">
-            {members.map((member) => {
-              const memberCards = getMockUserCards(member.id);
-              const isCreator = member.id === household.createdBy;
-              
-              return (
-                <TouchableOpacity 
-                  key={member.id}
-                  className="flex-row items-center p-3 bg-gray-50 rounded-lg"
-                >
-                  <Avatar name={member.name} size="md" imageUrl={member.avatar} />
-                  <View className="flex-1 ml-3">
-                    <View className="flex-row items-center">
-                      <Text className="font-semibold text-gray-900">
-                        {member.name}
-                      </Text>
-                      {isCreator && (
-                        <Badge label="Admin" variant="primary" size="sm" className="ml-2" />
-                      )}
-                    </View>
-                    <Text className="text-sm text-gray-500">
-                      {member.email}
-                    </Text>
-                    <Text className="text-sm text-gray-600 mt-1">
-                      Managing {memberCards.length} cards
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-          
-          <View className="mt-4">
-            <Button 
-              title="Invite Members" 
-              variant="outline"
-              onPress={() => {}}
-            />
-          </View>
-        </Card>
-
-        {/* Household Stats */}
-        <Card className="mb-4">
-          <CardHeader title="Household Statistics" />
-          <View className="space-y-3">
-            <View className="flex-row justify-between py-2 border-b border-gray-100">
-              <Text className="text-gray-600">Total Cards</Text>
-              <Text className="font-semibold">{balance.user1Count + balance.user2Count}</Text>
-            </View>
-            <View className="flex-row justify-between py-2 border-b border-gray-100">
-              <Text className="text-gray-600">Members</Text>
-              <Text className="font-semibold">{members.length}</Text>
-            </View>
-            <View className="flex-row justify-between py-2 border-b border-gray-100">
-              <Text className="text-gray-600">Created</Text>
-              <Text className="font-semibold">
-                {household.createdAt.toLocaleDateString()}
-              </Text>
-            </View>
-            <View className="flex-row justify-between py-2">
-              <Text className="text-gray-600">Balance Status</Text>
-              <Badge 
-                label={Math.abs(50 - (balance.user1Count / (balance.user1Count + balance.user2Count) * 100)) <= 10 ? 'Fair' : 'Review'} 
-                variant={Math.abs(50 - (balance.user1Count / (balance.user1Count + balance.user2Count) * 100)) <= 10 ? 'success' : 'warning'}
-              />
-            </View>
-          </View>
-        </Card>
-
-        {/* Household Settings */}
-        <Card>
-          <CardHeader title="Settings" />
-          <View className="space-y-2">
-            <Button 
-              title="Edit Household Name" 
-              variant="ghost"
-              onPress={() => {}}
-            />
-            <Button 
-              title="Manage Invitations" 
-              variant="ghost"
-              onPress={() => {}}
-            />
-            <Button 
-              title="Leave Household" 
-              variant="ghost"
-              onPress={() => {}}
-            />
-          </View>
-        </Card>
-      </ScrollView>
-    </Screen>
+      {/* Settings Card */}
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Settings</Text>
+        
+        <TouchableOpacity style={styles.settingItem}>
+          <Text style={styles.settingText}>Edit Household Name</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.settingItem}>
+          <Text style={styles.settingText}>Manage Invitations</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.settingItem, styles.settingItemLast]}>
+          <Text style={styles.settingText}>Leave Household</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 };
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fafafa',
+  },
+  header: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 24,
+  },
+  screenTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#111827',
+    letterSpacing: -0.5,
+    marginBottom: 4,
+  },
+  screenSubtitle: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+  card: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    padding: 20,
+    marginHorizontal: 20,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+    marginBottom: 16,
+  },
+  memberCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    backgroundColor: '#f9fafb',
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#dc2626',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  memberInfo: {
+    marginLeft: 12,
+    flex: 1,
+  },
+  memberNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  memberName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  adminBadge: {
+    backgroundColor: '#fee2e2',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+    marginLeft: 8,
+  },
+  adminBadgeText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#dc2626',
+  },
+  memberEmail: {
+    fontSize: 13,
+    color: '#6b7280',
+    marginTop: 2,
+  },
+  memberCards: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginTop: 4,
+  },
+  inviteButton: {
+    borderWidth: 2,
+    borderColor: '#e5e7eb',
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  inviteButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  statRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+  },
+  statRowLast: {
+    borderBottomWidth: 0,
+  },
+  statLabel: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+  statValue: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  statusBadgeSuccess: {
+    backgroundColor: '#dcfce7',
+  },
+  statusBadgeWarning: {
+    backgroundColor: '#fef3c7',
+  },
+  statusBadgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  statusBadgeTextSuccess: {
+    color: '#15803d',
+  },
+  statusBadgeTextWarning: {
+    color: '#a16207',
+  },
+  settingItem: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+  },
+  settingItemLast: {
+    borderBottomWidth: 0,
+  },
+  settingText: {
+    fontSize: 16,
+    color: '#111827',
+  },
+});

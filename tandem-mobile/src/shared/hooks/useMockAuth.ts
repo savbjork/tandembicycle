@@ -1,34 +1,31 @@
-import { useState, useEffect } from 'react';
 import { useAuthStore } from '@store';
 import { getMockCurrentUser } from '@shared/constants/mockData';
 
 /**
  * Mock authentication hook for front-end development
  * Simulates authentication without Firebase
+ * 
+ * In production, this would:
+ * 1. Check for stored JWT tokens on app startup
+ * 2. Validate tokens with backend API
+ * 3. Refresh tokens if needed
+ * 4. Set user state if valid tokens exist
  */
 export const useMockAuth = () => {
-  const { setUser, setLoading, user } = useAuthStore();
-  const [isInitialized, setIsInitialized] = useState(false);
+  const { setUser, setLoading, user, isAuthenticated } = useAuthStore();
 
-  useEffect(() => {
-    // Simulate checking for existing session
-    if (!isInitialized) {
-      setLoading(true);
-      setTimeout(() => {
-        // Auto-login with mock user for development
-        const mockUser = getMockCurrentUser();
-        setUser(mockUser);
-        setLoading(false);
-        setIsInitialized(true);
-      }, 500);
-    }
-  }, [isInitialized, setUser, setLoading]);
+  console.log('🔍 useMockAuth - Hook called:', { 
+    isAuthenticated, 
+    user: user ? `${user.name} (${user.email})` : null 
+  });
 
   const mockSignIn = async (email: string, _password: string) => {
+    console.log('🔍 useMockAuth - mockSignIn called with:', email);
     setLoading(true);
     // Simulate network delay
     await new Promise((resolve) => setTimeout(resolve, 1000));
     const mockUser = getMockCurrentUser();
+    console.log('🔍 useMockAuth - Setting user after sign in:', mockUser);
     setUser(mockUser);
     setLoading(false);
   };
@@ -43,10 +40,12 @@ export const useMockAuth = () => {
   };
 
   const mockSignOut = async () => {
+    console.log('🔴 useMockAuth - mockSignOut called');
     setLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 500));
     setUser(null);
     setLoading(false);
+    console.log('🔴 useMockAuth - Sign out complete - user should be null');
   };
 
   return {
@@ -54,7 +53,7 @@ export const useMockAuth = () => {
     signIn: mockSignIn,
     signUp: mockSignUp,
     signOut: mockSignOut,
-    isLoading: !isInitialized,
+    isLoading: false,
   };
 };
 

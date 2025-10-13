@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { RootNavigator } from './navigation/RootNavigator';
 import { AppProviders } from './providers/AppProviders';
 import { initializeFirebase, isUsingFirebase } from '@infrastructure/firebase/config';
+import '../../global.css';
 
 /**
  * App entry point

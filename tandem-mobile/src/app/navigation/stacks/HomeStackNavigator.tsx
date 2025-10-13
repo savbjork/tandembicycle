@@ -9,14 +9,15 @@ export const HomeStackNavigator: React.FC = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerShown: true,
-        headerLargeTitle: true,
+        // headerShown: true,
+        // headerLargeTitle: true,
+        headerLargeTitleShadowVisible: false,
       }}
     >
       <Stack.Screen
         name="Dashboard"
         component={DashboardScreen}
-        options={{ title: 'Fair Play' }}
+        // options={{ title: 'Fair Play' }}
       />
     </Stack.Navigator>
   );

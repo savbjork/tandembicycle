@@ -27,29 +27,40 @@ export const useAuthStore = create<AuthState>((set) => ({
   isLoading: true,
   error: null,
 
-  setUser: (user) =>
+  setUser: (user) => {
+    console.log('🟢 AuthStore - setUser called with:', user ? `${user.name} (${user.email})` : 'null');
     set({
       user,
       isAuthenticated: !!user,
       error: null,
-    }),
+    });
+    console.log('🟢 AuthStore - Auth state updated:', { 
+      isAuthenticated: !!user, 
+      hasUser: !!user 
+    });
+  },
 
-  setLoading: (isLoading) =>
+  setLoading: (isLoading) => {
+    console.log('🟡 AuthStore - setLoading called with:', isLoading);
     set({
       isLoading,
-    }),
+    });
+  },
 
   setError: (error) =>
     set({
       error,
     }),
 
-  clearAuth: () =>
+  clearAuth: () => {
+    console.log('🔴 AuthStore - clearAuth called');
     set({
       user: null,
       isAuthenticated: false,
       isLoading: false,
       error: null,
-    }),
+    });
+    console.log('🔴 AuthStore - Auth cleared');
+  },
 }));
 

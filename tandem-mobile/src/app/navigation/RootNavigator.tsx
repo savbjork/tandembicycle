@@ -14,10 +14,21 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 export const RootNavigator: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuthStore();
 
+  console.log('🔵 RootNavigator - Render:', { 
+    isAuthenticated, 
+    isLoading, 
+    willShowAuth: !isAuthenticated,
+    willShowMain: isAuthenticated,
+    willShowLoading: isLoading
+  });
+
   // TODO: Add a loading screen while checking auth state
   if (isLoading) {
+    console.log('🔵 RootNavigator - RETURNING NULL (loading state)');
     return null;
   }
+
+  console.log('🔵 RootNavigator - RENDERING NAVIGATION:', !isAuthenticated ? 'Auth' : 'Main');
 
   return (
     <NavigationContainer>

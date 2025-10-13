@@ -9,13 +9,12 @@ export const ProfileStackNavigator: React.FC = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerShown: true,
+        headerShown: false,
       }}
     >
       <Stack.Screen
         name="ProfileOverview"
         component={ProfileOverviewScreen}
-        options={{ title: 'Profile' }}
       />
     </Stack.Navigator>
   );

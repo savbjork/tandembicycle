@@ -1,16 +1,16 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '@app/navigation/types';
-import { Screen } from '@shared/components/layout';
-import { Button } from '@shared/components/ui';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Welcome'>;
 
 export const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
+  console.log('🟢 WelcomeScreen - RENDERED! This should NOT be the first screen');
+  
   return (
-    <Screen>
-      <View style={styles.container}>
+    <View style={styles.container}>
+      <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>Fair Play</Text>
           <Text style={styles.subtitle}>
@@ -19,32 +19,35 @@ export const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
         </View>
 
         <View style={styles.buttons}>
-          <Button
-            title="Sign In"
+          <TouchableOpacity
+            style={styles.primaryButton}
             onPress={() => navigation.navigate('SignIn')}
-            variant="primary"
-            size="lg"
-            style={styles.button}
-          />
-          <Button
-            title="Create Account"
+          >
+            <Text style={styles.primaryButtonText}>Sign In</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={styles.secondaryButton}
             onPress={() => navigation.navigate('SignUp')}
-            variant="outline"
-            size="lg"
-            style={styles.button}
-          />
+          >
+            <Text style={styles.secondaryButtonText}>Create Account</Text>
+          </TouchableOpacity>
         </View>
 
         <Text style={styles.footer}>
           Fair Play helps couples visualize and distribute household labor equitably
         </Text>
       </View>
-    </Screen>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    backgroundColor: '#fafafa',
+  },
+  content: {
     flex: 1,
     paddingHorizontal: 24,
     justifyContent: 'center',
@@ -61,19 +64,42 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 18,
-    color: '#6B7280',
+    color: '#6b7280',
     textAlign: 'center',
+    lineHeight: 26,
   },
   buttons: {
     gap: 16,
   },
-  button: {
-    width: '100%',
+  primaryButton: {
+    backgroundColor: '#dc2626',
+    borderRadius: 8,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  primaryButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+  secondaryButton: {
+    backgroundColor: '#ffffff',
+    borderWidth: 2,
+    borderColor: '#e5e7eb',
+    borderRadius: 8,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  secondaryButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#111827',
   },
   footer: {
     fontSize: 14,
-    color: '#9CA3AF',
+    color: '#9ca3af',
     textAlign: 'center',
     marginTop: 32,
+    lineHeight: 20,
   },
 });

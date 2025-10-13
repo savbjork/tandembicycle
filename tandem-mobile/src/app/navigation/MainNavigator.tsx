@@ -1,12 +1,10 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
 import { MainTabParamList } from './types';
 import { HomeStackNavigator } from './stacks/HomeStackNavigator';
-import { CardsStackNavigator } from './stacks/CardsStackNavigator';
 import { HouseholdStackNavigator } from './stacks/HouseholdStackNavigator';
 import { ProfileStackNavigator } from './stacks/ProfileStackNavigator';
-// Icons would come from a library like react-native-heroicons or expo/vector-icons
-// For now using placeholder Text
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -18,7 +16,7 @@ export const MainNavigator: React.FC = () => {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#0284c7',
+        tabBarActiveTintColor: '#dc2626', // primary-600 red
         tabBarInactiveTintColor: '#9CA3AF',
         tabBarStyle: {
           borderTopWidth: 1,
@@ -26,6 +24,7 @@ export const MainNavigator: React.FC = () => {
           paddingBottom: 8,
           paddingTop: 8,
           height: 60,
+          backgroundColor: '#ffffff',
         },
         tabBarLabelStyle: {
           fontSize: 12,
@@ -38,15 +37,9 @@ export const MainNavigator: React.FC = () => {
         component={HomeStackNavigator}
         options={{
           tabBarLabel: 'Home',
-          // TODO: Add icon
-        }}
-      />
-      <Tab.Screen
-        name="CardsTab"
-        component={CardsStackNavigator}
-        options={{
-          tabBarLabel: 'Cards',
-          // TODO: Add icon
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home" size={size} color={color} />
+          ),
         }}
       />
       <Tab.Screen
@@ -54,7 +47,9 @@ export const MainNavigator: React.FC = () => {
         component={HouseholdStackNavigator}
         options={{
           tabBarLabel: 'Household',
-          // TODO: Add icon
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="people" size={size} color={color} />
+          ),
         }}
       />
       <Tab.Screen
@@ -62,7 +57,9 @@ export const MainNavigator: React.FC = () => {
         component={ProfileStackNavigator}
         options={{
           tabBarLabel: 'Profile',
-          // TODO: Add icon
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person-circle" size={size} color={color} />
+          ),
         }}
       />
     </Tab.Navigator>

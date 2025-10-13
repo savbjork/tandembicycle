@@ -24,7 +24,6 @@ export type AuthStackParamList = {
 // Main Bottom Tab Navigator
 export type MainTabParamList = {
   HomeTab: undefined;
-  CardsTab: undefined;
   HouseholdTab: undefined;
   ProfileTab: undefined;
 };
@@ -33,13 +32,6 @@ export type MainTabParamList = {
 export type HomeStackParamList = {
   Dashboard: undefined;
   CardDetail: { cardId: string };
-};
-
-// Cards Stack (inside Cards Tab)
-export type CardsStackParamList = {
-  CardLibrary: undefined;
-  CardDetail: { cardId: string };
-  AddCard: undefined;
 };
 
 // Household Stack (inside Household Tab)
