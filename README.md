@@ -31,9 +31,10 @@ A robust Spring Boot backend providing:
 - Spring Security for authentication
 - JPA/JOOQ for database access
 - Data validation
-- PostgreSQL database support
+- PostgreSQL database support (Docker)
 
-[🔧 View API Documentation →](./tandem-api/HELP.md)
+[🔧 View API Documentation →](./tandem-api/HELP.md)  
+[🐳 View Docker Setup Guide →](./tandem-api/DOCKER.md)
 
 ## 🚀 Quick Start
 
@@ -82,6 +83,9 @@ npm run android
 ```bash
 cd tandem-api
 
+# Start PostgreSQL and pgAdmin (Docker)
+docker compose up -d
+
 # Run the application
 ./gradlew bootRun
 
@@ -89,6 +93,10 @@ cd tandem-api
 ./gradlew build
 java -jar build/libs/tandem-api-*.jar
 ```
+
+The API will connect to PostgreSQL running in Docker on `localhost:5432`.
+
+[📘 View Docker Setup Guide →](./tandem-api/DOCKER.md)
 
 ## 🏗️ Architecture Overview
 
@@ -253,7 +261,7 @@ chore: maintenance tasks
 ## 🐛 Known Issues
 
 - [ ] Mobile app: Fix submodule issue in git (tandem-mobile staged as submodule)
-- [ ] Backend: Configure database connection properly
+- [x] Backend: Database configured with Docker PostgreSQL
 - [ ] Setup CI/CD pipeline
 
 ## 📝 License
