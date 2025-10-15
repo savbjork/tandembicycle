@@ -47,6 +47,7 @@ public class Auth0AuthenticationClient {
                 String responseBody = ex.getResponseBodyAsString();
                 
                 // Check for specific Auth0 error codes
+                //TODO: Create a class that parses this response body
                 if (responseBody.contains("\"error\":\"unauthorized\"")) {
                     if (responseBody.contains("email not verified") || 
                         responseBody.contains("Please verify your email")) {
