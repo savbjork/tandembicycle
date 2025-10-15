@@ -111,7 +111,7 @@ public class Auth0AuthenticationClient {
 
         try {
             restClient.post()
-                    .uri("/dbconnections/change_password")
+                    .uri("/dbconnections/resend_verification")
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(payload)
                     .retrieve()
