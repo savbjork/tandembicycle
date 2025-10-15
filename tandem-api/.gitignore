@@ -39,6 +39,10 @@ out/
 ### Docker & Environment ###
 .env
 docker-compose.override.yml
+.secrets/
+
+### Secrets templates ###
+application-secrets.properties
 
 ### Database ###
 *.db
