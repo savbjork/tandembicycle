@@ -30,14 +30,42 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+	implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'com.squareup.okhttp3:mockwebserver:4.12.0'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+// Task to encrypt property values for application.properties
+task encryptProperty(type: JavaExec) {
+	description = 'Encrypts a property value for use in application.properties'
+	group = 'application'
+	classpath = sourceSets.main.runtimeClasspath
+	mainClass = 'com.tandem.util.PropertyEncryptor'
+	
+	// Pass all environment variables to the Java process at configuration time
+	System.getenv().each { key, value ->
+		environment key, value
+	}
+	
+	if (project.hasProperty('value')) {
+		args project.property('value')
+		// Optionally pass password as project property
+		if (project.hasProperty('password')) {
+			args project.property('password')
+		}
+	} else {
+		doFirst {
+			throw new RuntimeException('Please provide a value to encrypt: ./gradlew encryptProperty -Pvalue="your-secret" [-Ppassword="encryption-password"]')
+		}
+	}
 }
