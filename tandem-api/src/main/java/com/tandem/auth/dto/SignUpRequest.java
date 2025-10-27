@@ -3,8 +3,6 @@ package com.tandem.auth.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
-
 public record SignUpRequest(
         @NotBlank(message = "Email is required")
         @Email(message = "Email must be valid")
