@@ -2,6 +2,8 @@
 
 This guide explains how to run the Tandem application with Docker.
 
+> 💡 **Also see:** [Database & jOOQ Guide](./DATABASE.md) for migrations and type-safe queries
+
 ## Prerequisites
 
 - Docker Desktop installed ([Download here](https://www.docker.com/products/docker-desktop))
@@ -169,6 +171,8 @@ docker compose up -d
 
 Wait a few seconds for PostgreSQL to initialize, then restart your Spring Boot app.
 
+> ⚠️ **Note:** This will delete all data and re-run Flyway migrations. See [DATABASE.md](./DATABASE.md) for more on migrations.
+
 ## Production Considerations
 
 ⚠️ **This setup is for LOCAL DEVELOPMENT ONLY**
@@ -191,6 +195,18 @@ cp .env.example .env
 
 Then edit `.env` with your custom values. Docker Compose will automatically load them.
 
+## Database Migrations
+
+When you start the Spring Boot application, Flyway automatically runs database migrations.
+
+**Learn more:**
+- [DATABASE.md](./DATABASE.md) - Complete guide to Flyway migrations and jOOQ
+
+**Quick check migrations:**
+```bash
+docker compose exec postgres psql -U tandem -d tandemdb -c "SELECT * FROM flyway_schema_history;"
+```
+
 ## Integration with CI/CD
 
 For testing in CI/CD pipelines:
@@ -204,7 +220,7 @@ docker compose up -d postgres
 # Wait for healthy state
 docker compose exec postgres pg_isready -U tandem
 
-# Run tests
+# Run tests (includes migrations)
 ./gradlew test
 
 # Cleanup

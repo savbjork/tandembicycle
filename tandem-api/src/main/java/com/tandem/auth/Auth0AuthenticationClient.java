@@ -76,8 +76,9 @@ public class Auth0AuthenticationClient {
         payload.put("connection", properties.realm());
         
         // Add optional fields if provided
-        if (request.name() != null && !request.name().isBlank()) {
-            payload.put("name", request.name());
+        if (request.firstName() != null && !request.firstName().isBlank()) {
+            payload.put("name", request.firstName() +
+                (request.lastName() != null && !request.lastName().isBlank() ? " " + request.lastName() : ""));
         }
         if (request.givenName() != null && !request.givenName().isBlank()) {
             payload.put("given_name", request.givenName());
