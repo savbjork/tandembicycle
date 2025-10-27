@@ -3,6 +3,7 @@ package com.tandem.auth.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
 
 public record SignUpRequest(
         @NotBlank(message = "Email is required")
@@ -13,7 +14,8 @@ public record SignUpRequest(
         @Size(min = 8, message = "Password must be at least 8 characters")
         String password,
 
-        String name,
+        String firstName,
+        String lastName,
         String givenName,
         String familyName
 ) {

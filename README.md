@@ -29,12 +29,14 @@ A modern React Native mobile app built with Expo, featuring:
 A robust Spring Boot backend providing:
 - RESTful API endpoints
 - Spring Security for authentication
-- JPA/JOOQ for database access
+- jOOQ for type-safe SQL queries
+- Flyway database migrations
 - Data validation
 - PostgreSQL database support (Docker)
 
 [🔧 View API Documentation →](./tandem-api/HELP.md)  
-[🐳 View Docker Setup Guide →](./tandem-api/DOCKER.md)
+[🐳 View Docker Setup Guide →](./tandem-api/DOCKER.md)  
+[🗄️ View Database & jOOQ Guide →](./tandem-api/DATABASE.md)
 
 ## 🚀 Quick Start
 
@@ -166,22 +168,28 @@ Standard Spring Boot layered architecture:
 - React Hook Form + Zod
 
 ### Backend (tandem-api)
-- Spring Boot 3.x
-- Java 17
+- Spring Boot 4.0.0-M3
+- Java 21
 - Spring Security
-- Spring Data JPA
-- JOOQ
+- jOOQ (type-safe SQL)
+- Flyway (database migrations)
 - Gradle
-- PostgreSQL
+- PostgreSQL 16
 
 ## 📚 Documentation
 
+### Mobile App
 - [Mobile App README](./tandem-mobile/README.md) - Setup and features
 - [Architecture Guide](./tandem-mobile/ARCHITECTURE.md) - Detailed architecture
 - [Implementation Summary](./tandem-mobile/IMPLEMENTATION_SUMMARY.md) - Implementation details
 - [Frontend Demo](./tandem-mobile/FRONTEND_DEMO.md) - UI/UX guide
 - [Quick Start Guide](./tandem-mobile/QUICKSTART.md) - Getting started quickly
+
+### Backend API
 - [API Documentation](./tandem-api/HELP.md) - Spring Boot resources
+- [Database Guide](./tandem-api/DATABASE.md) - Migrations & jOOQ setup
+- [Docker Setup](./tandem-api/DOCKER.md) - PostgreSQL with Docker
+- [Secrets Management](./tandem-api/SECRETS.md) - Jasypt encryption
 
 ## 🧪 Development
 
