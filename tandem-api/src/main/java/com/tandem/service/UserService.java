@@ -1,9 +1,15 @@
 package com.tandem.service;
 
 import com.tandem.auth.dto.SignUpRequest;
+import com.tandem.jooq.tables.records.UsersRecord;
 import com.tandem.model.User;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -62,5 +68,45 @@ public class UserService {
             return;
         }
         userRepository.markEmailAsVerified(email);
+    }
+
+    public Optional<User> getCurrentUserInfo(String auth0UserId) {
+        if (!StringUtils.hasText(auth0UserId)) {
+            return Optional.empty();
+        }
+        return userRepository.findByAuth0Id(auth0UserId).map(this::mapRecordToUser);
+    }
+
+    public Optional<User> getUserInfoById(Integer userId) {
+        if (userId == null) {
+            return Optional.empty();
+        }
+        return userRepository.findById(userId).map(this::mapRecordToUser);
+    }
+
+    public Optional<User> getUserInfoByEmail(String email) {
+        if (!StringUtils.hasText(email)) {
+            return Optional.empty();
+        }
+        return userRepository.findByEmail(email).map(this::mapRecordToUser);
+    }
+
+    private User mapRecordToUser(UsersRecord record) {
+        User user = new User();
+        user.setId(record.getId());
+        user.setFirstName(record.getFirstName());
+        user.setLastName(record.getLastName());
+        user.setEmail(record.getEmail());
+        user.setAuth0Id(record.get(UserRepository.AUTH0_ID_FIELD));
+        user.setCreatedAt(toDate(record.getCreatedAt()));
+        user.setUpdatedAt(toDate(record.getUpdatedAt()));
+        return user;
+    }
+
+    private Date toDate(LocalDateTime localDateTime) {
+        if (localDateTime == null) {
+            return null;
+        }
+        return Date.from(localDateTime.toInstant(ZoneOffset.UTC));
     }
 }

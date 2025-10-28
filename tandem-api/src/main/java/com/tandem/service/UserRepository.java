@@ -21,7 +21,7 @@ import static com.tandem.jooq.tables.Users.USERS;
 public class UserRepository {
 
     private final DSLContext dsl;
-    private static final Field<String> AUTH0_ID_FIELD = USERS.field("auth0_id", String.class);
+    public static final Field<String> AUTH0_ID_FIELD = USERS.field("auth0_id", String.class);
 
     public UserRepository(DSLContext dsl) {
         this.dsl = dsl;
