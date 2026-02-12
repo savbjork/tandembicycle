@@ -3,8 +3,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { MainTabParamList } from './types';
 import { HomeStackNavigator } from './stacks/HomeStackNavigator';
-import { HouseholdStackNavigator } from './stacks/HouseholdStackNavigator';
 import { ProfileStackNavigator } from './stacks/ProfileStackNavigator';
+import { TasksScreen } from '@features/home/screens/TasksScreen';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -43,12 +43,12 @@ export const MainNavigator: React.FC = () => {
         }}
       />
       <Tab.Screen
-        name="HouseholdTab"
-        component={HouseholdStackNavigator}
+        name="TasksTab"
+        component={TasksScreen}
         options={{
-          tabBarLabel: 'Household',
+          tabBarLabel: 'Tasks',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="people" size={size} color={color} />
+            <Ionicons name="list" size={size} color={color} />
           ),
         }}
       />
@@ -65,4 +65,3 @@ export const MainNavigator: React.FC = () => {
     </Tab.Navigator>
   );
 };
-

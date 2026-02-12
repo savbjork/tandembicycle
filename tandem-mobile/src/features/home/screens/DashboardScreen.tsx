@@ -1,124 +1,71 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, Animated, PanResponder, TextInput, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, TextInput, Alert } from 'react-native';
+import Swiper from 'react-native-deck-swiper';
 
 export const DashboardScreen: React.FC = () => {
   const [showFilters, setShowFilters] = React.useState(false);
-  const [showSortMenu, setShowSortMenu] = React.useState(false);
   const [showShuffleModal, setShowShuffleModal] = React.useState(false);
   const [showSwipeMode, setShowSwipeMode] = React.useState(false);
   const [showAddCard, setShowAddCard] = React.useState(false);
   const [selectedCard, setSelectedCard] = React.useState<string | null>(null);
   const [currentCardIndex, setCurrentCardIndex] = React.useState(0);
-  const [shuffledCards, setShuffledCards] = React.useState<Array<{name: string, owner: string, frequency: string, category: string}>>([]);
-  const [selectedPeople, setSelectedPeople] = React.useState<string[]>(['Sarah']); 
-  const [selectedCategories, setSelectedCategories] = React.useState<string[]>([
-    'Home Care', 'Food & Meals', 'Childcare'
-  ]);
-  const [sortBy, setSortBy] = React.useState<'category' | 'person' | 'name'>('category');
-  
-  const pan = React.useRef(new Animated.ValueXY()).current;
-  const rotate = pan.x.interpolate({
-    inputRange: [-200, 0, 200],
-    outputRange: ['-30deg', '0deg', '30deg'],
-  });
-  
+  const [shuffledCards, setShuffledCards] = React.useState<Array<{ name: string, owner: string }>>([]);
+  const [selectedPeople, setSelectedPeople] = React.useState<string[]>(['Savannah']);
+  const swiperRef = React.useRef<Swiper<{ name: string, owner: string }>>(null);
+
   const allCards = [
-    { name: 'Daily Tidying', owner: 'Sarah', frequency: 'Daily', category: 'Home Care' },
-    { name: 'Laundry', owner: 'Sarah', frequency: 'Weekly', category: 'Home Care' },
-    { name: 'Meal Planning', owner: 'Sarah', frequency: 'Weekly', category: 'Food & Meals' },
-    { name: 'Grocery Shopping', owner: 'Sarah', frequency: 'Weekly', category: 'Food & Meals' },
-    { name: 'Morning Routine', owner: 'Sarah', frequency: 'Daily', category: 'Childcare' },
-    { name: 'School Communication', owner: 'Sarah', frequency: 'As-Needed', category: 'Childcare' },
-    { name: 'Dishes & Kitchen Cleanup', owner: 'Mike', frequency: 'Daily', category: 'Home Care' },
-    { name: 'Deep Cleaning', owner: 'Mike', frequency: 'Weekly', category: 'Home Care' },
-    { name: 'Trash & Recycling', owner: 'Mike', frequency: 'Weekly', category: 'Home Care' },
-    { name: 'Yard Work', owner: 'Mike', frequency: 'Monthly', category: 'Home Care' },
-    { name: 'Car Care', owner: 'Mike', frequency: 'Monthly', category: 'Home Care' },
-    { name: 'Dinner', owner: 'Mike', frequency: 'Daily', category: 'Food & Meals' },
-    { name: 'Bedtime Routine', owner: 'Mike', frequency: 'Daily', category: 'Childcare' },
-    { name: 'Kid Activities', owner: 'Mike', frequency: 'Weekly', category: 'Childcare' },
+    { name: 'Daily Tidying', owner: 'Savannah' },
+    { name: 'Laundry', owner: 'Savannah' },
+    { name: 'Meal Planning', owner: 'Savannah' },
+    { name: 'Grocery Shopping', owner: 'Savannah' },
+    { name: 'Morning Routine', owner: 'Savannah' },
+    { name: 'School Communication', owner: 'Savannah' },
+    { name: 'Dishes & Kitchen Cleanup', owner: 'Kevin' },
+    { name: 'Deep Cleaning', owner: 'Kevin' },
+    { name: 'Trash & Recycling', owner: 'Kevin' },
+    { name: 'Yard Work', owner: 'Kevin' },
+    { name: 'Car Care', owner: 'Kevin' },
+    { name: 'Dinner', owner: 'Kevin' },
+    { name: 'Bedtime Routine', owner: 'Kevin' },
+    { name: 'Kid Activities', owner: 'Kevin' },
   ];
 
   const togglePerson = (person: string) => {
-    setSelectedPeople(prev => 
-      prev.includes(person) 
+    setSelectedPeople(prev =>
+      prev.includes(person)
         ? prev.filter(p => p !== person)
         : [...prev, person]
     );
   };
 
-  const toggleCategory = (category: string) => {
-    setSelectedCategories(prev => 
-      prev.includes(category) 
-        ? prev.filter(c => c !== category)
-        : [...prev, category]
-    );
-  };
-
-  const filteredCards = allCards.filter(card => 
-    selectedPeople.includes(card.owner) && selectedCategories.includes(card.category)
+  const filteredCards = allCards.filter(card =>
+    selectedPeople.includes(card.owner)
   );
 
-  const sortedCards = [...filteredCards].sort((a, b) => {
-    if (sortBy === 'category') {
-      if (a.category !== b.category) {
-        return a.category.localeCompare(b.category);
-      }
-      return a.name.localeCompare(b.name);
-    } else if (sortBy === 'person') {
-      if (a.owner !== b.owner) {
-        return a.owner.localeCompare(b.owner);
-      }
-      return a.name.localeCompare(b.name);
-    } else {
-      return a.name.localeCompare(b.name);
+  const handleSwipeLeft = (cardIndex: number) => {
+    // Swipe left - assign to Savannah
+    const updatedCards = [...shuffledCards];
+    updatedCards[cardIndex] = { ...updatedCards[cardIndex], owner: 'Savannah' };
+    setShuffledCards(updatedCards);
+    setCurrentCardIndex(cardIndex + 1);
+
+    // Check if all cards are done
+    if (cardIndex >= shuffledCards.length - 1) {
+      finishShuffle(updatedCards);
     }
-  });
+  };
 
-  const panResponder = React.useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onPanResponderMove: Animated.event([null, { dx: pan.x, dy: pan.y }], {
-        useNativeDriver: false,
-      }),
-      onPanResponderRelease: (_, gesture) => {
-        if (gesture.dx > 120) {
-          // Swipe right - assign to Mike
-          handleSwipe('Mike');
-        } else if (gesture.dx < -120) {
-          // Swipe left - assign to Sarah
-          handleSwipe('Sarah');
-        } else {
-          // Return to center
-          Animated.spring(pan, {
-            toValue: { x: 0, y: 0 },
-            useNativeDriver: false,
-          }).start();
-        }
-      },
-    })
-  ).current;
+  const handleSwipeRight = (cardIndex: number) => {
+    // Swipe right - assign to Kevin
+    const updatedCards = [...shuffledCards];
+    updatedCards[cardIndex] = { ...updatedCards[cardIndex], owner: 'Kevin' };
+    setShuffledCards(updatedCards);
+    setCurrentCardIndex(cardIndex + 1);
 
-  const handleSwipe = (owner: string) => {
-    Animated.timing(pan, {
-      toValue: { x: owner === 'Mike' ? 500 : -500, y: 0 },
-      duration: 300,
-      useNativeDriver: false,
-    }).start(() => {
-      // Update the card owner
-      const updatedCards = [...shuffledCards];
-      updatedCards[currentCardIndex] = { ...updatedCards[currentCardIndex], owner };
-      setShuffledCards(updatedCards);
-      
-      // Move to next card
-      if (currentCardIndex < shuffledCards.length - 1) {
-        setCurrentCardIndex(currentCardIndex + 1);
-        pan.setValue({ x: 0, y: 0 });
-      } else {
-        // All cards done - apply changes
-        finishShuffle(updatedCards);
-      }
-    });
+    // Check if all cards are done
+    if (cardIndex >= shuffledCards.length - 1) {
+      finishShuffle(updatedCards);
+    }
   };
 
   const finishShuffle = (updatedCards: typeof shuffledCards) => {
@@ -142,138 +89,54 @@ export const DashboardScreen: React.FC = () => {
           <Text style={styles.screenTitle}>Cards</Text>
         </View>
         <View style={styles.headerButtons}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.addCardButtonSmall}
             onPress={() => setShowAddCard(true)}
           >
             <Text style={styles.filterToggleText}>+</Text>
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.sortButton}
-            onPress={() => setShowSortMenu(!showSortMenu)}
-          >
-            <Text style={styles.sortButtonText}>A-Z</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.filterToggleButton}
             onPress={() => setShowFilters(!showFilters)}
           >
             <Text style={styles.filterToggleText}>☰</Text>
           </TouchableOpacity>
-            </View>
-            </View>
-            
-      {/* Sort Menu */}
-      {showSortMenu && (
-        <View style={styles.sortMenu}>
-          <Text style={styles.sortMenuTitle}>Sort By</Text>
-          <TouchableOpacity 
-            style={styles.sortMenuItem}
-            onPress={() => {
-              setSortBy('category');
-              setShowSortMenu(false);
-            }}
-          >
-            <Text style={[styles.sortMenuItemText, sortBy === 'category' && styles.sortMenuItemTextActive]}>
-              Category
-            </Text>
-            {sortBy === 'category' && <Text style={styles.sortCheckmark}>✓</Text>}
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.sortMenuItem}
-            onPress={() => {
-              setSortBy('person');
-              setShowSortMenu(false);
-            }}
-          >
-            <Text style={[styles.sortMenuItemText, sortBy === 'person' && styles.sortMenuItemTextActive]}>
-              Person
-              </Text>
-            {sortBy === 'person' && <Text style={styles.sortCheckmark}>✓</Text>}
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.sortMenuItem}
-            onPress={() => {
-              setSortBy('name');
-              setShowSortMenu(false);
-            }}
-          >
-            <Text style={[styles.sortMenuItemText, sortBy === 'name' && styles.sortMenuItemTextActive]}>
-              Name
-              </Text>
-            {sortBy === 'name' && <Text style={styles.sortCheckmark}>✓</Text>}
-          </TouchableOpacity>
         </View>
-      )}
+      </View>
+
+
 
       {/* Expandable Filter Panel */}
       {showFilters && (
         <View style={styles.filterPanel}>
           <View style={styles.filterSection}>
             <Text style={styles.filterSectionTitle}>People</Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.checkboxRow}
-              onPress={() => togglePerson('Sarah')}
+              onPress={() => togglePerson('Savannah')}
             >
               <View style={styles.checkbox}>
-                {selectedPeople.includes('Sarah') && (
+                {selectedPeople.includes('Savannah') && (
                   <View style={styles.checkboxChecked} />
                 )}
               </View>
-              <Text style={styles.checkboxLabel}>Sarah</Text>
+              <Text style={styles.checkboxLabel}>Savannah</Text>
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.checkboxRow}
-              onPress={() => togglePerson('Mike')}
+              onPress={() => togglePerson('Kevin')}
             >
               <View style={styles.checkbox}>
-                {selectedPeople.includes('Mike') && (
+                {selectedPeople.includes('Kevin') && (
                   <View style={[styles.checkboxChecked, { backgroundColor: '#c026d3' }]} />
                 )}
-            </View>
-              <Text style={styles.checkboxLabel}>Mike</Text>
+              </View>
+              <Text style={styles.checkboxLabel}>Kevin</Text>
             </TouchableOpacity>
           </View>
-
-          <View style={styles.filterSection}>
-            <Text style={styles.filterSectionTitle}>Categories</Text>
-                <TouchableOpacity 
-              style={styles.checkboxRow}
-              onPress={() => toggleCategory('Home Care')}
-            >
-              <View style={styles.checkbox}>
-                {selectedCategories.includes('Home Care') && (
-                  <View style={styles.checkboxChecked} />
-                )}
-                    </View>
-              <Text style={styles.checkboxLabel}>Home Care</Text>
-                </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.checkboxRow}
-              onPress={() => toggleCategory('Food & Meals')}
-            >
-              <View style={styles.checkbox}>
-                {selectedCategories.includes('Food & Meals') && (
-                  <View style={styles.checkboxChecked} />
-                )}
-              </View>
-              <Text style={styles.checkboxLabel}>Food & Meals</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              style={styles.checkboxRow}
-              onPress={() => toggleCategory('Childcare')}
-            >
-              <View style={styles.checkbox}>
-                {selectedCategories.includes('Childcare') && (
-                  <View style={styles.checkboxChecked} />
-                )}
-              </View>
-              <Text style={styles.checkboxLabel}>Childcare</Text>
-            </TouchableOpacity>
-          </View>
-            </View>
+        </View>
       )}
-      
+
       {/* Balance Meter */}
       {selectedPeople.length === 2 && (
         <View style={styles.balanceCard}>
@@ -283,59 +146,58 @@ export const DashboardScreen: React.FC = () => {
               <Text style={styles.balanceSubtitle}>14 cards total</Text>
             </View>
           </View>
-          
+
           <View style={styles.balanceBar}>
             <View style={[styles.balanceBarFill, { width: '43%', backgroundColor: '#dc2626' }]} />
             <View style={[styles.balanceBarFill, { width: '57%', backgroundColor: '#c026d3' }]} />
           </View>
-          
+
           <View style={styles.balanceStats}>
             <View style={styles.balanceStat}>
               <Text style={styles.balanceStatValue}>6</Text>
-              <Text style={styles.balanceStatLabel}>Sarah</Text>
+              <Text style={styles.balanceStatLabel}>Savannah</Text>
             </View>
             <View style={styles.balanceStat}>
               <Text style={[styles.balanceStatValue, { color: '#c026d3' }]}>8</Text>
-              <Text style={styles.balanceStatLabel}>Mike</Text>
+              <Text style={styles.balanceStatLabel}>Kevin</Text>
             </View>
           </View>
         </View>
       )}
 
       {/* Cards List */}
-      {sortedCards.length > 0 ? (
+      {filteredCards.length > 0 ? (
         <>
-          {sortedCards.map((card, i) => (
-            <TouchableOpacity 
-              key={i} 
+          {filteredCards.map((card, i) => (
+            <TouchableOpacity
+              key={i}
               style={[
-                styles.taskCard, 
-                card.owner === 'Mike' && styles.partnerTaskCard
+                styles.taskCard,
+                card.owner === 'Kevin' && styles.partnerTaskCard
               ]}
               onPress={() => setSelectedCard(card.name)}
             >
               <View style={styles.taskCardContent}>
                 <Text style={styles.taskName}>{card.name}</Text>
-                <Text style={styles.taskCategory}>{card.category} • {card.frequency}</Text>
               </View>
               {selectedPeople.length > 1 && (
                 <View style={styles.taskCardOwner}>
                   <View style={[
                     styles.ownerAvatar,
-                    card.owner === 'Mike' && styles.ownerAvatarMike
+                    card.owner === 'Kevin' && styles.ownerAvatarKevin
                   ]}>
                     <Text style={styles.ownerAvatarText}>
-                      {card.owner === 'Sarah' ? 'S' : 'M'}
+                      {card.owner === 'Savannah' ? 'S' : 'M'}
                     </Text>
                   </View>
                 </View>
               )}
             </TouchableOpacity>
           ))}
-          
+
           {/* Shuffle Cards Button */}
           {selectedPeople.length === 2 && (
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.shuffleButton}
               onPress={() => setShowShuffleModal(true)}
             >
@@ -366,10 +228,10 @@ export const DashboardScreen: React.FC = () => {
             </View>
 
             <Text style={styles.modalDescription}>
-              Redistribute cards between Sarah and Mike to create a more balanced household.
+              Redistribute cards between Savannah and Kevin to create a more balanced household.
             </Text>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.modalOptionButton}
               onPress={() => {
                 setShowShuffleModal(false);
@@ -383,17 +245,17 @@ export const DashboardScreen: React.FC = () => {
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.modalOptionButton}
               onPress={startSwipeShuffle}
             >
               <Text style={styles.modalOptionTitle}>♻️ Use Existing Cards</Text>
               <Text style={styles.modalOptionDescription}>
-                Swipe left for Sarah, right for Mike
+                Swipe left for Savannah, right for Kevin
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.cancelButton}
               onPress={() => setShowShuffleModal(false)}
             >
@@ -415,7 +277,7 @@ export const DashboardScreen: React.FC = () => {
           <View style={styles.swipeHeader}>
             <Text style={styles.swipeTitle}>Assign Cards</Text>
             <Text style={styles.swipeProgress}>
-              {currentCardIndex + 1} / {shuffledCards.length}
+              {currentCardIndex} / {shuffledCards.length}
             </Text>
           </View>
 
@@ -423,86 +285,90 @@ export const DashboardScreen: React.FC = () => {
           <View style={styles.swipeInstructions}>
             <View style={styles.swipeInstructionItem}>
               <Text style={styles.swipeInstructionArrow}>←</Text>
-              <Text style={styles.swipeInstructionText}>Sarah</Text>
+              <Text style={styles.swipeInstructionText}>Savannah</Text>
             </View>
             <View style={styles.swipeInstructionItem}>
-              <Text style={styles.swipeInstructionText}>Mike</Text>
+              <Text style={styles.swipeInstructionText}>Kevin</Text>
               <Text style={styles.swipeInstructionArrow}>→</Text>
             </View>
           </View>
 
-          {/* Card Stack */}
+          {/* Card Stack with Swiper */}
           <View style={styles.cardStack}>
-            {shuffledCards.length > 0 && currentCardIndex < shuffledCards.length && (
-              <Animated.View
-                {...panResponder.panHandlers}
-                style={[
-                  styles.swipeCard,
-                  {
-                    transform: [
-                      { translateX: pan.x },
-                      { translateY: pan.y },
-                      { rotate: rotate },
-                    ],
+            {shuffledCards.length > 0 && (
+              <Swiper
+                ref={swiperRef}
+                cards={shuffledCards}
+                renderCard={(card) => (
+                  <View style={styles.swipeCard}>
+                    <View style={styles.swipeCardContent}>
+                      <Text style={styles.swipeCardTitle}>
+                        {card.name}
+                      </Text>
+                    </View>
+                  </View>
+                )}
+                onSwipedLeft={handleSwipeLeft}
+                onSwipedRight={handleSwipeRight}
+                onSwipedAll={() => {
+                  finishShuffle(shuffledCards);
+                }}
+                cardIndex={0}
+                backgroundColor="transparent"
+                stackSize={2}
+                stackScale={5}
+                stackSeparation={15}
+                disableTopSwipe
+                disableBottomSwipe
+                verticalSwipe={false}
+                cardVerticalMargin={100}
+                cardHorizontalMargin={30}
+                overlayLabels={{
+                  left: {
+                    title: 'SAVANNAH',
+                    style: {
+                      label: {
+                        backgroundColor: '#dc2626',
+                        color: '#ffffff',
+                        fontSize: 18,
+                        fontWeight: 'bold',
+                        borderRadius: 8,
+                        padding: 10,
+                      },
+                      wrapper: {
+                        flexDirection: 'column',
+                        alignItems: 'flex-end',
+                        justifyContent: 'flex-start',
+                        marginTop: 30,
+                        marginLeft: -30,
+                      }
+                    }
                   },
-                ]}
-              >
-                <View style={styles.swipeCardContent}>
-                  <Text style={styles.swipeCardTitle}>
-                    {shuffledCards[currentCardIndex].name}
-                  </Text>
-                  <Text style={styles.swipeCardCategory}>
-                    {shuffledCards[currentCardIndex].category}
-                  </Text>
-                  <Text style={styles.swipeCardFrequency}>
-                    {shuffledCards[currentCardIndex].frequency}
-                  </Text>
-                </View>
+                  right: {
+                    title: 'KEVIN',
+                    style: {
+                      label: {
+                        backgroundColor: '#c026d3',
+                        color: '#ffffff',
+                        fontSize: 18,
+                        fontWeight: 'bold',
+                        borderRadius: 8,
+                        padding: 10,
+                      },
+                      wrapper: {
+                        flexDirection: 'column',
+                        alignItems: 'flex-start',
+                        justifyContent: 'flex-start',
+                        marginTop: 30,
+                        marginLeft: 30,
+                      }
+                    }
+                  }
+                }}
+                animateOverlayLabelsOpacity
+                animateCardOpacity
 
-                {/* Swipe Indicators */}
-                <Animated.View
-                  style={[
-                    styles.swipeIndicator,
-                    styles.swipeIndicatorLeft,
-                    {
-                      opacity: pan.x.interpolate({
-                        inputRange: [-200, -50, 0],
-                        outputRange: [1, 0.5, 0],
-                        extrapolate: 'clamp',
-                      }),
-                    },
-                  ]}
-                >
-                  <Text style={styles.swipeIndicatorText}>SARAH</Text>
-                </Animated.View>
-
-                <Animated.View
-                  style={[
-                    styles.swipeIndicator,
-                    styles.swipeIndicatorRight,
-                    {
-                      opacity: pan.x.interpolate({
-                        inputRange: [0, 50, 200],
-                        outputRange: [0, 0.5, 1],
-                        extrapolate: 'clamp',
-                      }),
-                    },
-                  ]}
-                >
-                  <Text style={styles.swipeIndicatorText}>MIKE</Text>
-                </Animated.View>
-              </Animated.View>
-            )}
-
-            {/* Next card preview */}
-            {currentCardIndex + 1 < shuffledCards.length && (
-              <View style={[styles.swipeCard, styles.swipeCardBehind]}>
-                <View style={styles.swipeCardContent}>
-                  <Text style={styles.swipeCardTitle}>
-                    {shuffledCards[currentCardIndex + 1].name}
-                  </Text>
-                </View>
-              </View>
+              />
             )}
           </View>
 
@@ -512,7 +378,6 @@ export const DashboardScreen: React.FC = () => {
             onPress={() => {
               setShowSwipeMode(false);
               setCurrentCardIndex(0);
-              pan.setValue({ x: 0, y: 0 });
             }}
           >
             <Text style={styles.swipeCancelButtonText}>Cancel</Text>
@@ -525,7 +390,7 @@ export const DashboardScreen: React.FC = () => {
 
       {/* Edit Card Modal */}
       {selectedCard && <CardEditModal cardName={selectedCard} onClose={() => setSelectedCard(null)} />}
-      </ScrollView>
+    </ScrollView>
   );
 };
 
@@ -536,32 +401,17 @@ interface AddCardModalProps {
 
 const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
   const [cardName, setCardName] = React.useState('');
-  const [selectedOwner, setSelectedOwner] = React.useState<'Sarah' | 'Mike'>('Sarah');
-  const [showFrequencyPicker, setShowFrequencyPicker] = React.useState(false);
-  const [selectedFrequency, setSelectedFrequency] = React.useState('');
-  const [showCategoryPicker, setShowCategoryPicker] = React.useState(false);
-  const [selectedCategory, setSelectedCategory] = React.useState('');
-
-  const frequencies = ['Daily', 'Weekly', 'Monthly', 'Seasonal', 'As-Needed'];
-  const categories = ['Home Care', 'Food & Meals', 'Childcare', 'Financial', 'Social & Family', 'Personal Care'];
+  const [selectedOwner, setSelectedOwner] = React.useState<'Savannah' | 'Kevin'>('Savannah');
 
   const handleAddCard = () => {
     if (!cardName.trim()) {
       Alert.alert('Missing Information', 'Please enter a card name.');
       return;
     }
-    if (!selectedFrequency) {
-      Alert.alert('Missing Information', 'Please select a frequency.');
-      return;
-    }
-    if (!selectedCategory) {
-      Alert.alert('Missing Information', 'Please select a category.');
-      return;
-    }
 
     Alert.alert(
       'Card Added!',
-      `"${cardName}" has been added to ${selectedOwner}'s cards.\n\nFrequency: ${selectedFrequency}\nCategory: ${selectedCategory}`,
+      `"${cardName}" has been added to ${selectedOwner}'s cards.`,
       [{ text: 'OK', onPress: onClose }]
     );
   };
@@ -577,7 +427,7 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
                 <Text style={styles.closeButton}>✕</Text>
               </TouchableOpacity>
             </View>
-            
+
             <TextInput
               style={styles.cardTitleInput}
               placeholder="Card Name"
@@ -589,101 +439,35 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
 
             <View style={styles.modalSection}>
               <View style={styles.ownerButtons}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[
                     styles.ownerButton,
-                    selectedOwner !== 'Sarah' && styles.ownerButtonInactive
+                    selectedOwner !== 'Savannah' && styles.ownerButtonInactive
                   ]}
-                  onPress={() => setSelectedOwner('Sarah')}
+                  onPress={() => setSelectedOwner('Savannah')}
                 >
                   <Text style={[
                     styles.ownerButtonText,
-                    selectedOwner !== 'Sarah' && styles.ownerButtonTextInactive
+                    selectedOwner !== 'Savannah' && styles.ownerButtonTextInactive
                   ]}>
-                    Sarah
+                    Savannah
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[
                     styles.ownerButton,
-                    selectedOwner !== 'Mike' && styles.ownerButtonInactive
+                    selectedOwner !== 'Kevin' && styles.ownerButtonInactive
                   ]}
-                  onPress={() => setSelectedOwner('Mike')}
+                  onPress={() => setSelectedOwner('Kevin')}
                 >
                   <Text style={[
                     styles.ownerButtonText,
-                    selectedOwner !== 'Mike' && styles.ownerButtonTextInactive
+                    selectedOwner !== 'Kevin' && styles.ownerButtonTextInactive
                   ]}>
-                    Mike
+                    Kevin
                   </Text>
                 </TouchableOpacity>
               </View>
-            </View>
-
-            <View style={styles.modalSection}>
-              <TouchableOpacity 
-                style={styles.dropdownButton}
-                onPress={() => setShowFrequencyPicker(!showFrequencyPicker)}
-              >
-                <Text style={[
-                  styles.dropdownButtonText,
-                  !selectedFrequency && styles.dropdownPlaceholder
-                ]}>
-                  {selectedFrequency || 'Select frequency'}
-                </Text>
-              </TouchableOpacity>
-              {showFrequencyPicker && (
-                <View style={styles.pickerOptions}>
-                  {frequencies.map((freq) => (
-                    <TouchableOpacity
-                      key={freq}
-                      style={styles.pickerOption}
-                      onPress={() => {
-                        setSelectedFrequency(freq);
-                        setShowFrequencyPicker(false);
-                      }}
-                    >
-                      <Text style={styles.pickerOptionText}>{freq}</Text>
-                      {selectedFrequency === freq && (
-                        <Text style={styles.pickerCheckmark}>✓</Text>
-                      )}
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </View>
-
-            <View style={styles.modalSection}>
-              <TouchableOpacity 
-                style={styles.dropdownButton}
-                onPress={() => setShowCategoryPicker(!showCategoryPicker)}
-              >
-                <Text style={[
-                  styles.dropdownButtonText,
-                  !selectedCategory && styles.dropdownPlaceholder
-                ]}>
-                  {selectedCategory || 'Select category'}
-                </Text>
-              </TouchableOpacity>
-              {showCategoryPicker && (
-                <View style={styles.pickerOptions}>
-                  {categories.map((cat) => (
-                    <TouchableOpacity
-                      key={cat}
-                      style={styles.pickerOption}
-                      onPress={() => {
-                        setSelectedCategory(cat);
-                        setShowCategoryPicker(false);
-                      }}
-                    >
-                      <Text style={styles.pickerOptionText}>{cat}</Text>
-                      {selectedCategory === cat && (
-                        <Text style={styles.pickerCheckmark}>✓</Text>
-                      )}
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
             </View>
 
             <View style={styles.modalActions}>
@@ -708,20 +492,13 @@ interface CardEditModalProps {
 }
 
 const CardEditModal: React.FC<CardEditModalProps> = ({ cardName, onClose }) => {
-  const [selectedOwner, setSelectedOwner] = React.useState<'Sarah' | 'Mike'>('Sarah');
-  const [showFrequencyPicker, setShowFrequencyPicker] = React.useState(false);
-  const [selectedFrequency, setSelectedFrequency] = React.useState('Weekly');
-  const [showCategoryPicker, setShowCategoryPicker] = React.useState(false);
-  const [selectedCategory, setSelectedCategory] = React.useState('Home Care');
+  const [selectedOwner, setSelectedOwner] = React.useState<'Savannah' | 'Kevin'>('Savannah');
   const [notes, setNotes] = React.useState('');
-
-  const frequencies = ['Daily', 'Weekly', 'Monthly', 'Seasonal', 'As-Needed'];
-  const categories = ['Home Care', 'Food & Meals', 'Childcare', 'Financial', 'Social & Family', 'Personal Care'];
 
   const handleSave = () => {
     Alert.alert(
       'Card Updated!',
-      `"${cardName}" has been updated.\n\nOwner: ${selectedOwner}\nFrequency: ${selectedFrequency}\nCategory: ${selectedCategory}`,
+      `"${cardName}" has been updated.\n\nOwner: ${selectedOwner}`,
       [{ text: 'OK', onPress: onClose }]
     );
   };
@@ -732,8 +509,8 @@ const CardEditModal: React.FC<CardEditModalProps> = ({ cardName, onClose }) => {
       `Are you sure you want to delete "${cardName}"?`,
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Delete', 
+        {
+          text: 'Delete',
           style: 'destructive',
           onPress: () => {
             Alert.alert('Card Deleted', `"${cardName}" has been removed.`, [{ text: 'OK', onPress: onClose }]);
@@ -753,96 +530,40 @@ const CardEditModal: React.FC<CardEditModalProps> = ({ cardName, onClose }) => {
                 <Text style={styles.closeButton}>✕</Text>
               </TouchableOpacity>
             </View>
-            
+
             <Text style={styles.cardTitleLarge}>{cardName}</Text>
-            
+
             <View style={styles.modalSection}>
               <View style={styles.ownerButtons}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[
                     styles.ownerButton,
-                    selectedOwner !== 'Sarah' && styles.ownerButtonInactive
+                    selectedOwner !== 'Savannah' && styles.ownerButtonInactive
                   ]}
-                  onPress={() => setSelectedOwner('Sarah')}
+                  onPress={() => setSelectedOwner('Savannah')}
                 >
                   <Text style={[
                     styles.ownerButtonText,
-                    selectedOwner !== 'Sarah' && styles.ownerButtonTextInactive
+                    selectedOwner !== 'Savannah' && styles.ownerButtonTextInactive
                   ]}>
-                    Sarah
+                    Savannah
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={[
                     styles.ownerButton,
-                    selectedOwner !== 'Mike' && styles.ownerButtonInactive
+                    selectedOwner !== 'Kevin' && styles.ownerButtonInactive
                   ]}
-                  onPress={() => setSelectedOwner('Mike')}
+                  onPress={() => setSelectedOwner('Kevin')}
                 >
                   <Text style={[
                     styles.ownerButtonText,
-                    selectedOwner !== 'Mike' && styles.ownerButtonTextInactive
+                    selectedOwner !== 'Kevin' && styles.ownerButtonTextInactive
                   ]}>
-                    Mike
+                    Kevin
                   </Text>
                 </TouchableOpacity>
               </View>
-            </View>
-
-            <View style={styles.modalSection}>
-              <TouchableOpacity 
-                style={styles.dropdownButton}
-                onPress={() => setShowFrequencyPicker(!showFrequencyPicker)}
-              >
-                <Text style={styles.dropdownButtonText}>{selectedFrequency}</Text>
-              </TouchableOpacity>
-              {showFrequencyPicker && (
-                <View style={styles.pickerOptions}>
-                  {frequencies.map((freq) => (
-                    <TouchableOpacity
-                      key={freq}
-                      style={styles.pickerOption}
-                      onPress={() => {
-                        setSelectedFrequency(freq);
-                        setShowFrequencyPicker(false);
-                      }}
-                    >
-                      <Text style={styles.pickerOptionText}>{freq}</Text>
-                      {selectedFrequency === freq && (
-                        <Text style={styles.pickerCheckmark}>✓</Text>
-                      )}
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </View>
-
-            <View style={styles.modalSection}>
-              <TouchableOpacity 
-                style={styles.dropdownButton}
-                onPress={() => setShowCategoryPicker(!showCategoryPicker)}
-              >
-                <Text style={styles.dropdownButtonText}>{selectedCategory}</Text>
-              </TouchableOpacity>
-              {showCategoryPicker && (
-                <View style={styles.pickerOptions}>
-                  {categories.map((cat) => (
-                    <TouchableOpacity
-                      key={cat}
-                      style={styles.pickerOption}
-                      onPress={() => {
-                        setSelectedCategory(cat);
-                        setShowCategoryPicker(false);
-                      }}
-                    >
-                      <Text style={styles.pickerOptionText}>{cat}</Text>
-                      {selectedCategory === cat && (
-                        <Text style={styles.pickerCheckmark}>✓</Text>
-                      )}
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
             </View>
 
             <View style={styles.modalSection}>
@@ -932,6 +653,19 @@ const styles = StyleSheet.create({
   },
   filterToggleText: {
     fontSize: 20,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+  tasksButton: {
+    paddingHorizontal: 16,
+    height: 40,
+    borderRadius: 8,
+    backgroundColor: '#dc2626',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  tasksButtonText: {
+    fontSize: 14,
     fontWeight: '600',
     color: '#ffffff',
   },
@@ -1124,7 +858,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  ownerAvatarMike: {
+  ownerAvatarKevin: {
     backgroundColor: '#c026d3',
   },
   ownerAvatarText: {
@@ -1282,8 +1016,8 @@ const styles = StyleSheet.create({
   swipeContainer: {
     flex: 1,
     backgroundColor: '#fafafa',
-    paddingTop: 60,
-    paddingBottom: 40,
+    paddingTop: 40,
+    paddingBottom: 30,
     paddingHorizontal: 20,
   },
   swipeHeader: {
@@ -1305,7 +1039,7 @@ const styles = StyleSheet.create({
   swipeInstructions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 40,
+    marginBottom: 20,
     paddingHorizontal: 20,
   },
   swipeInstructionItem: {
@@ -1330,11 +1064,11 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   swipeCard: {
-    width: '90%',
-    height: 400,
+    height: 250,
+    width: '100%',
     backgroundColor: '#ffffff',
     borderRadius: 20,
-    padding: 30,
+    padding: 20,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -1342,7 +1076,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 5,
-    position: 'absolute',
   },
   swipeCardBehind: {
     opacity: 0.5,
@@ -1352,7 +1085,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   swipeCardTitle: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#111827',
     textAlign: 'center',

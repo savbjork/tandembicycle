@@ -24,13 +24,14 @@ export type AuthStackParamList = {
 // Main Bottom Tab Navigator
 export type MainTabParamList = {
   HomeTab: undefined;
-  HouseholdTab: undefined;
+  TasksTab: undefined;
   ProfileTab: undefined;
 };
 
 // Home Stack (inside Home Tab)
 export type HomeStackParamList = {
   Dashboard: undefined;
+  Tasks: undefined;
   CardDetail: { cardId: string };
 };
 
@@ -52,7 +53,7 @@ export type ProfileStackParamList = {
 
 declare global {
   namespace ReactNavigation {
-    interface RootParamList extends RootStackParamList {}
+    interface RootParamList extends RootStackParamList { }
   }
 }
 
