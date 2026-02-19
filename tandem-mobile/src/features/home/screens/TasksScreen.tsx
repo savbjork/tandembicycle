@@ -126,12 +126,14 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
     },
     title: {
+        fontFamily: 'New York',
         fontSize: 32,
         fontWeight: '700',
         color: '#111827',
         letterSpacing: -0.5,
     },
     subtitle: {
+        fontFamily: 'New York',
         fontSize: 16,
         color: '#6b7280',
         marginTop: 4,
@@ -160,6 +162,7 @@ const styles = StyleSheet.create({
         borderColor: '#c026d3',
     },
     personButtonText: {
+        fontFamily: 'New York',
         fontSize: 16,
         fontWeight: '600',
         color: '#6b7280',
@@ -180,11 +183,13 @@ const styles = StyleSheet.create({
         elevation: 1,
     },
     summaryTitle: {
+        fontFamily: 'New York',
         fontSize: 24,
         fontWeight: '700',
         color: '#111827',
     },
     summarySubtitle: {
+        fontFamily: 'New York',
         fontSize: 14,
         color: '#6b7280',
         marginTop: 4,
@@ -208,6 +213,7 @@ const styles = StyleSheet.create({
         marginBottom: 12,
     },
     cardName: {
+        fontFamily: 'New York',
         fontSize: 18,
         fontWeight: '600',
         color: '#111827',
@@ -226,6 +232,7 @@ const styles = StyleSheet.create({
     },
     taskCountText: {
         color: '#ffffff',
+        fontFamily: 'New York',
         fontSize: 14,
         fontWeight: '700',
     },
@@ -246,6 +253,7 @@ const styles = StyleSheet.create({
         marginRight: 12,
     },
     taskText: {
+        fontFamily: 'New York',
         fontSize: 15,
         color: '#374151',
         flex: 1,
@@ -255,6 +263,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     emptyStateText: {
+        fontFamily: 'New York',
         fontSize: 16,
         color: '#9ca3af',
         textAlign: 'center',

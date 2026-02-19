@@ -27,6 +27,7 @@ export const MainNavigator: React.FC = () => {
           backgroundColor: '#ffffff',
         },
         tabBarLabelStyle: {
+          fontFamily: 'New York',
           fontSize: 12,
           fontWeight: '600',
         },

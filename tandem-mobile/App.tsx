@@ -693,12 +693,14 @@ const styles = StyleSheet.create({
     borderBottomColor: '#f0f0f0',
   },
   headerTitle: {
+    fontFamily: 'New York',
     fontSize: 22,
     fontWeight: '700',
     color: '#111827',
     letterSpacing: -0.5,
   },
   headerSubtitle: {
+    fontFamily: 'New York',
     fontSize: 13,
     color: '#6b7280',
     marginTop: 2,
@@ -710,12 +712,14 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   screenTitle: {
+    fontFamily: 'New York',
     fontSize: 24,
     fontWeight: '700',
     color: '#111827',
     letterSpacing: -0.5,
   },
   screenSubtitle: {
+    fontFamily: 'New York',
     fontSize: 14,
     color: '#6b7280',
     marginTop: 4,
@@ -732,17 +736,20 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   cardTitle: {
+    fontFamily: 'New York',
     fontSize: 16,
     fontWeight: '600',
     color: '#111827',
     marginBottom: 4,
   },
   cardSubtitle: {
+    fontFamily: 'New York',
     fontSize: 13,
     color: '#6b7280',
     marginBottom: 16,
   },
   cardDescription: {
+    fontFamily: 'New York',
     fontSize: 14,
     color: '#6b7280',
     marginBottom: 12,
@@ -765,11 +772,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   balanceTitle: {
+    fontFamily: 'New York',
     fontSize: 16,
     fontWeight: '600',
     color: '#111827',
   },
   balanceSubtitle: {
+    fontFamily: 'New York',
     fontSize: 13,
     color: '#6b7280',
     marginTop: 2,
@@ -793,11 +802,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   balanceStatValue: {
+    fontFamily: 'New York',
     fontSize: 24,
     fontWeight: '700',
     color: '#dc2626',
   },
   balanceStatLabel: {
+    fontFamily: 'New York',
     fontSize: 13,
     color: '#6b7280',
     marginTop: 4,
@@ -822,12 +833,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
   },
   taskName: {
+    fontFamily: 'New York',
     fontSize: 15,
     fontWeight: '600',
     color: '#111827',
     marginBottom: 4,
   },
   taskFrequency: {
+    fontFamily: 'New York',
     fontSize: 12,
     color: '#9ca3af',
   },
@@ -840,16 +853,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statValue: {
+    fontFamily: 'New York',
     fontSize: 24,
     fontWeight: 'bold',
     color: '#111827',
   },
   statValueGood: {
+    fontFamily: 'New York',
     fontSize: 24,
     fontWeight: 'bold',
     color: '#dc2626',
   },
   statLabel: {
+    fontFamily: 'New York',
     fontSize: 12,
     color: '#6b7280',
     marginTop: 4,
@@ -882,6 +898,7 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     color: '#ffffff',
+    fontFamily: 'New York',
     fontSize: 16,
     fontWeight: 'bold',
   },
@@ -892,6 +909,7 @@ const styles = StyleSheet.create({
   },
   avatarTextLarge: {
     color: '#ffffff',
+    fontFamily: 'New York',
     fontSize: 32,
     fontWeight: 'bold',
   },
@@ -900,16 +918,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   memberName: {
+    fontFamily: 'New York',
     fontSize: 16,
     fontWeight: '600',
     color: '#111827',
   },
   memberEmail: {
+    fontFamily: 'New York',
     fontSize: 14,
     color: '#6b7280',
     marginTop: 2,
   },
   memberCards: {
+    fontFamily: 'New York',
     fontSize: 14,
     color: '#6b7280',
     marginTop: 4,
@@ -922,10 +943,12 @@ const styles = StyleSheet.create({
     borderBottomColor: '#f3f4f6',
   },
   statRowLabel: {
+    fontFamily: 'New York',
     fontSize: 14,
     color: '#6b7280',
   },
   statRowValue: {
+    fontFamily: 'New York',
     fontSize: 14,
     fontWeight: '600',
     color: '#111827',
@@ -935,12 +958,14 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   profileName: {
+    fontFamily: 'New York',
     fontSize: 24,
     fontWeight: 'bold',
     color: '#111827',
     marginTop: 16,
   },
   profileEmail: {
+    fontFamily: 'New York',
     fontSize: 16,
     color: '#6b7280',
     marginTop: 4,
@@ -951,6 +976,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#f3f4f6',
   },
   settingText: {
+    fontFamily: 'New York',
     fontSize: 16,
     color: '#111827',
   },
@@ -964,6 +990,7 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   signOutText: {
+    fontFamily: 'New York',
     fontSize: 16,
     fontWeight: '600',
     color: '#111827',
@@ -983,6 +1010,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   navText: {
+    fontFamily: 'New York',
     fontSize: 11,
     color: '#9ca3af',
     fontWeight: '600',
@@ -993,6 +1021,7 @@ const styles = StyleSheet.create({
     color: '#dc2626',
   },
   welcomeSubtitle: {
+    fontFamily: 'New York',
     fontSize: 13,
     color: '#6b7280',
   },
@@ -1019,6 +1048,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   sortButtonText: {
+    fontFamily: 'New York',
     fontSize: 13,
     fontWeight: '700',
     color: '#ffffff',
@@ -1041,6 +1071,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   filterToggleText: {
+    fontFamily: 'New York',
     fontSize: 20,
     fontWeight: '600',
     color: '#ffffff',
@@ -1059,6 +1090,7 @@ const styles = StyleSheet.create({
     borderColor: '#f0f0f0',
   },
   sortMenuTitle: {
+    fontFamily: 'New York',
     fontSize: 13,
     fontWeight: '600',
     color: '#6b7280',
@@ -1075,6 +1107,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#f3f4f6',
   },
   sortMenuItemText: {
+    fontFamily: 'New York',
     fontSize: 15,
     color: '#111827',
   },
@@ -1083,6 +1116,7 @@ const styles = StyleSheet.create({
     color: '#dc2626',
   },
   sortCheckmark: {
+    fontFamily: 'New York',
     fontSize: 16,
     color: '#dc2626',
     fontWeight: 'bold',
@@ -1104,6 +1138,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   filterSectionTitle: {
+    fontFamily: 'New York',
     fontSize: 13,
     fontWeight: '600',
     color: '#6b7280',
@@ -1133,6 +1168,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#dc2626',
   },
   checkboxLabel: {
+    fontFamily: 'New York',
     fontSize: 15,
     color: '#111827',
   },
@@ -1144,6 +1180,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   emptyState: {
+    fontFamily: 'New York',
     fontSize: 14,
     color: '#9ca3af',
     textAlign: 'center',
@@ -1167,15 +1204,18 @@ const styles = StyleSheet.create({
   },
   ownerAvatarText: {
     color: '#ffffff',
+    fontFamily: 'New York',
     fontSize: 13,
     fontWeight: '600',
   },
   taskOwner: {
+    fontFamily: 'New York',
     fontSize: 13,
     fontWeight: '500',
     color: '#6b7280',
   },
   taskCategory: {
+    fontFamily: 'New York',
     fontSize: 13,
     color: '#9ca3af',
   },
@@ -1211,22 +1251,26 @@ const styles = StyleSheet.create({
     marginBottom: 28,
   },
   modalTitle: {
+    fontFamily: 'New York',
     fontSize: 20,
     fontWeight: 'bold',
     color: '#111827',
   },
   closeButton: {
+    fontFamily: 'New York',
     fontSize: 24,
     color: '#6b7280',
     fontWeight: '300',
   },
   cardTitleLarge: {
+    fontFamily: 'New York',
     fontSize: 26,
     fontWeight: 'bold',
     color: '#111827',
     marginBottom: 32,
   },
   cardTitleInput: {
+    fontFamily: 'New York',
     fontSize: 22,
     fontWeight: 'bold',
     color: '#111827',
@@ -1242,6 +1286,7 @@ const styles = StyleSheet.create({
     marginBottom: 28,
   },
   modalLabel: {
+    fontFamily: 'New York',
     fontSize: 15,
     fontWeight: '600',
     color: '#111827',
@@ -1262,6 +1307,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f3f4f6',
   },
   ownerButtonText: {
+    fontFamily: 'New York',
     fontSize: 16,
     fontWeight: '600',
     color: '#ffffff',
@@ -1278,6 +1324,7 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
   },
   dropdownButtonText: {
+    fontFamily: 'New York',
     fontSize: 16,
     color: '#111827',
   },
@@ -1294,6 +1341,7 @@ const styles = StyleSheet.create({
     minHeight: 80,
   },
   textInputPlaceholder: {
+    fontFamily: 'New York',
     fontSize: 14,
     color: '#9ca3af',
   },
@@ -1304,6 +1352,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9fafb',
     borderWidth: 1,
     borderColor: '#e5e7eb',
+    fontFamily: 'New York',
     fontSize: 14,
     color: '#111827',
   },
@@ -1314,6 +1363,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f9fafb',
     borderWidth: 1,
     borderColor: '#e5e7eb',
+    fontFamily: 'New York',
     fontSize: 16,
     color: '#111827',
     minHeight: 100,
@@ -1341,10 +1391,12 @@ const styles = StyleSheet.create({
     borderBottomColor: '#f3f4f6',
   },
   pickerOptionText: {
+    fontFamily: 'New York',
     fontSize: 14,
     color: '#111827',
   },
   pickerCheckmark: {
+    fontFamily: 'New York',
     fontSize: 16,
     color: '#dc2626',
     fontWeight: 'bold',
@@ -1364,6 +1416,7 @@ const styles = StyleSheet.create({
     borderColor: '#fecaca',
   },
   deleteButtonText: {
+    fontFamily: 'New York',
     fontSize: 16,
     fontWeight: '600',
     color: '#dc2626',
@@ -1376,6 +1429,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   saveButtonText: {
+    fontFamily: 'New York',
     fontSize: 16,
     fontWeight: '600',
     color: '#ffffff',
@@ -1388,6 +1442,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cancelButtonText: {
+    fontFamily: 'New York',
     fontSize: 16,
     fontWeight: '600',
     color: '#6b7280',
