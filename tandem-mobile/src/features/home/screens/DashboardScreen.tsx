@@ -1,6 +1,9 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Modal, TextInput, Alert } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Modal, Alert } from 'react-native';
+import { Text } from '@shared/components/ui/Text';
+import { TextInput } from '@shared/components/ui/TextInput';
 import Swiper from 'react-native-deck-swiper';
+import { COLORS } from '@shared/constants/colors';
 
 export const DashboardScreen: React.FC = () => {
   const [showFilters, setShowFilters] = React.useState(false);
@@ -43,33 +46,26 @@ export const DashboardScreen: React.FC = () => {
   );
 
   const handleSwipeLeft = (cardIndex: number) => {
-    // Swipe left - assign to Savannah
     const updatedCards = [...shuffledCards];
     updatedCards[cardIndex] = { ...updatedCards[cardIndex], owner: 'Savannah' };
     setShuffledCards(updatedCards);
     setCurrentCardIndex(cardIndex + 1);
-
-    // Check if all cards are done
     if (cardIndex >= shuffledCards.length - 1) {
       finishShuffle(updatedCards);
     }
   };
 
   const handleSwipeRight = (cardIndex: number) => {
-    // Swipe right - assign to Kevin
     const updatedCards = [...shuffledCards];
     updatedCards[cardIndex] = { ...updatedCards[cardIndex], owner: 'Kevin' };
     setShuffledCards(updatedCards);
     setCurrentCardIndex(cardIndex + 1);
-
-    // Check if all cards are done
     if (cardIndex >= shuffledCards.length - 1) {
       finishShuffle(updatedCards);
     }
   };
 
   const finishShuffle = (updatedCards: typeof shuffledCards) => {
-    // TODO: Save the updated card assignments
     console.log('Shuffle complete:', updatedCards);
     setShowSwipeMode(false);
     setCurrentCardIndex(0);
@@ -83,55 +79,58 @@ export const DashboardScreen: React.FC = () => {
   };
 
   return (
-    <ScrollView style={styles.content}>
-      <View style={styles.headerRow}>
-        <View style={styles.headerLeft}>
-          <Text style={styles.screenTitle}>Cards</Text>
+    <ScrollView className="flex-1 px-5 pt-5 pb-5 bg-surface-dim">
+      {/* Header */}
+      <View className="flex-row justify-between items-center mb-6">
+        <View className="flex-1">
+          <Text className="text-2xl font-bold text-text tracking-tight">
+            Cards
+          </Text>
         </View>
-        <View style={styles.headerButtons}>
+        <View className="flex-row gap-2 mt-1">
           <TouchableOpacity
-            style={styles.addCardButtonSmall}
+            className="w-10 h-10 rounded-lg bg-primary-600 justify-center items-center"
             onPress={() => setShowAddCard(true)}
           >
-            <Text style={styles.filterToggleText}>+</Text>
+            <Text className="text-xl font-semibold text-white">+</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.filterToggleButton}
+            className="w-10 h-10 rounded-lg bg-primary-600 justify-center items-center"
             onPress={() => setShowFilters(!showFilters)}
           >
-            <Text style={styles.filterToggleText}>☰</Text>
+            <Text className="text-xl font-semibold text-white">☰</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-
-
       {/* Expandable Filter Panel */}
       {showFilters && (
-        <View style={styles.filterPanel}>
-          <View style={styles.filterSection}>
-            <Text style={styles.filterSectionTitle}>People</Text>
+        <View className="bg-surface rounded-xl p-5 mb-6 border border-border-light shadow-sm">
+          <View className="mb-5">
+            <Text className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3">
+              People
+            </Text>
             <TouchableOpacity
-              style={styles.checkboxRow}
+              className="flex-row items-center py-2"
               onPress={() => togglePerson('Savannah')}
             >
-              <View style={styles.checkbox}>
+              <View className="w-5 h-5 rounded border-2 border-border-strong mr-3 justify-center items-center">
                 {selectedPeople.includes('Savannah') && (
-                  <View style={styles.checkboxChecked} />
+                  <View className="w-3 h-3 rounded-sm bg-primary-600" />
                 )}
               </View>
-              <Text style={styles.checkboxLabel}>Savannah</Text>
+              <Text className="text-[15px] text-text">Savannah</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.checkboxRow}
+              className="flex-row items-center py-2"
               onPress={() => togglePerson('Kevin')}
             >
-              <View style={styles.checkbox}>
+              <View className="w-5 h-5 rounded border-2 border-border-strong mr-3 justify-center items-center">
                 {selectedPeople.includes('Kevin') && (
-                  <View style={[styles.checkboxChecked, { backgroundColor: '#c026d3' }]} />
+                  <View className="w-3 h-3 rounded-sm bg-secondary-600" />
                 )}
               </View>
-              <Text style={styles.checkboxLabel}>Kevin</Text>
+              <Text className="text-[15px] text-text">Kevin</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -139,27 +138,39 @@ export const DashboardScreen: React.FC = () => {
 
       {/* Balance Meter */}
       {selectedPeople.length === 2 && (
-        <View style={styles.balanceCard}>
-          <View style={styles.balanceHeader}>
+        <View className="bg-surface rounded-xl p-5 mb-6 shadow-sm">
+          <View className="flex-row justify-between items-start mb-4">
             <View>
-              <Text style={styles.balanceTitle}>Balance</Text>
-              <Text style={styles.balanceSubtitle}>14 cards total</Text>
+              <Text className="text-base font-semibold text-text">
+                Balance
+              </Text>
+              <Text className="text-[13px] text-text-secondary mt-0.5">
+                14 cards total
+              </Text>
             </View>
           </View>
 
-          <View style={styles.balanceBar}>
-            <View style={[styles.balanceBarFill, { width: '43%', backgroundColor: '#dc2626' }]} />
-            <View style={[styles.balanceBarFill, { width: '57%', backgroundColor: '#c026d3' }]} />
+          <View className="h-2 bg-border-muted rounded-full flex-row overflow-hidden mb-4">
+            <View className="h-full bg-primary-600" style={{ width: '43%' }} />
+            <View className="h-full bg-secondary-600" style={{ width: '57%' }} />
           </View>
 
-          <View style={styles.balanceStats}>
-            <View style={styles.balanceStat}>
-              <Text style={styles.balanceStatValue}>6</Text>
-              <Text style={styles.balanceStatLabel}>Savannah</Text>
+          <View className="flex-row justify-around">
+            <View className="items-center">
+              <Text className="text-2xl font-bold text-primary-600">
+                6
+              </Text>
+              <Text className="text-[13px] text-text-secondary mt-1">
+                Savannah
+              </Text>
             </View>
-            <View style={styles.balanceStat}>
-              <Text style={[styles.balanceStatValue, { color: '#c026d3' }]}>8</Text>
-              <Text style={styles.balanceStatLabel}>Kevin</Text>
+            <View className="items-center">
+              <Text className="text-2xl font-bold text-secondary-600">
+                8
+              </Text>
+              <Text className="text-[13px] text-text-secondary mt-1">
+                Kevin
+              </Text>
             </View>
           </View>
         </View>
@@ -171,22 +182,21 @@ export const DashboardScreen: React.FC = () => {
           {filteredCards.map((card, i) => (
             <TouchableOpacity
               key={i}
-              style={[
-                styles.taskCard,
-                card.owner === 'Kevin' && styles.partnerTaskCard
-              ]}
+              className="bg-surface p-4 rounded-xl mb-3 flex-row justify-between items-center border border-border-light shadow-sm"
               onPress={() => setSelectedCard(card.name)}
             >
-              <View style={styles.taskCardContent}>
-                <Text style={styles.taskName}>{card.name}</Text>
+              <View className="flex-1">
+                <Text className="text-[15px] font-semibold text-text mb-1">
+                  {card.name}
+                </Text>
               </View>
               {selectedPeople.length > 1 && (
-                <View style={styles.taskCardOwner}>
-                  <View style={[
-                    styles.ownerAvatar,
-                    card.owner === 'Kevin' && styles.ownerAvatarKevin
-                  ]}>
-                    <Text style={styles.ownerAvatarText}>
+                <View className="ml-3">
+                  <View
+                    className={`w-8 h-8 rounded-full items-center justify-center ${card.owner === 'Kevin' ? 'bg-secondary-600' : 'bg-primary-600'
+                      }`}
+                  >
+                    <Text className="text-white text-[13px] font-semibold">
                       {card.owner === 'Savannah' ? 'S' : 'M'}
                     </Text>
                   </View>
@@ -198,16 +208,20 @@ export const DashboardScreen: React.FC = () => {
           {/* Shuffle Cards Button */}
           {selectedPeople.length === 2 && (
             <TouchableOpacity
-              style={styles.shuffleButton}
+              className="bg-primary-600 rounded-xl py-4 px-6 mb-6 items-center shadow-md"
               onPress={() => setShowShuffleModal(true)}
             >
-              <Text style={styles.shuffleButtonText}>Shuffle Cards</Text>
+              <Text className="text-lg font-bold text-white tracking-tight">
+                Shuffle Cards
+              </Text>
             </TouchableOpacity>
           )}
         </>
       ) : (
-        <View style={styles.emptyStateContainer}>
-          <Text style={styles.emptyState}>No cards match your filters</Text>
+        <View className="bg-surface rounded-xl p-10 items-center mt-5">
+          <Text className="text-sm text-text-muted text-center">
+            No cards match your filters
+          </Text>
         </View>
       )}
 
@@ -218,48 +232,58 @@ export const DashboardScreen: React.FC = () => {
         animationType="fade"
         onRequestClose={() => setShowShuffleModal(false)}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modal}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Shuffle Cards</Text>
+        <View className="flex-1 bg-black/50 justify-center items-center p-5">
+          <View className="bg-surface rounded-2xl p-6 w-[90%] max-h-[80%] shadow-lg">
+            <View className="flex-row justify-between items-center mb-4">
+              <Text className="text-[22px] font-bold text-text">
+                Shuffle Cards
+              </Text>
               <TouchableOpacity onPress={() => setShowShuffleModal(false)}>
-                <Text style={styles.closeButton}>✕</Text>
+                <Text className="text-[28px] text-text-secondary font-light leading-7">
+                  ✕
+                </Text>
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.modalDescription}>
-              Redistribute cards between Savannah and Kevin to create a more balanced household.
+            <Text className="text-sm text-text-secondary mb-6 leading-5">
+              Redistribute cards between Savannah and Kevin to create a more
+              balanced household.
             </Text>
 
             <TouchableOpacity
-              style={styles.modalOptionButton}
+              className="bg-surface-muted border-2 border-border rounded-xl p-4 mb-3"
               onPress={() => {
                 setShowShuffleModal(false);
-                // TODO: Implement start from scratch
                 console.log('Start from scratch');
               }}
             >
-              <Text style={styles.modalOptionTitle}>🎲 Start From Scratch</Text>
-              <Text style={styles.modalOptionDescription}>
+              <Text className="text-base font-semibold text-text mb-1.5">
+                🎲 Start From Scratch
+              </Text>
+              <Text className="text-[13px] text-text-secondary leading-[18px]">
                 Randomly redistribute all cards between both people
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.modalOptionButton}
+              className="bg-surface-muted border-2 border-border rounded-xl p-4 mb-3"
               onPress={startSwipeShuffle}
             >
-              <Text style={styles.modalOptionTitle}>♻️ Use Existing Cards</Text>
-              <Text style={styles.modalOptionDescription}>
+              <Text className="text-base font-semibold text-text mb-1.5">
+                ♻️ Use Existing Cards
+              </Text>
+              <Text className="text-[13px] text-text-secondary leading-[18px]">
                 Swipe left for Savannah, right for Kevin
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.cancelButton}
+              className="bg-surface border-2 border-border rounded-xl py-3 mt-2 items-center"
               onPress={() => setShowShuffleModal(false)}
             >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
+              <Text className="text-base font-semibold text-text-secondary">
+                Cancel
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -272,37 +296,47 @@ export const DashboardScreen: React.FC = () => {
         animationType="fade"
         onRequestClose={() => setShowSwipeMode(false)}
       >
-        <View style={styles.swipeContainer}>
+        <View className="flex-1 bg-surface-dim pt-10 pb-[30px] px-5">
           {/* Header */}
-          <View style={styles.swipeHeader}>
-            <Text style={styles.swipeTitle}>Assign Cards</Text>
-            <Text style={styles.swipeProgress}>
+          <View className="flex-row justify-between items-center mb-5">
+            <Text className="text-2xl font-bold text-text">
+              Assign Cards
+            </Text>
+            <Text className="text-lg font-semibold text-text-secondary">
               {currentCardIndex} / {shuffledCards.length}
             </Text>
           </View>
 
           {/* Instructions */}
-          <View style={styles.swipeInstructions}>
-            <View style={styles.swipeInstructionItem}>
-              <Text style={styles.swipeInstructionArrow}>←</Text>
-              <Text style={styles.swipeInstructionText}>Savannah</Text>
+          <View className="flex-row justify-between mb-5 px-5">
+            <View className="flex-row items-center gap-2">
+              <Text className="text-2xl font-bold text-primary-600">
+                ←
+              </Text>
+              <Text className="text-base font-semibold text-text">
+                Savannah
+              </Text>
             </View>
-            <View style={styles.swipeInstructionItem}>
-              <Text style={styles.swipeInstructionText}>Kevin</Text>
-              <Text style={styles.swipeInstructionArrow}>→</Text>
+            <View className="flex-row items-center gap-2">
+              <Text className="text-base font-semibold text-text">
+                Kevin
+              </Text>
+              <Text className="text-2xl font-bold text-primary-600">
+                →
+              </Text>
             </View>
           </View>
 
           {/* Card Stack with Swiper */}
-          <View style={styles.cardStack}>
+          <View className="flex-1 justify-center items-center relative">
             {shuffledCards.length > 0 && (
               <Swiper
                 ref={swiperRef}
                 cards={shuffledCards}
                 renderCard={(card) => (
-                  <View style={styles.swipeCard}>
-                    <View style={styles.swipeCardContent}>
-                      <Text style={styles.swipeCardTitle}>
+                  <View className="h-[250px] w-full bg-surface rounded-2xl p-5 justify-center items-center shadow-lg">
+                    <View className="items-center">
+                      <Text className="text-2xl font-bold text-text text-center mb-4">
                         {card.name}
                       </Text>
                     </View>
@@ -328,9 +362,9 @@ export const DashboardScreen: React.FC = () => {
                     title: 'SAVANNAH',
                     style: {
                       label: {
-                        backgroundColor: '#dc2626',
-                        color: '#ffffff',
-                        fontFamily: 'New York',
+                        backgroundColor: COLORS.primary[600],
+                        color: COLORS.white,
+                        fontFamily: 'Barriecito-Regular',
                         fontSize: 18,
                         fontWeight: 'bold',
                         borderRadius: 8,
@@ -342,16 +376,16 @@ export const DashboardScreen: React.FC = () => {
                         justifyContent: 'flex-start',
                         marginTop: 30,
                         marginLeft: -30,
-                      }
-                    }
+                      },
+                    },
                   },
                   right: {
                     title: 'KEVIN',
                     style: {
                       label: {
-                        backgroundColor: '#c026d3',
-                        color: '#ffffff',
-                        fontFamily: 'New York',
+                        backgroundColor: COLORS.secondary[600],
+                        color: COLORS.white,
+                        fontFamily: 'Barriecito-Regular',
                         fontSize: 18,
                         fontWeight: 'bold',
                         borderRadius: 8,
@@ -363,26 +397,27 @@ export const DashboardScreen: React.FC = () => {
                         justifyContent: 'flex-start',
                         marginTop: 30,
                         marginLeft: 30,
-                      }
-                    }
-                  }
+                      },
+                    },
+                  },
                 }}
                 animateOverlayLabelsOpacity
                 animateCardOpacity
-
               />
             )}
           </View>
 
           {/* Cancel Button */}
           <TouchableOpacity
-            style={styles.swipeCancelButton}
+            className="bg-surface border-2 border-border rounded-xl py-3.5 items-center mt-5"
             onPress={() => {
               setShowSwipeMode(false);
               setCurrentCardIndex(0);
             }}
           >
-            <Text style={styles.swipeCancelButtonText}>Cancel</Text>
+            <Text className="text-base font-semibold text-text-secondary">
+              Cancel
+            </Text>
           </TouchableOpacity>
         </View>
       </Modal>
@@ -396,7 +431,8 @@ export const DashboardScreen: React.FC = () => {
   );
 };
 
-// Add Card Modal Component
+// ─── Add Card Modal ───────────────────────────────────────────────────────────
+
 interface AddCardModalProps {
   onClose: () => void;
 }
@@ -420,64 +456,73 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
 
   return (
     <Modal visible={true} transparent={true} animationType="fade">
-      <View style={styles.modalOverlay}>
-        <View style={styles.modal}>
+      <View className="flex-1 bg-black/50 justify-center items-center p-5">
+        <View className="bg-surface rounded-2xl p-6 w-[90%] max-h-[80%] shadow-lg">
           <ScrollView bounces={false} showsVerticalScrollIndicator={false}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Add New Card</Text>
+            <View className="flex-row justify-between items-center mb-4">
+              <Text className="text-[22px] font-bold text-text">
+                Add New Card
+              </Text>
               <TouchableOpacity onPress={onClose}>
-                <Text style={styles.closeButton}>✕</Text>
+                <Text className="text-[28px] text-text-secondary font-light leading-7">
+                  ✕
+                </Text>
               </TouchableOpacity>
             </View>
 
             <TextInput
-              style={styles.cardTitleInput}
+              className="text-[22px] font-bold text-text mb-8 py-3.5 px-4 rounded-xl bg-surface-muted border border-border"
               placeholder="Card Name"
-              placeholderTextColor="#9ca3af"
               value={cardName}
               onChangeText={setCardName}
               autoFocus
             />
 
-            <View style={styles.modalSection}>
-              <View style={styles.ownerButtons}>
+            <View className="mb-7">
+              <View className="flex-row gap-2">
                 <TouchableOpacity
-                  style={[
-                    styles.ownerButton,
-                    selectedOwner !== 'Savannah' && styles.ownerButtonInactive
-                  ]}
+                  className={`flex-1 py-4 rounded-[10px] items-center ${selectedOwner === 'Savannah' ? 'bg-primary-600' : 'bg-surface-hover'
+                    }`}
                   onPress={() => setSelectedOwner('Savannah')}
                 >
-                  <Text style={[
-                    styles.ownerButtonText,
-                    selectedOwner !== 'Savannah' && styles.ownerButtonTextInactive
-                  ]}>
+                  <Text
+                    className={`text-base font-semibold ${selectedOwner === 'Savannah' ? 'text-white' : 'text-text-secondary'
+                      }`}
+                  >
                     Savannah
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[
-                    styles.ownerButton,
-                    selectedOwner !== 'Kevin' && styles.ownerButtonInactive
-                  ]}
+                  className={`flex-1 py-4 rounded-[10px] items-center ${selectedOwner === 'Kevin' ? 'bg-primary-600' : 'bg-surface-hover'
+                    }`}
                   onPress={() => setSelectedOwner('Kevin')}
                 >
-                  <Text style={[
-                    styles.ownerButtonText,
-                    selectedOwner !== 'Kevin' && styles.ownerButtonTextInactive
-                  ]}>
+                  <Text
+                    className={`text-base font-semibold ${selectedOwner === 'Kevin' ? 'text-white' : 'text-text-secondary'
+                      }`}
+                  >
                     Kevin
                   </Text>
                 </TouchableOpacity>
               </View>
             </View>
 
-            <View style={styles.modalActions}>
-              <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+            <View className="flex-row gap-3 mt-8">
+              <TouchableOpacity
+                className="flex-1 py-4 rounded-[10px] bg-surface border-2 border-border items-center"
+                onPress={onClose}
+              >
+                <Text className="text-base font-semibold text-text-secondary">
+                  Cancel
+                </Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.saveButton} onPress={handleAddCard}>
-                <Text style={styles.saveButtonText}>Add Card</Text>
+              <TouchableOpacity
+                className="flex-1 py-4 rounded-[10px] bg-primary-600 items-center"
+                onPress={handleAddCard}
+              >
+                <Text className="text-base font-semibold text-white">
+                  Add Card
+                </Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -487,7 +532,8 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
   );
 };
 
-// Edit Card Modal Component
+// ─── Edit Card Modal ──────────────────────────────────────────────────────────
+
 interface CardEditModalProps {
   cardName: string;
   onClose: () => void;
@@ -516,76 +562,86 @@ const CardEditModal: React.FC<CardEditModalProps> = ({ cardName, onClose }) => {
           style: 'destructive',
           onPress: () => {
             Alert.alert('Card Deleted', `"${cardName}" has been removed.`, [{ text: 'OK', onPress: onClose }]);
-          }
-        }
+          },
+        },
       ]
     );
   };
 
   return (
     <Modal visible={true} transparent={true} animationType="fade">
-      <View style={styles.modalOverlay}>
-        <View style={styles.modal}>
+      <View className="flex-1 bg-black/50 justify-center items-center p-5">
+        <View className="bg-surface rounded-2xl p-6 w-[90%] max-h-[80%] shadow-lg">
           <ScrollView bounces={false} showsVerticalScrollIndicator={false}>
-            <View style={styles.modalHeader}>
+            <View className="flex-row justify-between items-center mb-4">
               <TouchableOpacity onPress={onClose}>
-                <Text style={styles.closeButton}>✕</Text>
+                <Text className="text-[28px] text-text-secondary font-light leading-7">
+                  ✕
+                </Text>
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.cardTitleLarge}>{cardName}</Text>
+            <Text className="text-[26px] font-bold text-text mb-8">
+              {cardName}
+            </Text>
 
-            <View style={styles.modalSection}>
-              <View style={styles.ownerButtons}>
+            <View className="mb-7">
+              <View className="flex-row gap-2">
                 <TouchableOpacity
-                  style={[
-                    styles.ownerButton,
-                    selectedOwner !== 'Savannah' && styles.ownerButtonInactive
-                  ]}
+                  className={`flex-1 py-4 rounded-[10px] items-center ${selectedOwner === 'Savannah' ? 'bg-primary-600' : 'bg-surface-hover'
+                    }`}
                   onPress={() => setSelectedOwner('Savannah')}
                 >
-                  <Text style={[
-                    styles.ownerButtonText,
-                    selectedOwner !== 'Savannah' && styles.ownerButtonTextInactive
-                  ]}>
+                  <Text
+                    className={`text-base font-semibold ${selectedOwner === 'Savannah' ? 'text-white' : 'text-text-secondary'
+                      }`}
+                  >
                     Savannah
                   </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[
-                    styles.ownerButton,
-                    selectedOwner !== 'Kevin' && styles.ownerButtonInactive
-                  ]}
+                  className={`flex-1 py-4 rounded-[10px] items-center ${selectedOwner === 'Kevin' ? 'bg-primary-600' : 'bg-surface-hover'
+                    }`}
                   onPress={() => setSelectedOwner('Kevin')}
                 >
-                  <Text style={[
-                    styles.ownerButtonText,
-                    selectedOwner !== 'Kevin' && styles.ownerButtonTextInactive
-                  ]}>
+                  <Text
+                    className={`text-base font-semibold ${selectedOwner === 'Kevin' ? 'text-white' : 'text-text-secondary'
+                      }`}
+                  >
                     Kevin
                   </Text>
                 </TouchableOpacity>
               </View>
             </View>
 
-            <View style={styles.modalSection}>
+            <View className="mb-7">
               <TextInput
-                style={styles.textInputMultiline}
+                className="py-3.5 px-[18px] rounded-[10px] bg-surface-muted border border-border text-base text-text min-h-[100px]"
                 placeholder="Add notes..."
-                placeholderTextColor="#9ca3af"
                 value={notes}
                 onChangeText={setNotes}
                 multiline
                 numberOfLines={3}
+                style={{ textAlignVertical: 'top' }}
               />
             </View>
 
-            <View style={styles.modalActions}>
-              <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-                <Text style={styles.deleteButtonText}>Delete</Text>
+            <View className="flex-row gap-3 mt-8">
+              <TouchableOpacity
+                className="flex-1 py-4 rounded-[10px] bg-primary-50 items-center border border-primary-200"
+                onPress={handleDelete}
+              >
+                <Text className="text-base font-semibold text-primary-600">
+                  Delete
+                </Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-                <Text style={styles.saveButtonText}>Save</Text>
+              <TouchableOpacity
+                className="flex-1 py-4 rounded-[10px] bg-primary-600 items-center"
+                onPress={handleSave}
+              >
+                <Text className="text-base font-semibold text-white">
+                  Save
+                </Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -594,735 +650,3 @@ const CardEditModal: React.FC<CardEditModalProps> = ({ cardName, onClose }) => {
     </Modal>
   );
 };
-
-const styles = StyleSheet.create({
-  content: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 20,
-    backgroundColor: '#fafafa',
-  },
-  screenTitle: {
-    fontFamily: 'New York',
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#111827',
-    letterSpacing: -0.5,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  headerLeft: {
-    flex: 1,
-  },
-  headerButtons: {
-    flexDirection: 'row',
-    gap: 8,
-    marginTop: 4,
-  },
-  sortButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
-    backgroundColor: '#dc2626',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  sortButtonText: {
-    fontFamily: 'New York',
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#ffffff',
-    letterSpacing: -0.5,
-  },
-  addCardButtonSmall: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
-    backgroundColor: '#dc2626',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  filterToggleButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
-    backgroundColor: '#dc2626',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  filterToggleText: {
-    fontFamily: 'New York',
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-  tasksButton: {
-    paddingHorizontal: 16,
-    height: 40,
-    borderRadius: 8,
-    backgroundColor: '#dc2626',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  tasksButtonText: {
-    fontFamily: 'New York',
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-  sortMenu: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 1,
-    borderWidth: 1,
-    borderColor: '#f0f0f0',
-  },
-  sortMenuTitle: {
-    fontFamily: 'New York',
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#6b7280',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 12,
-  },
-  sortMenuItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
-  },
-  sortMenuItemText: {
-    fontFamily: 'New York',
-    fontSize: 15,
-    color: '#111827',
-  },
-  sortMenuItemTextActive: {
-    fontWeight: '600',
-    color: '#dc2626',
-  },
-  sortCheckmark: {
-    fontFamily: 'New York',
-    fontSize: 16,
-    color: '#dc2626',
-    fontWeight: 'bold',
-  },
-  filterPanel: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 1,
-    borderWidth: 1,
-    borderColor: '#f0f0f0',
-  },
-  filterSection: {
-    marginBottom: 20,
-  },
-  filterSectionTitle: {
-    fontFamily: 'New York',
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#6b7280',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginBottom: 12,
-  },
-  checkboxRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: '#d1d5db',
-    marginRight: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkboxChecked: {
-    width: 12,
-    height: 12,
-    borderRadius: 2,
-    backgroundColor: '#dc2626',
-  },
-  checkboxLabel: {
-    fontFamily: 'New York',
-    fontSize: 15,
-    color: '#111827',
-  },
-  balanceCard: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 1,
-  },
-  balanceHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 16,
-  },
-  balanceTitle: {
-    fontFamily: 'New York',
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#111827',
-  },
-  balanceSubtitle: {
-    fontFamily: 'New York',
-    fontSize: 13,
-    color: '#6b7280',
-    marginTop: 2,
-  },
-  balanceBar: {
-    height: 8,
-    backgroundColor: '#f3f4f6',
-    borderRadius: 4,
-    flexDirection: 'row',
-    overflow: 'hidden',
-    marginBottom: 16,
-  },
-  balanceBarFill: {
-    height: '100%',
-  },
-  balanceStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  balanceStat: {
-    alignItems: 'center',
-  },
-  balanceStatValue: {
-    fontFamily: 'New York',
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#dc2626',
-  },
-  balanceStatLabel: {
-    fontFamily: 'New York',
-    fontSize: 13,
-    color: '#6b7280',
-    marginTop: 4,
-  },
-  taskCard: {
-    backgroundColor: '#ffffff',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-    borderWidth: 1,
-    borderColor: '#f0f0f0',
-  },
-  partnerTaskCard: {
-    backgroundColor: '#ffffff',
-  },
-  taskName: {
-    fontFamily: 'New York',
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#111827',
-    marginBottom: 4,
-  },
-  taskCategory: {
-    fontFamily: 'New York',
-    fontSize: 13,
-    color: '#9ca3af',
-  },
-  taskCardContent: {
-    flex: 1,
-  },
-  taskCardOwner: {
-    marginLeft: 12,
-  },
-  ownerAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#dc2626',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  ownerAvatarKevin: {
-    backgroundColor: '#c026d3',
-  },
-  ownerAvatarText: {
-    color: '#ffffff',
-    fontFamily: 'New York',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  emptyStateContainer: {
-    backgroundColor: '#ffffff',
-    borderRadius: 12,
-    padding: 40,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  emptyState: {
-    fontFamily: 'New York',
-    fontSize: 14,
-    color: '#9ca3af',
-    textAlign: 'center',
-  },
-  shuffleButton: {
-    backgroundColor: '#dc2626',
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    marginBottom: 24,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  shuffleButtonText: {
-    fontFamily: 'New York',
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#ffffff',
-    letterSpacing: -0.5,
-  },
-  bottomSheetOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  bottomSheet: {
-    backgroundColor: '#ffffff',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    maxHeight: '85%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 10,
-  },
-  bottomSheetHandle: {
-    width: 40,
-    height: 4,
-    backgroundColor: '#d1d5db',
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginTop: 12,
-    marginBottom: 8,
-  },
-  bottomSheetContent: {
-    paddingHorizontal: 24,
-    paddingBottom: 32,
-  },
-  bottomSheetHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-    paddingTop: 8,
-  },
-  bottomSheetTitle: {
-    fontFamily: 'New York',
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#111827',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  modal: {
-    backgroundColor: '#ffffff',
-    borderRadius: 20,
-    padding: 24,
-    width: '90%',
-    maxHeight: '80%',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  modalTitle: {
-    fontFamily: 'New York',
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#111827',
-  },
-  closeButton: {
-    fontFamily: 'New York',
-    fontSize: 28,
-    color: '#6b7280',
-    fontWeight: '300',
-    lineHeight: 28,
-  },
-  modalDescription: {
-    fontFamily: 'New York',
-    fontSize: 14,
-    color: '#6b7280',
-    marginBottom: 24,
-    lineHeight: 20,
-  },
-  modalOptionButton: {
-    backgroundColor: '#f9fafb',
-    borderWidth: 2,
-    borderColor: '#e5e7eb',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-  },
-  modalOptionTitle: {
-    fontFamily: 'New York',
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#111827',
-    marginBottom: 6,
-  },
-  modalOptionDescription: {
-    fontFamily: 'New York',
-    fontSize: 13,
-    color: '#6b7280',
-    lineHeight: 18,
-  },
-  cancelButton: {
-    backgroundColor: '#ffffff',
-    borderWidth: 2,
-    borderColor: '#e5e7eb',
-    borderRadius: 12,
-    paddingVertical: 12,
-    marginTop: 8,
-    alignItems: 'center',
-  },
-  cancelButtonText: {
-    fontFamily: 'New York',
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#6b7280',
-  },
-  swipeContainer: {
-    flex: 1,
-    backgroundColor: '#fafafa',
-    paddingTop: 40,
-    paddingBottom: 30,
-    paddingHorizontal: 20,
-  },
-  swipeHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  swipeTitle: {
-    fontFamily: 'New York',
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#111827',
-  },
-  swipeProgress: {
-    fontFamily: 'New York',
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#6b7280',
-  },
-  swipeInstructions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-    paddingHorizontal: 20,
-  },
-  swipeInstructionItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  swipeInstructionArrow: {
-    fontFamily: 'New York',
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#dc2626',
-  },
-  swipeInstructionText: {
-    fontFamily: 'New York',
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#111827',
-  },
-  cardStack: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    position: 'relative',
-  },
-  swipeCard: {
-    height: 250,
-    width: '100%',
-    backgroundColor: '#ffffff',
-    borderRadius: 20,
-    padding: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  swipeCardBehind: {
-    opacity: 0.5,
-    transform: [{ scale: 0.95 }],
-  },
-  swipeCardContent: {
-    alignItems: 'center',
-  },
-  swipeCardTitle: {
-    fontFamily: 'New York',
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#111827',
-    textAlign: 'center',
-    marginBottom: 16,
-  },
-  swipeCardCategory: {
-    fontFamily: 'New York',
-    fontSize: 18,
-    color: '#6b7280',
-    marginBottom: 8,
-  },
-  swipeCardFrequency: {
-    fontFamily: 'New York',
-    fontSize: 16,
-    color: '#9ca3af',
-    fontWeight: '500',
-  },
-  swipeIndicator: {
-    position: 'absolute',
-    top: 40,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-    borderWidth: 3,
-  },
-  swipeIndicatorLeft: {
-    left: 40,
-    borderColor: '#dc2626',
-    transform: [{ rotate: '-20deg' }],
-  },
-  swipeIndicatorRight: {
-    right: 40,
-    borderColor: '#c026d3',
-    transform: [{ rotate: '20deg' }],
-  },
-  swipeIndicatorText: {
-    fontFamily: 'New York',
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  swipeCancelButton: {
-    backgroundColor: '#ffffff',
-    borderWidth: 2,
-    borderColor: '#e5e7eb',
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  swipeCancelButtonText: {
-    fontFamily: 'New York',
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#6b7280',
-  },
-  modalScrollContent: {
-    flexGrow: 0,
-    paddingHorizontal: 0,
-    paddingVertical: 0,
-  },
-  cardTitleLarge: {
-    fontFamily: 'New York',
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#111827',
-    marginBottom: 32,
-  },
-  cardTitleInput: {
-    fontFamily: 'New York',
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#111827',
-    marginBottom: 32,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    backgroundColor: '#f9fafb',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  modalSection: {
-    marginBottom: 28,
-  },
-  modalLabel: {
-    fontFamily: 'New York',
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#111827',
-    marginBottom: 12,
-  },
-  ownerButtons: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  ownerButton: {
-    flex: 1,
-    paddingVertical: 16,
-    borderRadius: 10,
-    backgroundColor: '#dc2626',
-    alignItems: 'center',
-  },
-  ownerButtonInactive: {
-    backgroundColor: '#f3f4f6',
-  },
-  ownerButtonText: {
-    fontFamily: 'New York',
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-  ownerButtonTextInactive: {
-    color: '#6b7280',
-  },
-  dropdownButton: {
-    paddingVertical: 16,
-    paddingHorizontal: 18,
-    borderRadius: 10,
-    backgroundColor: '#f3f4f6',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  dropdownButtonText: {
-    fontFamily: 'New York',
-    fontSize: 16,
-    color: '#111827',
-  },
-  dropdownPlaceholder: {
-    color: '#9ca3af',
-  },
-  textInputMultiline: {
-    paddingVertical: 14,
-    paddingHorizontal: 18,
-    borderRadius: 10,
-    backgroundColor: '#f9fafb',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    fontFamily: 'New York',
-    fontSize: 16,
-    color: '#111827',
-    minHeight: 100,
-    textAlignVertical: 'top',
-  },
-  pickerOptions: {
-    marginTop: 8,
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  pickerOption: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
-  },
-  pickerOptionText: {
-    fontFamily: 'New York',
-    fontSize: 14,
-    color: '#111827',
-  },
-  pickerCheckmark: {
-    fontFamily: 'New York',
-    fontSize: 16,
-    color: '#dc2626',
-    fontWeight: 'bold',
-  },
-  modalActions: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 32,
-  },
-  deleteButton: {
-    flex: 1,
-    paddingVertical: 16,
-    borderRadius: 10,
-    backgroundColor: '#fef2f2',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#fecaca',
-  },
-  deleteButtonText: {
-    fontFamily: 'New York',
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#dc2626',
-  },
-  saveButton: {
-    flex: 1,
-    paddingVertical: 16,
-    borderRadius: 10,
-    backgroundColor: '#dc2626',
-    alignItems: 'center',
-  },
-  saveButtonText: {
-    fontFamily: 'New York',
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-});

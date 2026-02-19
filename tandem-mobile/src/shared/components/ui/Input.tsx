@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Text, TextInput, TextInputProps, StyleSheet } from 'react-native';
+import { View, TextInputProps } from 'react-native';
+import { Text } from '@shared/components/ui/Text';
+import { TextInput } from '@shared/components/ui/TextInput';
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -10,7 +12,7 @@ interface InputProps extends TextInputProps {
 }
 
 /**
- * Input component with label, error, and helper text
+ * Input component with label, error, and helper text – NativeWind edition
  */
 export const Input: React.FC<InputProps> = ({
   label,
@@ -18,75 +20,39 @@ export const Input: React.FC<InputProps> = ({
   helper,
   leftIcon,
   rightIcon,
-  style,
+  className,
   ...props
 }) => {
   const hasError = !!error;
 
   return (
-    <View style={styles.container}>
-      {label && <Text style={styles.label}>{label}</Text>}
-      
-      <View style={[styles.inputContainer, hasError && styles.inputError]}>
-        {leftIcon && <View style={styles.iconLeft}>{leftIcon}</View>}
-        
+    <View className="mb-4">
+      {label && (
+        <Text className="text-text-light font-medium mb-2 text-sm">
+          {label}
+        </Text>
+      )}
+
+      <View
+        className={`flex-row items-center bg-surface border-2 rounded-xl px-4 py-3 ${hasError ? 'border-primary-500' : 'border-border'
+          }`}
+      >
+        {leftIcon && <View className="mr-2">{leftIcon}</View>}
+
         <TextInput
-          style={[styles.input, style]}
-          placeholderTextColor="#9CA3AF"
+          className={`flex-1 text-base text-text ${className ?? ''}`}
           {...props}
         />
-        
-        {rightIcon && <View style={styles.iconRight}>{rightIcon}</View>}
+
+        {rightIcon && <View className="ml-2">{rightIcon}</View>}
       </View>
 
-      {error && <Text style={styles.errorText}>{error}</Text>}
-      {helper && !error && <Text style={styles.helperText}>{helper}</Text>}
+      {error && (
+        <Text className="text-primary-500 text-sm mt-1">{error}</Text>
+      )}
+      {helper && !error && (
+        <Text className="text-text-secondary text-sm mt-1">{helper}</Text>
+      )}
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: 16,
-  },
-  label: {
-    color: '#374151',
-    fontWeight: '500',
-    marginBottom: 8,
-    fontSize: 14,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-    borderWidth: 2,
-    borderColor: '#E5E7EB',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  inputError: {
-    borderColor: '#EF4444',
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    color: '#111827',
-  },
-  iconLeft: {
-    marginRight: 8,
-  },
-  iconRight: {
-    marginLeft: 8,
-  },
-  errorText: {
-    color: '#EF4444',
-    fontSize: 14,
-    marginTop: 4,
-  },
-  helperText: {
-    color: '#6B7280',
-    fontSize: 14,
-    marginTop: 4,
-  },
-});

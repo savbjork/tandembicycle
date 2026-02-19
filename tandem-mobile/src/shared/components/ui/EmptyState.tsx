@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
+import { Text } from '@shared/components/ui/Text';
 import { Button } from './Button';
 
 interface EmptyStateProps {
@@ -23,17 +24,17 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   return (
     <View className="flex-1 items-center justify-center px-6 py-12">
       {icon && <View className="mb-4">{icon}</View>}
-      
+
       <Text className="text-xl font-semibold text-gray-900 text-center mb-2">
         {title}
       </Text>
-      
+
       {description && (
         <Text className="text-gray-500 text-center mb-6">
           {description}
         </Text>
       )}
-      
+
       {actionLabel && onAction && (
         <Button title={actionLabel} onPress={onAction} size="md" />
       )}

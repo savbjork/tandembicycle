@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '@app/navigation/types';
 import { useMockAuth } from '@shared/hooks/useMockAuth';
+import { Text } from '@shared/components/ui/Text';
+import { TextInput } from '@shared/components/ui/TextInput';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'SignIn'>;
 
 export const SignInScreen: React.FC<Props> = ({ navigation }) => {
-  console.log('🟣 SignInScreen - RENDERED! This should be the first screen');
-  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { signIn, isLoading } = useMockAuth();
@@ -18,28 +18,29 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container}
+    <KeyboardAvoidingView
+      className="flex-1 bg-surface-dim"
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView 
-        contentContainerStyle={styles.scrollContent}
+      <ScrollView
+        className="flex-1 flex-grow px-6 pt-[60px] pb-10"
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.header}>
-          <Text style={styles.title}>Welcome Back</Text>
-          <Text style={styles.subtitle}>
+        <View className="mb-10">
+          <Text className="text-[32px] font-bold text-text mb-2">
+            Welcome Back
+          </Text>
+          <Text className="text-base text-text-secondary leading-6">
             Sign in to continue managing your household
           </Text>
         </View>
 
-        <View style={styles.form}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Email</Text>
+        <View className="mb-8">
+          <View className="mb-5">
+            <Text className="text-sm font-semibold text-text mb-2">Email</Text>
             <TextInput
-              style={styles.input}
+              className="bg-surface border border-border rounded-lg px-4 py-3 text-base text-text"
               placeholder="Enter your email"
-              placeholderTextColor="#9ca3af"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -48,12 +49,11 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
             />
           </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Password</Text>
+          <View className="mb-5">
+            <Text className="text-sm font-semibold text-text mb-2">Password</Text>
             <TextInput
-              style={styles.input}
+              className="bg-surface border border-border rounded-lg px-4 py-3 text-base text-text"
               placeholder="Enter your password"
-              placeholderTextColor="#9ca3af"
               value={password}
               onChangeText={setPassword}
               secureTextEntry
@@ -61,133 +61,44 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
             />
           </View>
 
-          <TouchableOpacity style={styles.forgotPassword}>
-            <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+          <TouchableOpacity className="items-end mb-6">
+            <Text className="text-sm text-primary-600 font-medium">
+              Forgot password?
+            </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={[styles.signInButton, isLoading && styles.signInButtonDisabled]}
+          <TouchableOpacity
+            className={`bg-primary-600 rounded-lg py-3.5 items-center ${isLoading ? 'opacity-60' : ''}`}
             onPress={handleSignIn}
             disabled={isLoading}
           >
-            <Text style={styles.signInButtonText}>
+            <Text className="text-base font-semibold text-white">
               {isLoading ? 'Signing In...' : 'Sign In'}
             </Text>
           </TouchableOpacity>
         </View>
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
+        <View className="items-center">
+          <Text className="text-sm text-text-secondary text-center">
             Don't have an account?{' '}
-            <Text 
-              style={styles.linkText}
+            <Text
+              className="text-primary-600 font-semibold"
               onPress={() => navigation.navigate('SignUp')}
             >
               Create Account
             </Text>
           </Text>
-          
-          <TouchableOpacity 
-            style={styles.backToWelcome}
+
+          <TouchableOpacity
+            className="mt-4 py-2"
             onPress={() => navigation.navigate('Welcome')}
           >
-            <Text style={styles.backToWelcomeText}>← Back to Welcome</Text>
+            <Text className="text-sm text-text-secondary text-center">
+              ← Back to Welcome
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fafafa',
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 60,
-    paddingBottom: 40,
-  },
-  header: {
-    marginBottom: 40,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#111827',
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#6b7280',
-    lineHeight: 24,
-  },
-  form: {
-    marginBottom: 32,
-  },
-  inputGroup: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#111827',
-    marginBottom: 8,
-  },
-  input: {
-    backgroundColor: '#ffffff',
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: '#111827',
-  },
-  forgotPassword: {
-    alignItems: 'flex-end',
-    marginBottom: 24,
-  },
-  forgotPasswordText: {
-    fontSize: 14,
-    color: '#dc2626',
-    fontWeight: '500',
-  },
-  signInButton: {
-    backgroundColor: '#dc2626',
-    borderRadius: 8,
-    paddingVertical: 14,
-    alignItems: 'center',
-  },
-  signInButtonDisabled: {
-    opacity: 0.6,
-  },
-  signInButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
-  },
-  footer: {
-    alignItems: 'center',
-  },
-  footerText: {
-    fontSize: 14,
-    color: '#6b7280',
-    textAlign: 'center',
-  },
-  linkText: {
-    color: '#dc2626',
-    fontWeight: '600',
-  },
-  backToWelcome: {
-    marginTop: 16,
-    paddingVertical: 8,
-  },
-  backToWelcomeText: {
-    fontSize: 14,
-    color: '#6b7280',
-    textAlign: 'center',
-  },
-});

@@ -1,33 +1,29 @@
 import React, { useEffect } from 'react';
-import { Text, Platform } from 'react-native';
 import { RootNavigator } from './navigation/RootNavigator';
 import { AppProviders } from './providers/AppProviders';
 import { initializeFirebase, isUsingFirebase } from '@infrastructure/firebase/config';
+import * as SplashScreen from 'expo-splash-screen';
+import { useFonts } from 'expo-font';
 import '../../global.css';
+
+// Keep splash screen visible while fonts load
+SplashScreen.preventAutoHideAsync();
 
 /**
  * App entry point
  */
 export const App: React.FC = () => {
-  // Set a global default font for all Text components
-  useEffect(() => {
-    const defaultFont = Platform.select({
-      ios: 'Helvetica Neue',
-      android: 'sans-serif',
-      default: 'System',
-    });
-
-    // Ensure we don't override existing defaultProps (cast to any to satisfy TypeScript)
-    const TextAny = Text as any;
-    TextAny.defaultProps = TextAny.defaultProps || {};
-    TextAny.defaultProps.style = [
-      TextAny.defaultProps.style,
-      { fontFamily: defaultFont },
-    ];
-  }, []);
+  const [fontsLoaded] = useFonts({
+    'Barriecito-Regular': require('../../assets/fonts/Barriecito/Barriecito-Regular.ttf'),
+  });
 
   useEffect(() => {
-    // Initialize Firebase on app start (only if configured)
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  useEffect(() => {
     initializeFirebase();
 
     if (!isUsingFirebase()) {
@@ -36,6 +32,10 @@ export const App: React.FC = () => {
       console.log('🔥 To enable Firebase, configure .env file');
     }
   }, []);
+
+  if (!fontsLoaded) {
+    return null;
+  }
 
   return (
     <AppProviders>

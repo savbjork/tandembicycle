@@ -7,8 +7,11 @@ module.exports = {
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Barriecito-Regular'],
+        barriecito: ['Barriecito-Regular'],
+      },
       colors: {
-        // Fair Play brand colors - tandem bicycle red theme
         primary: {
           50: '#fef2f2',
           100: '#fee2e2',
@@ -33,13 +36,24 @@ module.exports = {
           800: '#86198f',
           900: '#701a75',
         },
-        // Category colors (subtle)
-        'home-care': '#e0f2fe',
-        'food-meals': '#fef3c7',
-        'childcare': '#ddd6fe',
-        'financial': '#d1fae5',
-        'social-family': '#fce7f3',
-        'personal-care': '#e0e7ff',
+        surface: {
+          DEFAULT: '#ffffff',
+          muted: '#f9fafb',
+          dim: '#fafafa',
+          hover: '#f3f4f6',
+        },
+        border: {
+          DEFAULT: '#e5e7eb',
+          light: '#f0f0f0',
+          muted: '#f3f4f6',
+          strong: '#d1d5db',
+        },
+        text: {
+          DEFAULT: '#111827',
+          secondary: '#6b7280',
+          muted: '#9ca3af',
+          light: '#374151',
+        },
       },
     },
   },

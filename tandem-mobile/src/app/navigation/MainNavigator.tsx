@@ -5,29 +5,27 @@ import { MainTabParamList } from './types';
 import { HomeStackNavigator } from './stacks/HomeStackNavigator';
 import { ProfileStackNavigator } from './stacks/ProfileStackNavigator';
 import { TasksScreen } from '@features/home/screens/TasksScreen';
+import { COLORS } from '@shared/constants/colors';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
-/**
- * Main tab navigator - primary navigation after authentication
- */
 export const MainNavigator: React.FC = () => {
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#dc2626', // primary-600 red
-        tabBarInactiveTintColor: '#9CA3AF',
+        tabBarActiveTintColor: COLORS.primary[600],
+        tabBarInactiveTintColor: COLORS.text.muted,
         tabBarStyle: {
           borderTopWidth: 1,
-          borderTopColor: '#E5E7EB',
+          borderTopColor: COLORS.border.DEFAULT,
           paddingBottom: 8,
           paddingTop: 8,
           height: 60,
-          backgroundColor: '#ffffff',
+          backgroundColor: COLORS.surface.DEFAULT,
         },
         tabBarLabelStyle: {
-          fontFamily: 'New York',
+          fontFamily: 'Barriecito-Regular',
           fontSize: 12,
           fontWeight: '600',
         },

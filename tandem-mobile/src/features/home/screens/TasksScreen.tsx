@@ -1,10 +1,10 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, ScrollView, TouchableOpacity } from 'react-native';
+import { Text } from '@shared/components/ui/Text';
 
 export const TasksScreen: React.FC = () => {
     const [selectedPerson, setSelectedPerson] = React.useState<'Savannah' | 'Kevin'>('Savannah');
 
-    // Sample data - in a real app, this would come from your state/database
     const allCards = [
         { name: 'Daily Tidying', owner: 'Savannah', tasks: ['Wipe counters', 'Put away items', 'Quick vacuum'] },
         { name: 'Laundry', owner: 'Savannah', tasks: ['Wash clothes', 'Dry clothes', 'Fold and put away'] },
@@ -25,43 +25,43 @@ export const TasksScreen: React.FC = () => {
     const userCards = allCards.filter(card => card.owner === selectedPerson);
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView className="flex-1 bg-surface-dim">
             {/* Header */}
-            <View style={styles.header}>
-                <Text style={styles.title}>My Tasks</Text>
-                <Text style={styles.subtitle}>Tasks organized by card</Text>
+            <View className="px-5 pt-[60px] pb-5">
+                <Text className="text-[32px] font-bold text-text tracking-tight">
+                    My Tasks
+                </Text>
+                <Text className="text-base text-text-secondary mt-1">
+                    Tasks organized by card
+                </Text>
             </View>
 
             {/* Person Selector */}
-            <View style={styles.personSelector}>
+            <View className="flex-row gap-3 px-5 mb-5">
                 <TouchableOpacity
-                    style={[
-                        styles.personButton,
-                        selectedPerson === 'Savannah' && styles.personButtonActive,
-                    ]}
+                    className={`flex-1 py-3.5 rounded-xl items-center border-2 ${selectedPerson === 'Savannah'
+                        ? 'bg-primary-600 border-primary-600'
+                        : 'bg-surface border-border'
+                        }`}
                     onPress={() => setSelectedPerson('Savannah')}
                 >
                     <Text
-                        style={[
-                            styles.personButtonText,
-                            selectedPerson === 'Savannah' && styles.personButtonTextActive,
-                        ]}
+                        className={`text-base font-semibold ${selectedPerson === 'Savannah' ? 'text-white' : 'text-text-secondary'
+                            }`}
                     >
                         Savannah
                     </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    style={[
-                        styles.personButton,
-                        selectedPerson === 'Kevin' && styles.personButtonActiveKevin,
-                    ]}
+                    className={`flex-1 py-3.5 rounded-xl items-center border-2 ${selectedPerson === 'Kevin'
+                        ? 'bg-secondary-600 border-secondary-600'
+                        : 'bg-surface border-border'
+                        }`}
                     onPress={() => setSelectedPerson('Kevin')}
                 >
                     <Text
-                        style={[
-                            styles.personButtonText,
-                            selectedPerson === 'Kevin' && styles.personButtonTextActive,
-                        ]}
+                        className={`text-base font-semibold ${selectedPerson === 'Kevin' ? 'text-white' : 'text-text-secondary'
+                            }`}
                     >
                         Kevin
                     </Text>
@@ -69,34 +69,41 @@ export const TasksScreen: React.FC = () => {
             </View>
 
             {/* Summary */}
-            <View style={styles.summaryCard}>
-                <Text style={styles.summaryTitle}>
+            <View className="bg-surface mx-5 mb-5 p-5 rounded-xl shadow-sm">
+                <Text className="text-2xl font-bold text-text">
                     {userCards.length} {userCards.length === 1 ? 'Card' : 'Cards'}
                 </Text>
-                <Text style={styles.summarySubtitle}>
+                <Text className="text-sm text-text-secondary mt-1">
                     {userCards.reduce((sum, card) => sum + card.tasks.length, 0)} total tasks
                 </Text>
             </View>
 
             {/* Cards with Tasks */}
             {userCards.map((card, index) => (
-                <View key={index} style={styles.cardContainer}>
-                    <View style={styles.cardHeader}>
-                        <Text style={styles.cardName}>{card.name}</Text>
+                <View
+                    key={index}
+                    className="bg-surface mx-5 mb-4 rounded-xl p-4 shadow-sm"
+                >
+                    <View className="flex-row justify-between items-center mb-3">
+                        <Text className="text-lg font-semibold text-text flex-1">
+                            {card.name}
+                        </Text>
                         <View
-                            style={[
-                                styles.taskCount,
-                                selectedPerson === 'Kevin' && styles.taskCountKevin,
-                            ]}
+                            className={`w-7 h-7 rounded-full justify-center items-center ${selectedPerson === 'Kevin' ? 'bg-secondary-600' : 'bg-primary-600'
+                                }`}
                         >
-                            <Text style={styles.taskCountText}>{card.tasks.length}</Text>
+                            <Text className="text-white text-sm font-bold">
+                                {card.tasks.length}
+                            </Text>
                         </View>
                     </View>
-                    <View style={styles.tasksList}>
+                    <View className="gap-2">
                         {card.tasks.map((task, taskIndex) => (
-                            <View key={taskIndex} style={styles.taskItem}>
-                                <View style={styles.taskCheckbox} />
-                                <Text style={styles.taskText}>{task}</Text>
+                            <View key={taskIndex} className="flex-row items-center py-2">
+                                <View className="w-5 h-5 rounded border-2 border-border-strong mr-3" />
+                                <Text className="text-[15px] text-text-light flex-1">
+                                    {task}
+                                </Text>
                             </View>
                         ))}
                     </View>
@@ -105,8 +112,8 @@ export const TasksScreen: React.FC = () => {
 
             {/* Empty State */}
             {userCards.length === 0 && (
-                <View style={styles.emptyState}>
-                    <Text style={styles.emptyStateText}>
+                <View className="p-10 items-center">
+                    <Text className="text-base text-text-muted text-center">
                         No cards assigned to {selectedPerson}
                     </Text>
                 </View>
@@ -114,158 +121,3 @@ export const TasksScreen: React.FC = () => {
         </ScrollView>
     );
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fafafa',
-    },
-    header: {
-        paddingHorizontal: 20,
-        paddingTop: 60,
-        paddingBottom: 20,
-    },
-    title: {
-        fontFamily: 'New York',
-        fontSize: 32,
-        fontWeight: '700',
-        color: '#111827',
-        letterSpacing: -0.5,
-    },
-    subtitle: {
-        fontFamily: 'New York',
-        fontSize: 16,
-        color: '#6b7280',
-        marginTop: 4,
-    },
-    personSelector: {
-        flexDirection: 'row',
-        gap: 12,
-        paddingHorizontal: 20,
-        marginBottom: 20,
-    },
-    personButton: {
-        flex: 1,
-        paddingVertical: 14,
-        borderRadius: 12,
-        backgroundColor: '#ffffff',
-        alignItems: 'center',
-        borderWidth: 2,
-        borderColor: '#e5e7eb',
-    },
-    personButtonActive: {
-        backgroundColor: '#dc2626',
-        borderColor: '#dc2626',
-    },
-    personButtonActiveKevin: {
-        backgroundColor: '#c026d3',
-        borderColor: '#c026d3',
-    },
-    personButtonText: {
-        fontFamily: 'New York',
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#6b7280',
-    },
-    personButtonTextActive: {
-        color: '#ffffff',
-    },
-    summaryCard: {
-        backgroundColor: '#ffffff',
-        marginHorizontal: 20,
-        marginBottom: 20,
-        padding: 20,
-        borderRadius: 12,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 3,
-        elevation: 1,
-    },
-    summaryTitle: {
-        fontFamily: 'New York',
-        fontSize: 24,
-        fontWeight: '700',
-        color: '#111827',
-    },
-    summarySubtitle: {
-        fontFamily: 'New York',
-        fontSize: 14,
-        color: '#6b7280',
-        marginTop: 4,
-    },
-    cardContainer: {
-        backgroundColor: '#ffffff',
-        marginHorizontal: 20,
-        marginBottom: 16,
-        borderRadius: 12,
-        padding: 16,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 2,
-        elevation: 1,
-    },
-    cardHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 12,
-    },
-    cardName: {
-        fontFamily: 'New York',
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#111827',
-        flex: 1,
-    },
-    taskCount: {
-        backgroundColor: '#dc2626',
-        width: 28,
-        height: 28,
-        borderRadius: 14,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    taskCountKevin: {
-        backgroundColor: '#c026d3',
-    },
-    taskCountText: {
-        color: '#ffffff',
-        fontFamily: 'New York',
-        fontSize: 14,
-        fontWeight: '700',
-    },
-    tasksList: {
-        gap: 8,
-    },
-    taskItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 8,
-    },
-    taskCheckbox: {
-        width: 20,
-        height: 20,
-        borderRadius: 4,
-        borderWidth: 2,
-        borderColor: '#d1d5db',
-        marginRight: 12,
-    },
-    taskText: {
-        fontFamily: 'New York',
-        fontSize: 15,
-        color: '#374151',
-        flex: 1,
-    },
-    emptyState: {
-        padding: 40,
-        alignItems: 'center',
-    },
-    emptyStateText: {
-        fontFamily: 'New York',
-        fontSize: 16,
-        color: '#9ca3af',
-        textAlign: 'center',
-    },
-});
