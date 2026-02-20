@@ -2,7 +2,6 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { MainTabParamList } from './types';
-import { HomeStackNavigator } from './stacks/HomeStackNavigator';
 import { ProfileStackNavigator } from './stacks/ProfileStackNavigator';
 import { TasksScreen } from '@features/home/screens/TasksScreen';
 import { COLORS } from '@shared/constants/colors';
@@ -31,16 +30,6 @@ export const MainNavigator: React.FC = () => {
         },
       }}
     >
-      <Tab.Screen
-        name="HomeTab"
-        component={HomeStackNavigator}
-        options={{
-          tabBarLabel: 'Home',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
-          ),
-        }}
-      />
       <Tab.Screen
         name="TasksTab"
         component={TasksScreen}

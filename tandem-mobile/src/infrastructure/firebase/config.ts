@@ -37,8 +37,8 @@ let firestore: Firestore | null = null;
 export const initializeFirebase = (): void => {
   // Only initialize if Firebase is properly configured
   if (!isFirebaseConfigured()) {
-    console.log('📱 Running in DEMO MODE - Firebase not configured');
-    console.log('💡 To connect Firebase, follow QUICKSTART.md');
+    console.log('Running in DEMO MODE - Firebase not configured');
+    console.log('To connect Firebase, follow QUICKSTART.md');
     return;
   }
 
@@ -46,7 +46,7 @@ export const initializeFirebase = (): void => {
     app = initializeApp(firebaseConfig);
     auth = getAuth(app);
     firestore = getFirestore(app);
-    console.log('✅ Firebase initialized successfully');
+    console.log('Firebase initialized successfully');
   }
 };
 

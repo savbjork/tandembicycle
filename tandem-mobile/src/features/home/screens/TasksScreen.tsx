@@ -2,36 +2,12 @@ import React from 'react';
 import { View, ScrollView, TouchableOpacity, Modal, Alert } from 'react-native';
 import { Text } from '@shared/components/ui/Text';
 import { TextInput } from '@shared/components/ui/TextInput';
+import { fakeData, type Person, type Task, type Handoff, type TaskStatus, type HandoffStatus } from '@shared/data/FakeDataStore';
+import { DashboardScreen } from './DashboardScreen';
 
-// ─── Types ───────────────────────────────────────────────────
+// ─── View Constants ──────────────────────────────────────────
 
-type TaskStatus = 'To Do' | 'In Progress' | 'Done';
 type ViewMode = 'list' | 'board';
-type Person = 'Savannah' | 'Kevin';
-type HandoffStatus = 'Pending' | 'Accepted' | 'Declined' | 'Canceled';
-
-interface Task {
-    id: string;
-    name: string;
-    card: string;
-    owner: Person;
-    dueDate: string;
-    status: TaskStatus;
-    note?: string;
-}
-
-interface Handoff {
-    id: string;
-    taskId: string;
-    from: Person;
-    to: Person;
-    message: string;
-    createdAt: string;
-    status: HandoffStatus;
-    declineNote?: string;
-}
-
-// ─── Constants ───────────────────────────────────────────────
 
 const STATUS_STYLES: Record<TaskStatus, { bg: string; text: string; headerBg: string; headerText: string; accent: string }> = {
     'To Do': { bg: 'bg-gray-100', text: 'text-gray-600', headerBg: 'bg-gray-200', headerText: 'text-gray-700', accent: 'bg-gray-400' },
@@ -58,94 +34,27 @@ const isOverdue = (dateStr: string): boolean => {
     return date < today;
 };
 
-// ─── Initial Data ────────────────────────────────────────────
-
-const INITIAL_TASKS: Task[] = [
-    { id: 't1', name: 'Wipe counters', card: 'Daily Tidying', owner: 'Savannah', dueDate: '2026-02-20', status: 'In Progress' },
-    { id: 't2', name: 'Put away items', card: 'Daily Tidying', owner: 'Savannah', dueDate: '2026-02-20', status: 'To Do' },
-    { id: 't3', name: 'Quick vacuum', card: 'Daily Tidying', owner: 'Savannah', dueDate: '2026-02-21', status: 'To Do' },
-    { id: 't4', name: 'Wash clothes', card: 'Laundry', owner: 'Savannah', dueDate: '2026-02-20', status: 'Done' },
-    { id: 't5', name: 'Dry clothes', card: 'Laundry', owner: 'Savannah', dueDate: '2026-02-20', status: 'In Progress' },
-    { id: 't6', name: 'Fold and put away', card: 'Laundry', owner: 'Savannah', dueDate: '2026-02-21', status: 'To Do' },
-    { id: 't7', name: 'Plan weekly menu', card: 'Meal Planning', owner: 'Savannah', dueDate: '2026-02-22', status: 'To Do' },
-    { id: 't8', name: 'Make grocery list', card: 'Meal Planning', owner: 'Savannah', dueDate: '2026-02-22', status: 'To Do' },
-    { id: 't9', name: 'Check pantry', card: 'Meal Planning', owner: 'Savannah', dueDate: '2026-02-22', status: 'Done' },
-    { id: 't10', name: 'Review list', card: 'Grocery Shopping', owner: 'Savannah', dueDate: '2026-02-23', status: 'To Do' },
-    { id: 't11', name: 'Shop for groceries', card: 'Grocery Shopping', owner: 'Savannah', dueDate: '2026-02-23', status: 'To Do' },
-    { id: 't12', name: 'Put away groceries', card: 'Grocery Shopping', owner: 'Savannah', dueDate: '2026-02-23', status: 'To Do' },
-    { id: 't13', name: 'Wake kids', card: 'Morning Routine', owner: 'Savannah', dueDate: '2026-02-20', status: 'Done' },
-    { id: 't14', name: 'Make breakfast', card: 'Morning Routine', owner: 'Savannah', dueDate: '2026-02-20', status: 'Done' },
-    { id: 't15', name: 'Pack lunches', card: 'Morning Routine', owner: 'Savannah', dueDate: '2026-02-20', status: 'In Progress' },
-    { id: 't16', name: 'Check emails', card: 'School Communication', owner: 'Savannah', dueDate: '2026-02-20', status: 'Done' },
-    { id: 't17', name: 'Sign forms', card: 'School Communication', owner: 'Savannah', dueDate: '2026-02-24', status: 'To Do' },
-    { id: 't18', name: 'Update calendar', card: 'School Communication', owner: 'Savannah', dueDate: '2026-02-24', status: 'To Do' },
-    { id: 't19', name: 'Load dishwasher', card: 'Dishes & Kitchen Cleanup', owner: 'Kevin', dueDate: '2026-02-20', status: 'To Do' },
-    { id: 't20', name: 'Wipe counters', card: 'Dishes & Kitchen Cleanup', owner: 'Kevin', dueDate: '2026-02-20', status: 'To Do' },
-    { id: 't21', name: 'Take out trash', card: 'Dishes & Kitchen Cleanup', owner: 'Kevin', dueDate: '2026-02-20', status: 'Done' },
-    { id: 't22', name: 'Vacuum all rooms', card: 'Deep Cleaning', owner: 'Kevin', dueDate: '2026-02-23', status: 'To Do' },
-    { id: 't23', name: 'Mop floors', card: 'Deep Cleaning', owner: 'Kevin', dueDate: '2026-02-23', status: 'To Do' },
-    { id: 't24', name: 'Clean bathrooms', card: 'Deep Cleaning', owner: 'Kevin', dueDate: '2026-02-24', status: 'To Do' },
-    { id: 't25', name: 'Take out trash', card: 'Trash & Recycling', owner: 'Kevin', dueDate: '2026-02-21', status: 'In Progress' },
-    { id: 't26', name: 'Sort recycling', card: 'Trash & Recycling', owner: 'Kevin', dueDate: '2026-02-21', status: 'To Do' },
-    { id: 't27', name: 'Clean bins', card: 'Trash & Recycling', owner: 'Kevin', dueDate: '2026-02-22', status: 'To Do' },
-    { id: 't28', name: 'Mow lawn', card: 'Yard Work', owner: 'Kevin', dueDate: '2026-02-25', status: 'To Do' },
-    { id: 't29', name: 'Trim hedges', card: 'Yard Work', owner: 'Kevin', dueDate: '2026-02-25', status: 'To Do' },
-    { id: 't30', name: 'Water plants', card: 'Yard Work', owner: 'Kevin', dueDate: '2026-02-20', status: 'Done' },
-    { id: 't31', name: 'Wash car', card: 'Car Care', owner: 'Kevin', dueDate: '2026-03-01', status: 'To Do' },
-    { id: 't32', name: 'Check oil', card: 'Car Care', owner: 'Kevin', dueDate: '2026-03-01', status: 'To Do' },
-    { id: 't33', name: 'Vacuum interior', card: 'Car Care', owner: 'Kevin', dueDate: '2026-03-01', status: 'To Do' },
-    { id: 't34', name: 'Cook dinner', card: 'Dinner', owner: 'Kevin', dueDate: '2026-02-20', status: 'To Do' },
-    { id: 't35', name: 'Set table', card: 'Dinner', owner: 'Kevin', dueDate: '2026-02-20', status: 'To Do' },
-    { id: 't36', name: 'Clean up', card: 'Dinner', owner: 'Kevin', dueDate: '2026-02-20', status: 'To Do' },
-    { id: 't37', name: 'Bath time', card: 'Bedtime Routine', owner: 'Kevin', dueDate: '2026-02-20', status: 'To Do' },
-    { id: 't38', name: 'Read stories', card: 'Bedtime Routine', owner: 'Kevin', dueDate: '2026-02-20', status: 'In Progress' },
-    { id: 't39', name: 'Tuck in kids', card: 'Bedtime Routine', owner: 'Kevin', dueDate: '2026-02-20', status: 'To Do' },
-    { id: 't40', name: 'Drive to activities', card: 'Kid Activities', owner: 'Kevin', dueDate: '2026-02-22', status: 'To Do' },
-    { id: 't41', name: 'Watch practice', card: 'Kid Activities', owner: 'Kevin', dueDate: '2026-02-22', status: 'To Do' },
-    { id: 't42', name: 'Pick up kids', card: 'Kid Activities', owner: 'Kevin', dueDate: '2026-02-22', status: 'To Do' },
-];
-
-const INITIAL_HANDOFFS: Handoff[] = [
-    {
-        id: 'h1',
-        taskId: 't17',
-        from: 'Savannah',
-        to: 'Kevin',
-        message: 'Got this email from Ms. Smith — permission slip needs to be signed by Friday.',
-        createdAt: '2026-02-20T10:30:00',
-        status: 'Pending',
-    },
-    {
-        id: 'h2',
-        taskId: 't22',
-        from: 'Kevin',
-        to: 'Savannah',
-        message: 'I have a meeting Saturday, can you handle the vacuuming?',
-        createdAt: '2026-02-20T09:15:00',
-        status: 'Pending',
-    },
-    {
-        id: 'h3',
-        taskId: 't6',
-        from: 'Kevin',
-        to: 'Savannah',
-        message: 'Can you fold these? I ran out of time.',
-        createdAt: '2026-02-19T18:00:00',
-        status: 'Declined',
-        declineNote: 'I already did the washing and drying — your turn to fold!',
-    },
-];
-
 // ─── Component ───────────────────────────────────────────────
 
 export const TasksScreen: React.FC = () => {
     const [selectedPerson, setSelectedPerson] = React.useState<Person>('Savannah');
     const [viewMode, setViewMode] = React.useState<ViewMode>('list');
     const [showHandoffs, setShowHandoffs] = React.useState(false);
-    const [tasks, setTasks] = React.useState<Task[]>(INITIAL_TASKS);
-    const [handoffs, setHandoffs] = React.useState<Handoff[]>(INITIAL_HANDOFFS);
+    const [showCreateTask, setShowCreateTask] = React.useState(false);
+    const [showCards, setShowCards] = React.useState(false);
+    const [tasks, setTasks] = React.useState<Task[]>(fakeData.tasks);
+    const [handoffs, setHandoffs] = React.useState<Handoff[]>(fakeData.handoffs);
     const [declineTaskId, setDeclineTaskId] = React.useState<string | null>(null);
     const [declineNote, setDeclineNote] = React.useState('');
+
+    // New task form state
+    const [newTaskName, setNewTaskName] = React.useState('');
+    const [newTaskCard, setNewTaskCard] = React.useState('');
+    const [newTaskDueDate, setNewTaskDueDate] = React.useState('');
+    const [newTaskStatus, setNewTaskStatus] = React.useState<TaskStatus>('To Do');
+    const [newTaskNote, setNewTaskNote] = React.useState('');
+    const [sendToPartner, setSendToPartner] = React.useState(false);
+    const [handoffMessage, setHandoffMessage] = React.useState('');
 
     const partner = (p: Person): Person => p === 'Savannah' ? 'Kevin' : 'Savannah';
 
@@ -216,6 +125,62 @@ export const TasksScreen: React.FC = () => {
     const getPendingHandoff = (taskId: string) =>
         handoffs.find(h => h.taskId === taskId && h.status === 'Pending');
 
+    // ─── Create Task ─────────────────────────────────────────
+
+    const resetCreateForm = () => {
+        setNewTaskName('');
+        setNewTaskCard('');
+        setNewTaskDueDate('');
+        setNewTaskStatus('To Do');
+        setNewTaskNote('');
+        setSendToPartner(false);
+        setHandoffMessage('');
+    };
+
+    const handleCreateTask = () => {
+        if (!newTaskName.trim()) {
+            Alert.alert('Missing name', 'Please enter a task name.');
+            return;
+        }
+
+        const taskId = `t${Date.now()}`;
+
+        const newTask: Task = {
+            id: taskId,
+            name: newTaskName.trim(),
+            card: newTaskCard.trim() || 'Uncategorized',
+            owner: sendToPartner ? selectedPerson : selectedPerson, // starts with creator
+            dueDate: newTaskDueDate || new Date().toISOString().split('T')[0],
+            status: newTaskStatus,
+            note: newTaskNote.trim() || undefined,
+        };
+
+        setTasks(prev => [...prev, newTask]);
+
+        // If sending to partner, create a handoff too
+        if (sendToPartner) {
+            const newHandoff: Handoff = {
+                id: `h${Date.now()}`,
+                taskId,
+                from: selectedPerson,
+                to: partner(selectedPerson),
+                message: handoffMessage.trim() || `${selectedPerson} created this task for you.`,
+                createdAt: new Date().toISOString(),
+                status: 'Pending',
+            };
+            setHandoffs(prev => [...prev, newHandoff]);
+        }
+
+        resetCreateForm();
+        setShowCreateTask(false);
+        Alert.alert(
+            'Task Created',
+            sendToPartner
+                ? `"${newTaskName.trim()}" created and sent to ${partner(selectedPerson)}.`
+                : `"${newTaskName.trim()}" added to your tasks.`
+        );
+    };
+
     // ─── Render ──────────────────────────────────────────────
 
     return (
@@ -266,7 +231,7 @@ export const TasksScreen: React.FC = () => {
                             onPress={() => setViewMode('list')}
                         >
                             <Text className={`text-sm font-semibold ${viewMode === 'list' ? 'text-white' : 'text-text-secondary'}`}>
-                                ☰ List
+                                List
                             </Text>
                         </TouchableOpacity>
                         <TouchableOpacity
@@ -274,7 +239,7 @@ export const TasksScreen: React.FC = () => {
                             onPress={() => setViewMode('board')}
                         >
                             <Text className={`text-sm font-semibold ${viewMode === 'board' ? 'text-white' : 'text-text-secondary'}`}>
-                                ▦ Board
+                                Board
                             </Text>
                         </TouchableOpacity>
                     </View>
@@ -285,7 +250,7 @@ export const TasksScreen: React.FC = () => {
                         onPress={() => setShowHandoffs(true)}
                     >
                         <Text className="text-sm font-semibold text-text-secondary">
-                            🤝
+                            Handoffs
                         </Text>
                         {activeHandoffCount > 0 && (
                             <View className="bg-red-500 rounded-full w-5 h-5 items-center justify-center ml-1.5">
@@ -294,6 +259,24 @@ export const TasksScreen: React.FC = () => {
                                 </Text>
                             </View>
                         )}
+                    </TouchableOpacity>
+
+                    {/* Cards Button */}
+                    <TouchableOpacity
+                        className="bg-surface rounded-xl px-4 py-2.5 items-center justify-center"
+                        onPress={() => setShowCards(true)}
+                    >
+                        <Text className="text-sm font-semibold text-text-secondary">
+                            Cards
+                        </Text>
+                    </TouchableOpacity>
+
+                    {/* Create Task Button */}
+                    <TouchableOpacity
+                        className="bg-primary-600 rounded-xl w-11 py-2.5 items-center justify-center"
+                        onPress={() => setShowCreateTask(true)}
+                    >
+                        <Text className="text-lg font-bold text-white">+</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -424,7 +407,7 @@ export const TasksScreen: React.FC = () => {
                     {/* Modal Header */}
                     <View className="flex-row items-center justify-between px-5 pt-[60px] pb-4">
                         <Text className="text-2xl font-bold text-text">
-                            🤝 Handoffs
+                            Handoffs
                         </Text>
                         <TouchableOpacity onPress={() => setShowHandoffs(false)}>
                             <Text className="text-base font-semibold text-primary-600">
@@ -469,7 +452,7 @@ export const TasksScreen: React.FC = () => {
                                                             </Text>
                                                         </View>
                                                         <View className="bg-amber-100 px-2 py-0.5 rounded">
-                                                            <Text className="text-[11px] font-semibold text-amber-600">⏳ Pending</Text>
+                                                            <Text className="text-[11px] font-semibold text-amber-600">Pending</Text>
                                                         </View>
                                                     </>
                                                 )}
@@ -567,6 +550,161 @@ export const TasksScreen: React.FC = () => {
 
                         <View className="h-10" />
                     </ScrollView>
+                </View>
+            </Modal>
+
+            {/* ═════════════════════════════════════════════════════════ */}
+            {/* CREATE TASK MODAL                                      */}
+            {/* ═════════════════════════════════════════════════════════ */}
+            <Modal
+                visible={showCreateTask}
+                animationType="slide"
+                presentationStyle="pageSheet"
+            >
+                <View className="flex-1 bg-surface-dim">
+                    {/* Modal Header */}
+                    <View className="flex-row items-center justify-between px-5 pt-[60px] pb-4">
+                        <TouchableOpacity onPress={() => { resetCreateForm(); setShowCreateTask(false); }}>
+                            <Text className="text-base font-semibold text-text-secondary">
+                                Cancel
+                            </Text>
+                        </TouchableOpacity>
+                        <Text className="text-lg font-bold text-text">
+                            New Task
+                        </Text>
+                        <TouchableOpacity onPress={handleCreateTask}>
+                            <Text className="text-base font-bold text-primary-600">
+                                Save
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <ScrollView className="flex-1 px-5">
+                        {/* Task Name */}
+                        <Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2 mt-2">
+                            Task Name *
+                        </Text>
+                        <TextInput
+                            className="bg-surface rounded-xl px-4 py-3.5 text-base text-text mb-4 border border-border"
+                            placeholder="What needs to be done?"
+                            value={newTaskName}
+                            onChangeText={setNewTaskName}
+                        />
+
+                        {/* Card / Group */}
+                        <Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
+                            Card / Group
+                        </Text>
+                        <TextInput
+                            className="bg-surface rounded-xl px-4 py-3.5 text-base text-text mb-4 border border-border"
+                            placeholder="e.g. Daily Tidying, Meal Planning"
+                            value={newTaskCard}
+                            onChangeText={setNewTaskCard}
+                        />
+
+                        {/* Due Date */}
+                        <Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
+                            Due Date
+                        </Text>
+                        <TextInput
+                            className="bg-surface rounded-xl px-4 py-3.5 text-base text-text mb-4 border border-border"
+                            placeholder="YYYY-MM-DD (e.g. 2026-02-25)"
+                            value={newTaskDueDate}
+                            onChangeText={setNewTaskDueDate}
+                        />
+
+                        {/* Status Picker */}
+                        <Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
+                            Status
+                        </Text>
+                        <View className="flex-row gap-2 mb-5">
+                            {STATUSES.map(status => {
+                                const style = STATUS_STYLES[status];
+                                const isSelected = newTaskStatus === status;
+                                return (
+                                    <TouchableOpacity
+                                        key={status}
+                                        className={`flex-1 py-3 rounded-xl items-center border-2 ${isSelected
+                                            ? `${style.headerBg} border-current`
+                                            : 'bg-surface border-border'
+                                            }`}
+                                        onPress={() => setNewTaskStatus(status)}
+                                    >
+                                        <Text className={`text-sm font-semibold ${isSelected ? style.headerText : 'text-text-secondary'
+                                            }`}>
+                                            {status}
+                                        </Text>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
+
+                        {/* Note */}
+                        <Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
+                            Note (optional)
+                        </Text>
+                        <TextInput
+                            className="bg-surface rounded-xl px-4 py-3.5 text-base text-text mb-5 border border-border"
+                            placeholder="Add any context or details..."
+                            value={newTaskNote}
+                            onChangeText={setNewTaskNote}
+                            multiline
+                            numberOfLines={3}
+                        />
+
+                        {/* Send to Partner Toggle */}
+                        <View className="bg-surface rounded-xl px-4 py-4 mb-4 border border-border">
+                            <TouchableOpacity
+                                className="flex-row items-center justify-between"
+                                onPress={() => setSendToPartner(!sendToPartner)}
+                            >
+                                <View>
+                                    <Text className="text-base font-semibold text-text">
+                                        Send to {partner(selectedPerson)}
+                                    </Text>
+                                    <Text className="text-sm text-text-muted mt-0.5">
+                                        Create and hand off to your partner
+                                    </Text>
+                                </View>
+                                <View className={`w-6 h-6 rounded border-2 items-center justify-center ${sendToPartner ? 'bg-primary-600 border-primary-600' : 'border-border-strong'
+                                    }`}>
+                                    {sendToPartner && (
+                                        <View className="w-3 h-3 rounded-sm bg-white" />
+                                    )}
+                                </View>
+                            </TouchableOpacity>
+
+                            {sendToPartner && (
+                                <View className="mt-3 pt-3 border-t border-border">
+                                    <Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
+                                        Handoff Message
+                                    </Text>
+                                    <TextInput
+                                        className="bg-surface-dim rounded-lg px-3 py-2.5 text-sm text-text border border-border"
+                                        placeholder="Why are you sending this?"
+                                        value={handoffMessage}
+                                        onChangeText={setHandoffMessage}
+                                        multiline
+                                    />
+                                </View>
+                            )}
+                        </View>
+
+                        <View className="h-10" />
+                    </ScrollView>
+                </View>
+            </Modal>
+
+            {/* ═══════════════════════════════════════════════════════ */}
+            {/* CARDS MODAL                                           */}
+            {/* ═══════════════════════════════════════════════════════ */}
+            <Modal
+                visible={showCards}
+                animationType="slide"
+                presentationStyle="pageSheet"
+            >
+                <View className="flex-1 bg-surface-dim pt-[50px]">
+                    <DashboardScreen onClose={() => setShowCards(false)} />
                 </View>
             </Modal>
         </View>

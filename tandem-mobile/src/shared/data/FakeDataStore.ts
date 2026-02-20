@@ -1,0 +1,134 @@
+// ─── Domain Types ────────────────────────────────────────────
+
+export type Person = 'Savannah' | 'Kevin';
+export type TaskStatus = 'To Do' | 'In Progress' | 'Done';
+export type HandoffStatus = 'Pending' | 'Accepted' | 'Declined' | 'Canceled';
+
+export interface Card {
+    name: string;
+    owner: Person;
+}
+
+export interface Task {
+    id: string;
+    name: string;
+    card: string;
+    owner: Person;
+    dueDate: string;
+    status: TaskStatus;
+    note?: string;
+}
+
+export interface Handoff {
+    id: string;
+    taskId: string;
+    from: Person;
+    to: Person;
+    message: string;
+    createdAt: string;
+    status: HandoffStatus;
+    declineNote?: string;
+}
+
+// ─── Fake Data Store ─────────────────────────────────────────
+
+class FakeDataStore {
+    // ── Cards ──────────────────────────────────────────────
+    cards: Card[] = [
+        { name: 'Daily Tidying', owner: 'Savannah' },
+        { name: 'Laundry', owner: 'Savannah' },
+        { name: 'Meal Planning', owner: 'Savannah' },
+        { name: 'Grocery Shopping', owner: 'Savannah' },
+        { name: 'Morning Routine', owner: 'Savannah' },
+        { name: 'School Communication', owner: 'Savannah' },
+        { name: 'Dishes & Kitchen Cleanup', owner: 'Kevin' },
+        { name: 'Deep Cleaning', owner: 'Kevin' },
+        { name: 'Trash & Recycling', owner: 'Kevin' },
+        { name: 'Yard Work', owner: 'Kevin' },
+        { name: 'Car Care', owner: 'Kevin' },
+        { name: 'Dinner', owner: 'Kevin' },
+        { name: 'Bedtime Routine', owner: 'Kevin' },
+        { name: 'Kid Activities', owner: 'Kevin' },
+    ];
+
+    // ── Tasks ──────────────────────────────────────────────
+    tasks: Task[] = [
+        { id: 't1', name: 'Wipe counters', card: 'Daily Tidying', owner: 'Savannah', dueDate: '2026-02-20', status: 'In Progress' },
+        { id: 't2', name: 'Put away items', card: 'Daily Tidying', owner: 'Savannah', dueDate: '2026-02-20', status: 'To Do' },
+        { id: 't3', name: 'Quick vacuum', card: 'Daily Tidying', owner: 'Savannah', dueDate: '2026-02-21', status: 'To Do' },
+        { id: 't4', name: 'Wash clothes', card: 'Laundry', owner: 'Savannah', dueDate: '2026-02-20', status: 'Done' },
+        { id: 't5', name: 'Dry clothes', card: 'Laundry', owner: 'Savannah', dueDate: '2026-02-20', status: 'In Progress' },
+        { id: 't6', name: 'Fold and put away', card: 'Laundry', owner: 'Savannah', dueDate: '2026-02-21', status: 'To Do' },
+        { id: 't7', name: 'Plan weekly menu', card: 'Meal Planning', owner: 'Savannah', dueDate: '2026-02-22', status: 'To Do' },
+        { id: 't8', name: 'Make grocery list', card: 'Meal Planning', owner: 'Savannah', dueDate: '2026-02-22', status: 'To Do' },
+        { id: 't9', name: 'Check pantry', card: 'Meal Planning', owner: 'Savannah', dueDate: '2026-02-22', status: 'Done' },
+        { id: 't10', name: 'Review list', card: 'Grocery Shopping', owner: 'Savannah', dueDate: '2026-02-23', status: 'To Do' },
+        { id: 't11', name: 'Shop for groceries', card: 'Grocery Shopping', owner: 'Savannah', dueDate: '2026-02-23', status: 'To Do' },
+        { id: 't12', name: 'Put away groceries', card: 'Grocery Shopping', owner: 'Savannah', dueDate: '2026-02-23', status: 'To Do' },
+        { id: 't13', name: 'Wake kids', card: 'Morning Routine', owner: 'Savannah', dueDate: '2026-02-20', status: 'Done' },
+        { id: 't14', name: 'Make breakfast', card: 'Morning Routine', owner: 'Savannah', dueDate: '2026-02-20', status: 'Done' },
+        { id: 't15', name: 'Pack lunches', card: 'Morning Routine', owner: 'Savannah', dueDate: '2026-02-20', status: 'In Progress' },
+        { id: 't16', name: 'Check emails', card: 'School Communication', owner: 'Savannah', dueDate: '2026-02-20', status: 'Done' },
+        { id: 't17', name: 'Sign forms', card: 'School Communication', owner: 'Savannah', dueDate: '2026-02-24', status: 'To Do' },
+        { id: 't18', name: 'Update calendar', card: 'School Communication', owner: 'Savannah', dueDate: '2026-02-24', status: 'To Do' },
+        { id: 't19', name: 'Load dishwasher', card: 'Dishes & Kitchen Cleanup', owner: 'Kevin', dueDate: '2026-02-20', status: 'To Do' },
+        { id: 't20', name: 'Wipe counters', card: 'Dishes & Kitchen Cleanup', owner: 'Kevin', dueDate: '2026-02-20', status: 'To Do' },
+        { id: 't21', name: 'Take out trash', card: 'Dishes & Kitchen Cleanup', owner: 'Kevin', dueDate: '2026-02-20', status: 'Done' },
+        { id: 't22', name: 'Vacuum all rooms', card: 'Deep Cleaning', owner: 'Kevin', dueDate: '2026-02-23', status: 'To Do' },
+        { id: 't23', name: 'Mop floors', card: 'Deep Cleaning', owner: 'Kevin', dueDate: '2026-02-23', status: 'To Do' },
+        { id: 't24', name: 'Clean bathrooms', card: 'Deep Cleaning', owner: 'Kevin', dueDate: '2026-02-24', status: 'To Do' },
+        { id: 't25', name: 'Take out trash', card: 'Trash & Recycling', owner: 'Kevin', dueDate: '2026-02-21', status: 'In Progress' },
+        { id: 't26', name: 'Sort recycling', card: 'Trash & Recycling', owner: 'Kevin', dueDate: '2026-02-21', status: 'To Do' },
+        { id: 't27', name: 'Clean bins', card: 'Trash & Recycling', owner: 'Kevin', dueDate: '2026-02-22', status: 'To Do' },
+        { id: 't28', name: 'Mow lawn', card: 'Yard Work', owner: 'Kevin', dueDate: '2026-02-25', status: 'To Do' },
+        { id: 't29', name: 'Trim hedges', card: 'Yard Work', owner: 'Kevin', dueDate: '2026-02-25', status: 'To Do' },
+        { id: 't30', name: 'Water plants', card: 'Yard Work', owner: 'Kevin', dueDate: '2026-02-20', status: 'Done' },
+        { id: 't31', name: 'Wash car', card: 'Car Care', owner: 'Kevin', dueDate: '2026-03-01', status: 'To Do' },
+        { id: 't32', name: 'Check oil', card: 'Car Care', owner: 'Kevin', dueDate: '2026-03-01', status: 'To Do' },
+        { id: 't33', name: 'Vacuum interior', card: 'Car Care', owner: 'Kevin', dueDate: '2026-03-01', status: 'To Do' },
+        { id: 't34', name: 'Cook dinner', card: 'Dinner', owner: 'Kevin', dueDate: '2026-02-20', status: 'To Do' },
+        { id: 't35', name: 'Set table', card: 'Dinner', owner: 'Kevin', dueDate: '2026-02-20', status: 'To Do' },
+        { id: 't36', name: 'Clean up', card: 'Dinner', owner: 'Kevin', dueDate: '2026-02-20', status: 'To Do' },
+        { id: 't37', name: 'Bath time', card: 'Bedtime Routine', owner: 'Kevin', dueDate: '2026-02-20', status: 'To Do' },
+        { id: 't38', name: 'Read stories', card: 'Bedtime Routine', owner: 'Kevin', dueDate: '2026-02-20', status: 'In Progress' },
+        { id: 't39', name: 'Tuck in kids', card: 'Bedtime Routine', owner: 'Kevin', dueDate: '2026-02-20', status: 'To Do' },
+        { id: 't40', name: 'Drive to activities', card: 'Kid Activities', owner: 'Kevin', dueDate: '2026-02-22', status: 'To Do' },
+        { id: 't41', name: 'Watch practice', card: 'Kid Activities', owner: 'Kevin', dueDate: '2026-02-22', status: 'To Do' },
+        { id: 't42', name: 'Pick up kids', card: 'Kid Activities', owner: 'Kevin', dueDate: '2026-02-22', status: 'To Do' },
+    ];
+
+    // ── Handoffs ───────────────────────────────────────────
+    handoffs: Handoff[] = [
+        {
+            id: 'h1',
+            taskId: 't17',
+            from: 'Savannah',
+            to: 'Kevin',
+            message: 'Got this email from Ms. Smith — permission slip needs to be signed by Friday.',
+            createdAt: '2026-02-20T10:30:00',
+            status: 'Pending',
+        },
+        {
+            id: 'h2',
+            taskId: 't22',
+            from: 'Kevin',
+            to: 'Savannah',
+            message: 'I have a meeting Saturday, can you handle the vacuuming?',
+            createdAt: '2026-02-20T09:15:00',
+            status: 'Pending',
+        },
+        {
+            id: 'h3',
+            taskId: 't6',
+            from: 'Kevin',
+            to: 'Savannah',
+            message: 'Can you fold these? I ran out of time.',
+            createdAt: '2026-02-19T18:00:00',
+            status: 'Declined',
+            declineNote: 'I already did the washing and drying — your turn to fold!',
+        },
+    ];
+}
+
+// Singleton instance — shared across all screens
+export const fakeData = new FakeDataStore();

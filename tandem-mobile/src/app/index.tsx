@@ -27,9 +27,9 @@ export const App: React.FC = () => {
     initializeFirebase();
 
     if (!isUsingFirebase()) {
-      console.log('🎯 DEMO MODE ACTIVE');
-      console.log('📱 Using mock data for all features');
-      console.log('🔥 To enable Firebase, configure .env file');
+      console.log('DEMO MODE ACTIVE');
+      console.log('Using mock data for all features');
+      console.log('To enable Firebase, configure .env file');
     }
   }, []);
 

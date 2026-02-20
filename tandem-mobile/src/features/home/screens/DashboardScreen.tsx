@@ -4,46 +4,22 @@ import { Text } from '@shared/components/ui/Text';
 import { TextInput } from '@shared/components/ui/TextInput';
 import Swiper from 'react-native-deck-swiper';
 import { COLORS } from '@shared/constants/colors';
+import { fakeData } from '@shared/data/FakeDataStore';
 
-export const DashboardScreen: React.FC = () => {
-  const [showFilters, setShowFilters] = React.useState(false);
+interface DashboardScreenProps {
+  onClose?: () => void;
+}
+
+export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onClose }) => {
   const [showShuffleModal, setShowShuffleModal] = React.useState(false);
   const [showSwipeMode, setShowSwipeMode] = React.useState(false);
   const [showAddCard, setShowAddCard] = React.useState(false);
   const [selectedCard, setSelectedCard] = React.useState<string | null>(null);
   const [currentCardIndex, setCurrentCardIndex] = React.useState(0);
   const [shuffledCards, setShuffledCards] = React.useState<Array<{ name: string, owner: string }>>([]);
-  const [selectedPeople, setSelectedPeople] = React.useState<string[]>(['Savannah']);
   const swiperRef = React.useRef<Swiper<{ name: string, owner: string }>>(null);
 
-  const allCards = [
-    { name: 'Daily Tidying', owner: 'Savannah' },
-    { name: 'Laundry', owner: 'Savannah' },
-    { name: 'Meal Planning', owner: 'Savannah' },
-    { name: 'Grocery Shopping', owner: 'Savannah' },
-    { name: 'Morning Routine', owner: 'Savannah' },
-    { name: 'School Communication', owner: 'Savannah' },
-    { name: 'Dishes & Kitchen Cleanup', owner: 'Kevin' },
-    { name: 'Deep Cleaning', owner: 'Kevin' },
-    { name: 'Trash & Recycling', owner: 'Kevin' },
-    { name: 'Yard Work', owner: 'Kevin' },
-    { name: 'Car Care', owner: 'Kevin' },
-    { name: 'Dinner', owner: 'Kevin' },
-    { name: 'Bedtime Routine', owner: 'Kevin' },
-    { name: 'Kid Activities', owner: 'Kevin' },
-  ];
-
-  const togglePerson = (person: string) => {
-    setSelectedPeople(prev =>
-      prev.includes(person)
-        ? prev.filter(p => p !== person)
-        : [...prev, person]
-    );
-  };
-
-  const filteredCards = allCards.filter(card =>
-    selectedPeople.includes(card.owner)
-  );
+  const allCards = fakeData.cards;
 
   const handleSwipeLeft = (cardIndex: number) => {
     const updatedCards = [...shuffledCards];
@@ -94,92 +70,59 @@ export const DashboardScreen: React.FC = () => {
           >
             <Text className="text-xl font-semibold text-white">+</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            className="w-10 h-10 rounded-lg bg-primary-600 justify-center items-center"
-            onPress={() => setShowFilters(!showFilters)}
-          >
-            <Text className="text-xl font-semibold text-white">☰</Text>
-          </TouchableOpacity>
+          {onClose && (
+            <TouchableOpacity
+              className="h-10 rounded-lg bg-surface border border-border px-4 justify-center items-center"
+              onPress={onClose}
+            >
+              <Text className="text-base font-semibold text-text-secondary">Done</Text>
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
-      {/* Expandable Filter Panel */}
-      {showFilters && (
-        <View className="bg-surface rounded-xl p-5 mb-6 border border-border-light shadow-sm">
-          <View className="mb-5">
-            <Text className="text-xs font-semibold text-text-secondary uppercase tracking-wider mb-3">
-              People
-            </Text>
-            <TouchableOpacity
-              className="flex-row items-center py-2"
-              onPress={() => togglePerson('Savannah')}
-            >
-              <View className="w-5 h-5 rounded border-2 border-border-strong mr-3 justify-center items-center">
-                {selectedPeople.includes('Savannah') && (
-                  <View className="w-3 h-3 rounded-sm bg-primary-600" />
-                )}
-              </View>
-              <Text className="text-[15px] text-text">Savannah</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              className="flex-row items-center py-2"
-              onPress={() => togglePerson('Kevin')}
-            >
-              <View className="w-5 h-5 rounded border-2 border-border-strong mr-3 justify-center items-center">
-                {selectedPeople.includes('Kevin') && (
-                  <View className="w-3 h-3 rounded-sm bg-secondary-600" />
-                )}
-              </View>
-              <Text className="text-[15px] text-text">Kevin</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      )}
-
       {/* Balance Meter */}
-      {selectedPeople.length === 2 && (
-        <View className="bg-surface rounded-xl p-5 mb-6 shadow-sm">
-          <View className="flex-row justify-between items-start mb-4">
-            <View>
-              <Text className="text-base font-semibold text-text">
-                Balance
-              </Text>
-              <Text className="text-[13px] text-text-secondary mt-0.5">
-                14 cards total
-              </Text>
-            </View>
-          </View>
-
-          <View className="h-2 bg-border-muted rounded-full flex-row overflow-hidden mb-4">
-            <View className="h-full bg-primary-600" style={{ width: '43%' }} />
-            <View className="h-full bg-secondary-600" style={{ width: '57%' }} />
-          </View>
-
-          <View className="flex-row justify-around">
-            <View className="items-center">
-              <Text className="text-2xl font-bold text-primary-600">
-                6
-              </Text>
-              <Text className="text-[13px] text-text-secondary mt-1">
-                Savannah
-              </Text>
-            </View>
-            <View className="items-center">
-              <Text className="text-2xl font-bold text-secondary-600">
-                8
-              </Text>
-              <Text className="text-[13px] text-text-secondary mt-1">
-                Kevin
-              </Text>
-            </View>
+      <View className="bg-surface rounded-xl p-5 mb-6 shadow-sm">
+        <View className="flex-row justify-between items-start mb-4">
+          <View>
+            <Text className="text-base font-semibold text-text">
+              Balance
+            </Text>
+            <Text className="text-[13px] text-text-secondary mt-0.5">
+              14 cards total
+            </Text>
           </View>
         </View>
-      )}
+
+        <View className="h-2 bg-border-muted rounded-full flex-row overflow-hidden mb-4">
+          <View className="h-full bg-primary-600" style={{ width: '43%' }} />
+          <View className="h-full bg-secondary-600" style={{ width: '57%' }} />
+        </View>
+
+        <View className="flex-row justify-around">
+          <View className="items-center">
+            <Text className="text-2xl font-bold text-primary-600">
+              6
+            </Text>
+            <Text className="text-[13px] text-text-secondary mt-1">
+              Savannah
+            </Text>
+          </View>
+          <View className="items-center">
+            <Text className="text-2xl font-bold text-secondary-600">
+              8
+            </Text>
+            <Text className="text-[13px] text-text-secondary mt-1">
+              Kevin
+            </Text>
+          </View>
+        </View>
+      </View>
 
       {/* Cards List */}
-      {filteredCards.length > 0 ? (
+      {allCards.length > 0 ? (
         <>
-          {filteredCards.map((card, i) => (
+          {allCards.map((card, i) => (
             <TouchableOpacity
               key={i}
               className="bg-surface p-4 rounded-xl mb-3 flex-row justify-between items-center border border-border-light shadow-sm"
@@ -190,37 +133,33 @@ export const DashboardScreen: React.FC = () => {
                   {card.name}
                 </Text>
               </View>
-              {selectedPeople.length > 1 && (
-                <View className="ml-3">
-                  <View
-                    className={`w-8 h-8 rounded-full items-center justify-center ${card.owner === 'Kevin' ? 'bg-secondary-600' : 'bg-primary-600'
-                      }`}
-                  >
-                    <Text className="text-white text-[13px] font-semibold">
-                      {card.owner === 'Savannah' ? 'S' : 'M'}
-                    </Text>
-                  </View>
+              <View className="ml-3">
+                <View
+                  className={`w-8 h-8 rounded-full items-center justify-center ${card.owner === 'Kevin' ? 'bg-secondary-600' : 'bg-primary-600'
+                    }`}
+                >
+                  <Text className="text-white text-[13px] font-semibold">
+                    {card.owner === 'Savannah' ? 'S' : 'M'}
+                  </Text>
                 </View>
-              )}
+              </View>
             </TouchableOpacity>
           ))}
 
           {/* Shuffle Cards Button */}
-          {selectedPeople.length === 2 && (
-            <TouchableOpacity
-              className="bg-primary-600 rounded-xl py-4 px-6 mb-6 items-center shadow-md"
-              onPress={() => setShowShuffleModal(true)}
-            >
-              <Text className="text-lg font-bold text-white tracking-tight">
-                Shuffle Cards
-              </Text>
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity
+            className="bg-primary-600 rounded-xl py-4 px-6 mb-6 items-center shadow-md"
+            onPress={() => setShowShuffleModal(true)}
+          >
+            <Text className="text-lg font-bold text-white tracking-tight">
+              Shuffle Cards
+            </Text>
+          </TouchableOpacity>
         </>
       ) : (
         <View className="bg-surface rounded-xl p-10 items-center mt-5">
           <Text className="text-sm text-text-muted text-center">
-            No cards match your filters
+            No cards yet
           </Text>
         </View>
       )}
@@ -270,7 +209,7 @@ export const DashboardScreen: React.FC = () => {
               onPress={startSwipeShuffle}
             >
               <Text className="text-base font-semibold text-text mb-1.5">
-                ♻️ Use Existing Cards
+                Use Existing Cards
               </Text>
               <Text className="text-[13px] text-text-secondary leading-[18px]">
                 Swipe left for Savannah, right for Kevin

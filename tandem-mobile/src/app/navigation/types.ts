@@ -23,7 +23,6 @@ export type AuthStackParamList = {
 
 // Main Bottom Tab Navigator
 export type MainTabParamList = {
-  HomeTab: undefined;
   TasksTab: undefined;
   ProfileTab: undefined;
 };
