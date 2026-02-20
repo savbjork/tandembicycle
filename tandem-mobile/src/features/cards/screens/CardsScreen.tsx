@@ -6,11 +6,11 @@ import Swiper from 'react-native-deck-swiper';
 import { COLORS } from '@shared/constants/colors';
 import { fakeData } from '@shared/data/FakeDataStore';
 
-interface DashboardScreenProps {
+interface CardsScreenProps {
   onClose?: () => void;
 }
 
-export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onClose }) => {
+export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
   const [showShuffleModal, setShowShuffleModal] = React.useState(false);
   const [showSwipeMode, setShowSwipeMode] = React.useState(false);
   const [showAddCard, setShowAddCard] = React.useState(false);
@@ -55,11 +55,11 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onClose }) => 
   };
 
   return (
-    <ScrollView className="flex-1 px-5 pt-5 pb-5 bg-surface-dim">
+    <ScrollView className="flex-1 px-5 pt-[60px] pb-5 bg-surface-dim">
       {/* Header */}
       <View className="flex-row justify-between items-center mb-6">
         <View className="flex-1">
-          <Text className="text-2xl font-bold text-text tracking-tight">
+          <Text className="text-[32px] font-bold text-text tracking-tight">
             Cards
           </Text>
         </View>

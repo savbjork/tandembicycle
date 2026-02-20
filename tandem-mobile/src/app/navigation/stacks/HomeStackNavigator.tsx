@@ -1,7 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { HomeStackParamList } from '../types';
-import { DashboardScreen } from '@features/home/screens/DashboardScreen';
+import { CardsScreen } from '@features/cards/screens/CardsScreen';
 import { TasksScreen } from '@features/home/screens/TasksScreen';
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
@@ -16,7 +16,7 @@ export const HomeStackNavigator: React.FC = () => {
     >
       <Stack.Screen
         name="Dashboard"
-        component={DashboardScreen}
+        component={CardsScreen}
       />
       <Stack.Screen
         name="Tasks"

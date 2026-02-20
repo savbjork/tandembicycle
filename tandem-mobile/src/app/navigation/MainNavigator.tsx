@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { MainTabParamList } from './types';
 import { ProfileStackNavigator } from './stacks/ProfileStackNavigator';
 import { TasksScreen } from '@features/home/screens/TasksScreen';
+import { CardsScreen } from '@features/cards/screens/CardsScreen';
 import { COLORS } from '@shared/constants/colors';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -37,6 +38,16 @@ export const MainNavigator: React.FC = () => {
           tabBarLabel: 'Tasks',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="list" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="CardsTab"
+        component={CardsScreen}
+        options={{
+          tabBarLabel: 'Cards',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="card" size={size} color={color} />
           ),
         }}
       />

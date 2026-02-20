@@ -5,7 +5,6 @@ import { Text } from '@shared/components/ui/Text';
 import { TextInput } from '@shared/components/ui/TextInput';
 import { SwipeableTaskRow } from '@shared/components/SwipeableTaskRow';
 import { fakeData, type Person, type Task, type Handoff, type TaskStatus, type HandoffStatus } from '@shared/data/FakeDataStore';
-import { DashboardScreen } from './DashboardScreen';
 
 // ─── View Constants ──────────────────────────────────────────
 
@@ -37,7 +36,6 @@ export const TasksScreen: React.FC = () => {
     const [viewMode, setViewMode] = React.useState<ViewMode>('list');
     const [showHandoffs, setShowHandoffs] = React.useState(false);
     const [showCreateTask, setShowCreateTask] = React.useState(false);
-    const [showCards, setShowCards] = React.useState(false);
     const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
     const [expandedSection, setExpandedSection] = React.useState<TaskStatus | null>(null);
     const [tasks, setTasks] = React.useState<Task[]>(fakeData.tasks);
@@ -278,15 +276,7 @@ export const TasksScreen: React.FC = () => {
                     )}
                 </TouchableOpacity>
 
-                {/* Cards Button */}
-                <TouchableOpacity
-                    className="bg-surface rounded-xl px-4 py-2.5 items-center justify-center"
-                    onPress={() => setShowCards(true)}
-                >
-                    <Text className="text-sm font-semibold text-text-secondary">
-                        Cards
-                    </Text>
-                </TouchableOpacity>
+
 
                 {/* Create Task Button */}
                 <TouchableOpacity
@@ -623,8 +613,8 @@ export const TasksScreen: React.FC = () => {
                                 <TouchableOpacity
                                     key={card.name}
                                     className={`px-4 py-2.5 rounded-xl border ${newTaskCard === card.name
-                                            ? 'bg-primary-600 border-primary-600'
-                                            : 'bg-surface border-border'
+                                        ? 'bg-primary-600 border-primary-600'
+                                        : 'bg-surface border-border'
                                         }`}
                                     onPress={() => setNewTaskCard(card.name)}
                                 >
@@ -758,18 +748,7 @@ export const TasksScreen: React.FC = () => {
                 </View>
             </Modal>
 
-            {/* ═══════════════════════════════════════════════════════ */}
-            {/* CARDS MODAL                                           */}
-            {/* ═══════════════════════════════════════════════════════ */}
-            <Modal
-                visible={showCards}
-                animationType="slide"
-                presentationStyle="pageSheet"
-            >
-                <View className="flex-1 bg-surface-dim pt-[50px]">
-                    <DashboardScreen onClose={() => setShowCards(false)} />
-                </View>
-            </Modal>
+
 
             {/* ═══════════════════════════════════════════════════════ */}
             {/* EDIT TASK MODAL                                       */}
@@ -889,8 +868,8 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ task, availableCards, onC
                             <TouchableOpacity
                                 key={cardName}
                                 className={`px-4 py-2.5 rounded-xl border ${editCard === cardName
-                                        ? 'bg-primary-600 border-primary-600'
-                                        : 'bg-surface border-border'
+                                    ? 'bg-primary-600 border-primary-600'
+                                    : 'bg-surface border-border'
                                     }`}
                                 onPress={() => setEditCard(cardName)}
                             >
