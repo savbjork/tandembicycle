@@ -10,6 +10,7 @@ import { DashboardScreen } from './DashboardScreen';
 // ─── View Constants ──────────────────────────────────────────
 
 type ViewMode = 'list' | 'board';
+type TimeFilter = 'week' | 'month' | 'year' | 'all';
 
 const STATUS_STYLES: Record<TaskStatus, { bg: string; text: string; headerBg: string; headerText: string; accent: string }> = {
     'To Do': { bg: 'bg-gray-100', text: 'text-gray-600', headerBg: 'bg-gray-200', headerText: 'text-gray-700', accent: 'bg-gray-400' },
@@ -43,10 +44,12 @@ export const TasksScreen: React.FC = () => {
     const [handoffs, setHandoffs] = React.useState<Handoff[]>(fakeData.handoffs);
     const [declineTaskId, setDeclineTaskId] = React.useState<string | null>(null);
     const [declineNote, setDeclineNote] = React.useState('');
+    const [timeFilter, setTimeFilter] = React.useState<TimeFilter>('all');
 
-    // New task form state
     const [newTaskName, setNewTaskName] = React.useState('');
-    const [newTaskCard, setNewTaskCard] = React.useState('');
+    const [newTaskCard, setNewTaskCard] = React.useState(
+        fakeData.cards.filter(c => c.owner === selectedPerson)[0]?.name || ''
+    );
     const [newTaskDueDate, setNewTaskDueDate] = React.useState<Date>(new Date());
     const [showNewTaskDatePicker, setShowNewTaskDatePicker] = React.useState(false);
     const [newTaskStatus, setNewTaskStatus] = React.useState<TaskStatus>('To Do');
@@ -55,6 +58,9 @@ export const TasksScreen: React.FC = () => {
     const [handoffMessage, setHandoffMessage] = React.useState('');
 
     const partner = (p: Person): Person => p === 'Savannah' ? 'Kevin' : 'Savannah';
+
+    // Cards assigned to the selected person
+    const personCards = fakeData.cards.filter(c => c.owner === selectedPerson);
 
     const getTask = (taskId: string) => tasks.find(t => t.id === taskId);
 
@@ -65,9 +71,40 @@ export const TasksScreen: React.FC = () => {
     const activeHandoffCount = receivedHandoffs.length + sentHandoffs.length + declinedHandoffs.length;
 
     // Tasks for current person
-    const userTasks = tasks
+    const allUserTasks = tasks
         .filter(task => task.owner === selectedPerson)
         .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+
+    // Date filter logic
+    const getFilterEndDate = (): Date | null => {
+        const now = new Date();
+        switch (timeFilter) {
+            case 'week': {
+                const end = new Date(now);
+                end.setDate(now.getDate() + (7 - now.getDay()));
+                end.setHours(23, 59, 59, 999);
+                return end;
+            }
+            case 'month': {
+                const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+                end.setHours(23, 59, 59, 999);
+                return end;
+            }
+            case 'year': {
+                const end = new Date(now.getFullYear(), 11, 31);
+                end.setHours(23, 59, 59, 999);
+                return end;
+            }
+            default:
+                return null;
+        }
+    };
+
+    const userTasks = React.useMemo(() => {
+        const endDate = getFilterEndDate();
+        if (!endDate) return allUserTasks;
+        return allUserTasks.filter(task => new Date(task.dueDate) <= endDate);
+    }, [allUserTasks, timeFilter]);
 
     const tasksByStatus = (status: TaskStatus) =>
         userTasks.filter(task => task.status === status);
@@ -258,6 +295,30 @@ export const TasksScreen: React.FC = () => {
                 >
                     <Text className="text-lg font-bold text-white">+</Text>
                 </TouchableOpacity>
+            </View>
+
+            {/* Time Filter Pills */}
+            <View className="flex-row gap-2 px-5 mb-4">
+                {(['week', 'month', 'year', 'all'] as TimeFilter[]).map((filter) => {
+                    const labels: Record<TimeFilter, string> = {
+                        week: 'This Week',
+                        month: 'This Month',
+                        year: 'This Year',
+                        all: 'All',
+                    };
+                    const isActive = timeFilter === filter;
+                    return (
+                        <TouchableOpacity
+                            key={filter}
+                            className={`px-3.5 py-1.5 rounded-full ${isActive ? 'bg-primary-600' : 'bg-surface'}`}
+                            onPress={() => setTimeFilter(filter)}
+                        >
+                            <Text className={`text-xs font-semibold ${isActive ? 'text-white' : 'text-text-secondary'}`}>
+                                {labels[filter]}
+                            </Text>
+                        </TouchableOpacity>
+                    );
+                })}
             </View>
 
             {/* ===== LIST VIEW ===== */}
@@ -550,14 +611,30 @@ export const TasksScreen: React.FC = () => {
 
                         {/* Card / Group */}
                         <Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
-                            Card / Group
+                            Card
                         </Text>
-                        <TextInput
-                            className="bg-surface rounded-xl px-4 py-3.5 text-base text-text mb-4 border border-border"
-                            placeholder="e.g. Daily Tidying, Meal Planning"
-                            value={newTaskCard}
-                            onChangeText={setNewTaskCard}
-                        />
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            className="mb-4"
+                            contentContainerStyle={{ gap: 8 }}
+                        >
+                            {personCards.map((card) => (
+                                <TouchableOpacity
+                                    key={card.name}
+                                    className={`px-4 py-2.5 rounded-xl border ${newTaskCard === card.name
+                                            ? 'bg-primary-600 border-primary-600'
+                                            : 'bg-surface border-border'
+                                        }`}
+                                    onPress={() => setNewTaskCard(card.name)}
+                                >
+                                    <Text className={`text-sm font-semibold ${newTaskCard === card.name ? 'text-white' : 'text-text-secondary'
+                                        }`}>
+                                        {card.name}
+                                    </Text>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
 
                         {/* Due Date */}
                         <Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
@@ -700,6 +777,7 @@ export const TasksScreen: React.FC = () => {
             {selectedTask && (
                 <EditTaskModal
                     task={selectedTask}
+                    availableCards={personCards.map(c => c.name)}
                     onClose={() => setSelectedTask(null)}
                     onSave={(updatedTask) => {
                         setTasks(prev => prev.map(t => t.id === updatedTask.id ? updatedTask : t));
@@ -719,12 +797,13 @@ export const TasksScreen: React.FC = () => {
 
 interface EditTaskModalProps {
     task: Task;
+    availableCards: string[];
     onClose: () => void;
     onSave: (task: Task) => void;
     onDelete: (taskId: string) => void;
 }
 
-const EditTaskModal: React.FC<EditTaskModalProps> = ({ task, onClose, onSave, onDelete }) => {
+const EditTaskModal: React.FC<EditTaskModalProps> = ({ task, availableCards, onClose, onSave, onDelete }) => {
     const [editName, setEditName] = React.useState(task.name);
     const [editCard, setEditCard] = React.useState(task.card);
     const [editDueDateObj, setEditDueDateObj] = React.useState<Date>(new Date(task.dueDate + 'T00:00:00'));
@@ -798,14 +877,30 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ task, onClose, onSave, on
 
                     {/* Card / Group */}
                     <Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
-                        Card / Group
+                        Card
                     </Text>
-                    <TextInput
-                        className="bg-surface rounded-xl px-4 py-3.5 text-base text-text mb-4 border border-border"
-                        placeholder="e.g. Daily Tidying, Meal Planning"
-                        value={editCard}
-                        onChangeText={setEditCard}
-                    />
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        className="mb-4"
+                        contentContainerStyle={{ gap: 8 }}
+                    >
+                        {availableCards.map((cardName) => (
+                            <TouchableOpacity
+                                key={cardName}
+                                className={`px-4 py-2.5 rounded-xl border ${editCard === cardName
+                                        ? 'bg-primary-600 border-primary-600'
+                                        : 'bg-surface border-border'
+                                    }`}
+                                onPress={() => setEditCard(cardName)}
+                            >
+                                <Text className={`text-sm font-semibold ${editCard === cardName ? 'text-white' : 'text-text-secondary'
+                                    }`}>
+                                    {cardName}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </ScrollView>
 
                     {/* Due Date */}
                     <Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
