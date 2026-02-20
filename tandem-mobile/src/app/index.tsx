@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { RootNavigator } from './navigation/RootNavigator';
 import { AppProviders } from './providers/AppProviders';
 import { initializeFirebase, isUsingFirebase } from '@infrastructure/firebase/config';
@@ -38,8 +39,10 @@ export const App: React.FC = () => {
   }
 
   return (
-    <AppProviders>
-      <RootNavigator />
-    </AppProviders>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AppProviders>
+        <RootNavigator />
+      </AppProviders>
+    </GestureHandlerRootView>
   );
 };

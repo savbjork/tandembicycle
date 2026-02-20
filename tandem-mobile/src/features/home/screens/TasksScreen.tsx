@@ -3,6 +3,7 @@ import { View, ScrollView, TouchableOpacity, Modal, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Text } from '@shared/components/ui/Text';
 import { TextInput } from '@shared/components/ui/TextInput';
+import { SwipeableTaskRow } from '@shared/components/SwipeableTaskRow';
 import { fakeData, type Person, type Task, type Handoff, type TaskStatus, type HandoffStatus } from '@shared/data/FakeDataStore';
 import { DashboardScreen } from './DashboardScreen';
 
@@ -26,13 +27,6 @@ const formatDate = (dateStr: string): string => {
     if (date.toDateString() === today.toDateString()) return 'Today';
     if (date.toDateString() === tomorrow.toDateString()) return 'Tomorrow';
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-};
-
-const isOverdue = (dateStr: string): boolean => {
-    const date = new Date(dateStr);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return date < today;
 };
 
 // ─── Component ───────────────────────────────────────────────
@@ -128,6 +122,14 @@ export const TasksScreen: React.FC = () => {
     // Check if a task has a pending handoff (to show badge in list)
     const getPendingHandoff = (taskId: string) =>
         handoffs.find(h => h.taskId === taskId && h.status === 'Pending');
+
+    // ─── Status Change (from swipe) ──────────────────────
+
+    const handleStatusChange = (taskId: string, newStatus: TaskStatus) => {
+        setTasks(prev => prev.map(t =>
+            t.id === taskId ? { ...t, status: newStatus } : t
+        ));
+    };
 
     // ─── Create Task ─────────────────────────────────────────
 
@@ -270,48 +272,18 @@ export const TasksScreen: React.FC = () => {
                     ) : (
                         <View className="px-5">
                             {userTasks.map((task) => {
-                                const overdue = isOverdue(task.dueDate) && task.status !== 'Done';
-                                const statusStyle = STATUS_STYLES[task.status];
-                                const isDone = task.status === 'Done';
                                 const pendingHandoff = getPendingHandoff(task.id);
+                                const handoffLabel = pendingHandoff
+                                    ? (pendingHandoff.from === selectedPerson ? `→ ${pendingHandoff.to}` : `← ${pendingHandoff.from}`)
+                                    : null;
                                 return (
-                                    <TouchableOpacity
+                                    <SwipeableTaskRow
                                         key={task.id}
-                                        className={`bg-surface mb-3 rounded-xl px-4 py-3.5 shadow-sm ${overdue ? 'border border-red-200' : ''}`}
+                                        task={task}
                                         onPress={() => setSelectedTask(task)}
-                                        activeOpacity={0.7}
-                                    >
-                                        <View className="flex-row items-center">
-                                            <View className={`w-5 h-5 rounded border-2 mr-3 ${isDone ? 'bg-green-500 border-green-500' : overdue ? 'border-red-400' : 'border-border-strong'}`} />
-                                            <View className="flex-1">
-                                                <Text className={`text-[15px] font-medium ${isDone ? 'text-text-muted line-through' : overdue ? 'text-red-600' : 'text-text'}`}>
-                                                    {task.name}
-                                                </Text>
-                                                <View className="flex-row items-center mt-0.5 gap-2">
-                                                    <Text className="text-xs text-text-muted">
-                                                        {task.card}
-                                                    </Text>
-                                                    <View className={`px-1.5 py-0.5 rounded ${statusStyle.bg}`}>
-                                                        <Text className={`text-[10px] font-semibold ${statusStyle.text}`}>
-                                                            {task.status}
-                                                        </Text>
-                                                    </View>
-                                                </View>
-                                            </View>
-                                            <View className="items-end">
-                                                <Text className={`text-xs ${overdue ? 'text-red-500 font-semibold' : 'text-text-secondary'}`}>
-                                                    {overdue ? 'Overdue' : formatDate(task.dueDate)}
-                                                </Text>
-                                                {pendingHandoff && (
-                                                    <View className="bg-amber-100 px-1.5 py-0.5 rounded mt-1">
-                                                        <Text className="text-[10px] font-semibold text-amber-600">
-                                                            {pendingHandoff.from === selectedPerson ? `→ ${pendingHandoff.to}` : `← ${pendingHandoff.from}`}
-                                                        </Text>
-                                                    </View>
-                                                )}
-                                            </View>
-                                        </View>
-                                    </TouchableOpacity>
+                                        onStatusChange={handleStatusChange}
+                                        pendingHandoffLabel={handoffLabel}
+                                    />
                                 );
                             })}
                         </View>
@@ -362,24 +334,14 @@ export const TasksScreen: React.FC = () => {
                                         </View>
                                     ) : (
                                         statusTasks.map((task) => {
-                                            const overdue = isOverdue(task.dueDate) && status !== 'Done';
                                             return (
-                                                <TouchableOpacity
+                                                <SwipeableTaskRow
                                                     key={task.id}
-                                                    className={`bg-surface rounded-lg px-3.5 py-3 mb-2 shadow-sm ${overdue ? 'border border-red-200' : ''}`}
+                                                    task={task}
                                                     onPress={() => setSelectedTask(task)}
-                                                    activeOpacity={0.7}
-                                                >
-                                                    <Text className={`text-[14px] font-medium ${status === 'Done' ? 'text-text-muted line-through' : overdue ? 'text-red-600' : 'text-text'}`}>
-                                                        {task.name}
-                                                    </Text>
-                                                    <View className="flex-row items-center justify-between mt-1.5">
-                                                        <Text className="text-xs text-text-muted">{task.card}</Text>
-                                                        <Text className={`text-xs ${overdue ? 'text-red-500 font-semibold' : 'text-text-secondary'}`}>
-                                                            {overdue ? 'Overdue' : formatDate(task.dueDate)}
-                                                        </Text>
-                                                    </View>
-                                                </TouchableOpacity>
+                                                    onStatusChange={handleStatusChange}
+                                                    variant="board"
+                                                />
                                             );
                                         })
                                     )}
