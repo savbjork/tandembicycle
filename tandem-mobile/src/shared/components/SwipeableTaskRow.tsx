@@ -12,22 +12,17 @@ const STATUS_STYLES: Record<TaskStatus, { bg: string; text: string }> = {
     'Done': { bg: 'bg-green-100', text: 'text-green-600' },
 };
 
-const NEXT_STATUS: Record<TaskStatus, TaskStatus> = {
-    'To Do': 'In Progress',
-    'In Progress': 'Done',
-    'Done': 'To Do',
+const STATUSES: TaskStatus[] = ['To Do', 'In Progress', 'Done'];
+
+const STATUS_COLORS: Record<TaskStatus, string> = {
+    'To Do': '#6B7280',       // gray
+    'In Progress': '#3B82F6', // blue
+    'Done': '#22C55E',        // green
 };
 
-const NEXT_STATUS_LABEL: Record<TaskStatus, string> = {
-    'To Do': '▶ Start',
-    'In Progress': '✓ Done',
-    'Done': '↺ Reopen',
-};
-
-const NEXT_STATUS_COLORS: Record<TaskStatus, { bg: string; text: string }> = {
-    'To Do': { bg: '#3B82F6', text: '#FFFFFF' },      // blue → start
-    'In Progress': { bg: '#22C55E', text: '#FFFFFF' }, // green → done
-    'Done': { bg: '#6B7280', text: '#FFFFFF' },        // gray → reopen
+/** All statuses except the current one */
+const getOtherStatuses = (current: TaskStatus): TaskStatus[] => {
+    return STATUSES.filter(s => s !== current);
 };
 
 const formatDate = (dateStr: string): string => {
@@ -73,121 +68,64 @@ export const SwipeableTaskRow: React.FC<SwipeableTaskRowProps> = ({
     const statusStyle = STATUS_STYLES[task.status];
     const isDone = task.status === 'Done';
 
-    // ─── Swipe Right → Mark Done / Undo Done ─────────────
+    const otherStatuses = getOtherStatuses(task.status);
+
+    const handleChangeStatus = (newStatus: TaskStatus) => {
+        onStatusChange(task.id, newStatus);
+        swipeableRef.current?.close();
+    };
+
+    const btnPadding = isBoard ? 10 : 14;
+    const btnFontSize = isBoard ? 11 : 13;
+    const actionRadius = isBoard ? 8 : 12;
+    const actionMarginBottom = isBoard ? 8 : 12;
+    const btnMinWidth = isBoard ? 70 : 85;
+
+    // ─── Swipe Right → Show other stages ─────────────────
     const renderLeftActions = (
         progress: Animated.AnimatedInterpolation<number>,
         _dragX: Animated.AnimatedInterpolation<number>,
     ) => {
         const scale = progress.interpolate({
             inputRange: [0, 1],
-            outputRange: [0.6, 1],
+            outputRange: [0.8, 1],
             extrapolate: 'clamp',
         });
-
-        const opacity = progress.interpolate({
-            inputRange: [0, 0.5, 1],
-            outputRange: [0, 0.5, 1],
-            extrapolate: 'clamp',
-        });
-
-        const isCurrentlyDone = task.status === 'Done';
 
         return (
             <Animated.View
                 style={{
-                    backgroundColor: isCurrentlyDone ? '#6B7280' : '#22C55E',
-                    justifyContent: 'center',
-                    alignItems: 'flex-start',
-                    paddingLeft: isBoard ? 14 : 20,
-                    borderRadius: isBoard ? 8 : 12,
-                    marginBottom: isBoard ? 8 : 12,
-                    flex: 1,
-                    opacity,
+                    flexDirection: 'row',
+                    marginBottom: actionMarginBottom,
+                    transform: [{ scale }],
                 }}
             >
-                <Animated.View style={{ transform: [{ scale }] }}>
-                    <View style={{ alignItems: 'center' }}>
+                {otherStatuses.map((status) => (
+                    <TouchableOpacity
+                        key={status}
+                        onPress={() => handleChangeStatus(status)}
+                        activeOpacity={0.7}
+                        style={{
+                            backgroundColor: STATUS_COLORS[status],
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            paddingHorizontal: btnPadding,
+                            minWidth: btnMinWidth,
+                            borderRadius: actionRadius,
+                            marginRight: 4,
+                        }}
+                    >
                         <Text style={{
                             color: '#FFFFFF',
-                            fontSize: isBoard ? 16 : 20,
+                            fontSize: btnFontSize,
                             fontWeight: '700',
                         }}>
-                            {isCurrentlyDone ? '↺' : '✓'}
+                            {status}
                         </Text>
-                        <Text style={{
-                            color: '#FFFFFF',
-                            fontSize: isBoard ? 10 : 12,
-                            fontWeight: '600',
-                            marginTop: 2,
-                        }}>
-                            {isCurrentlyDone ? 'Undo' : 'Done'}
-                        </Text>
-                    </View>
-                </Animated.View>
+                    </TouchableOpacity>
+                ))}
             </Animated.View>
         );
-    };
-
-    // ─── Swipe Left → Move Stage ─────────────────────────
-    const renderRightActions = (
-        progress: Animated.AnimatedInterpolation<number>,
-        _dragX: Animated.AnimatedInterpolation<number>,
-    ) => {
-        const scale = progress.interpolate({
-            inputRange: [0, 1],
-            outputRange: [0.6, 1],
-            extrapolate: 'clamp',
-        });
-
-        const opacity = progress.interpolate({
-            inputRange: [0, 0.5, 1],
-            outputRange: [0, 0.5, 1],
-            extrapolate: 'clamp',
-        });
-
-        const nextColors = NEXT_STATUS_COLORS[task.status];
-        const nextLabel = NEXT_STATUS_LABEL[task.status];
-
-        return (
-            <Animated.View
-                style={{
-                    backgroundColor: nextColors.bg,
-                    justifyContent: 'center',
-                    alignItems: 'flex-end',
-                    paddingRight: isBoard ? 14 : 20,
-                    borderRadius: isBoard ? 8 : 12,
-                    marginBottom: isBoard ? 8 : 12,
-                    flex: 1,
-                    opacity,
-                }}
-            >
-                <Animated.View style={{ transform: [{ scale }] }}>
-                    <View style={{ alignItems: 'center' }}>
-                        <Text style={{
-                            color: nextColors.text,
-                            fontSize: isBoard ? 12 : 14,
-                            fontWeight: '700',
-                        }}>
-                            {nextLabel}
-                        </Text>
-                    </View>
-                </Animated.View>
-            </Animated.View>
-        );
-    };
-
-    // ─── Swipe Handlers ──────────────────────────────────
-    const handleSwipeRight = () => {
-        // Toggle done status
-        const newStatus: TaskStatus = task.status === 'Done' ? 'To Do' : 'Done';
-        onStatusChange(task.id, newStatus);
-        swipeableRef.current?.close();
-    };
-
-    const handleSwipeLeft = () => {
-        const nextStatus = NEXT_STATUS[task.status];
-        onStatusChange(task.id, nextStatus);
-        swipeableRef.current?.close();
     };
 
     // ─── Render ──────────────────────────────────────────
@@ -195,18 +133,8 @@ export const SwipeableTaskRow: React.FC<SwipeableTaskRowProps> = ({
         <Swipeable
             ref={swipeableRef}
             renderLeftActions={renderLeftActions}
-            renderRightActions={renderRightActions}
-            onSwipeableOpen={(direction) => {
-                if (direction === 'left') {
-                    handleSwipeRight();
-                } else {
-                    handleSwipeLeft();
-                }
-            }}
             leftThreshold={isBoard ? 60 : 80}
-            rightThreshold={isBoard ? 60 : 80}
             overshootLeft={false}
-            overshootRight={false}
             friction={2}
         >
             {isBoard ? (
