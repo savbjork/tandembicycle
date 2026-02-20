@@ -38,12 +38,13 @@ const isOverdue = (dateStr: string): boolean => {
 // ─── Component ───────────────────────────────────────────────
 
 export const TasksScreen: React.FC = () => {
-    const [selectedPerson, setSelectedPerson] = React.useState<Person>('Savannah');
+    const selectedPerson: Person = 'Savannah';
     const [viewMode, setViewMode] = React.useState<ViewMode>('list');
     const [showHandoffs, setShowHandoffs] = React.useState(false);
     const [showCreateTask, setShowCreateTask] = React.useState(false);
     const [showCards, setShowCards] = React.useState(false);
     const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
+    const [expandedSection, setExpandedSection] = React.useState<TaskStatus | null>(null);
     const [tasks, setTasks] = React.useState<Task[]>(fakeData.tasks);
     const [handoffs, setHandoffs] = React.useState<Handoff[]>(fakeData.handoffs);
     const [declineTaskId, setDeclineTaskId] = React.useState<string | null>(null);
@@ -188,219 +189,206 @@ export const TasksScreen: React.FC = () => {
 
     return (
         <View className="flex-1 bg-surface-dim">
-            <ScrollView className="flex-1">
-                {/* Header */}
-                <View className="px-5 pt-[60px] pb-5">
-                    <Text className="text-[32px] font-bold text-text tracking-tight">
-                        My Tasks
+            {/* Header */}
+            <View className="px-5 pt-[60px] pb-5">
+                <Text className="text-[32px] font-bold text-text tracking-tight">
+                    My Tasks
+                </Text>
+                <Text className="text-base text-text-secondary mt-1">
+                    {userTasks.length} tasks
+                </Text>
+            </View>
+
+
+            {/* View Toggle + Handoff Button Row */}
+            <View className="flex-row gap-3 px-5 mb-5">
+                {/* View Mode Toggle */}
+                <View className="flex-1 flex-row bg-surface rounded-xl p-1">
+                    <TouchableOpacity
+                        className={`flex-1 py-2.5 rounded-lg items-center ${viewMode === 'list' ? 'bg-primary-600' : ''}`}
+                        onPress={() => setViewMode('list')}
+                    >
+                        <Text className={`text-sm font-semibold ${viewMode === 'list' ? 'text-white' : 'text-text-secondary'}`}>
+                            List
+                        </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        className={`flex-1 py-2.5 rounded-lg items-center ${viewMode === 'board' ? 'bg-primary-600' : ''}`}
+                        onPress={() => setViewMode('board')}
+                    >
+                        <Text className={`text-sm font-semibold ${viewMode === 'board' ? 'text-white' : 'text-text-secondary'}`}>
+                            Board
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+
+                {/* Handoff Button */}
+                <TouchableOpacity
+                    className="bg-surface rounded-xl px-4 py-2.5 items-center justify-center flex-row"
+                    onPress={() => setShowHandoffs(true)}
+                >
+                    <Text className="text-sm font-semibold text-text-secondary">
+                        Handoffs
                     </Text>
-                    <Text className="text-base text-text-secondary mt-1">
-                        {userTasks.length} tasks
+                    {activeHandoffCount > 0 && (
+                        <View className="bg-red-500 rounded-full w-5 h-5 items-center justify-center ml-1.5">
+                            <Text className="text-[11px] font-bold text-white">
+                                {activeHandoffCount}
+                            </Text>
+                        </View>
+                    )}
+                </TouchableOpacity>
+
+                {/* Cards Button */}
+                <TouchableOpacity
+                    className="bg-surface rounded-xl px-4 py-2.5 items-center justify-center"
+                    onPress={() => setShowCards(true)}
+                >
+                    <Text className="text-sm font-semibold text-text-secondary">
+                        Cards
                     </Text>
-                </View>
+                </TouchableOpacity>
 
-                {/* Person Selector */}
-                <View className="flex-row gap-3 px-5 mb-4">
-                    <TouchableOpacity
-                        className={`flex-1 py-3.5 rounded-xl items-center border-2 ${selectedPerson === 'Savannah'
-                            ? 'bg-primary-600 border-primary-600'
-                            : 'bg-surface border-border'
-                            }`}
-                        onPress={() => setSelectedPerson('Savannah')}
-                    >
-                        <Text className={`text-base font-semibold ${selectedPerson === 'Savannah' ? 'text-white' : 'text-text-secondary'}`}>
-                            Savannah
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        className={`flex-1 py-3.5 rounded-xl items-center border-2 ${selectedPerson === 'Kevin'
-                            ? 'bg-secondary-600 border-secondary-600'
-                            : 'bg-surface border-border'
-                            }`}
-                        onPress={() => setSelectedPerson('Kevin')}
-                    >
-                        <Text className={`text-base font-semibold ${selectedPerson === 'Kevin' ? 'text-white' : 'text-text-secondary'}`}>
-                            Kevin
-                        </Text>
-                    </TouchableOpacity>
-                </View>
+                {/* Create Task Button */}
+                <TouchableOpacity
+                    className="bg-primary-600 rounded-xl w-11 py-2.5 items-center justify-center"
+                    onPress={() => setShowCreateTask(true)}
+                >
+                    <Text className="text-lg font-bold text-white">+</Text>
+                </TouchableOpacity>
+            </View>
 
-                {/* View Toggle + Handoff Button Row */}
-                <View className="flex-row gap-3 px-5 mb-5">
-                    {/* View Mode Toggle */}
-                    <View className="flex-1 flex-row bg-surface rounded-xl p-1">
-                        <TouchableOpacity
-                            className={`flex-1 py-2.5 rounded-lg items-center ${viewMode === 'list' ? 'bg-primary-600' : ''}`}
-                            onPress={() => setViewMode('list')}
-                        >
-                            <Text className={`text-sm font-semibold ${viewMode === 'list' ? 'text-white' : 'text-text-secondary'}`}>
-                                List
+            {/* ===== LIST VIEW ===== */}
+            {viewMode === 'list' && (
+                <ScrollView className="flex-1">
+                    {userTasks.length === 0 ? (
+                        <View className="p-10 items-center">
+                            <Text className="text-base text-text-muted text-center">
+                                No tasks assigned to {selectedPerson}
                             </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            className={`flex-1 py-2.5 rounded-lg items-center ${viewMode === 'board' ? 'bg-primary-600' : ''}`}
-                            onPress={() => setViewMode('board')}
-                        >
-                            <Text className={`text-sm font-semibold ${viewMode === 'board' ? 'text-white' : 'text-text-secondary'}`}>
-                                Board
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
+                        </View>
+                    ) : (
+                        <View className="px-5">
+                            {userTasks.map((task) => {
+                                const overdue = isOverdue(task.dueDate) && task.status !== 'Done';
+                                const statusStyle = STATUS_STYLES[task.status];
+                                const isDone = task.status === 'Done';
+                                const pendingHandoff = getPendingHandoff(task.id);
+                                return (
+                                    <TouchableOpacity
+                                        key={task.id}
+                                        className={`bg-surface mb-3 rounded-xl px-4 py-3.5 shadow-sm ${overdue ? 'border border-red-200' : ''}`}
+                                        onPress={() => setSelectedTask(task)}
+                                        activeOpacity={0.7}
+                                    >
+                                        <View className="flex-row items-center">
+                                            <View className={`w-5 h-5 rounded border-2 mr-3 ${isDone ? 'bg-green-500 border-green-500' : overdue ? 'border-red-400' : 'border-border-strong'}`} />
+                                            <View className="flex-1">
+                                                <Text className={`text-[15px] font-medium ${isDone ? 'text-text-muted line-through' : overdue ? 'text-red-600' : 'text-text'}`}>
+                                                    {task.name}
+                                                </Text>
+                                                <View className="flex-row items-center mt-0.5 gap-2">
+                                                    <Text className="text-xs text-text-muted">
+                                                        {task.card}
+                                                    </Text>
+                                                    <View className={`px-1.5 py-0.5 rounded ${statusStyle.bg}`}>
+                                                        <Text className={`text-[10px] font-semibold ${statusStyle.text}`}>
+                                                            {task.status}
+                                                        </Text>
+                                                    </View>
+                                                </View>
+                                            </View>
+                                            <View className="items-end">
+                                                <Text className={`text-xs ${overdue ? 'text-red-500 font-semibold' : 'text-text-secondary'}`}>
+                                                    {overdue ? 'Overdue' : formatDate(task.dueDate)}
+                                                </Text>
+                                                {pendingHandoff && (
+                                                    <View className="bg-amber-100 px-1.5 py-0.5 rounded mt-1">
+                                                        <Text className="text-[10px] font-semibold text-amber-600">
+                                                            {pendingHandoff.from === selectedPerson ? `→ ${pendingHandoff.to}` : `← ${pendingHandoff.from}`}
+                                                        </Text>
+                                                    </View>
+                                                )}
+                                            </View>
+                                        </View>
+                                    </TouchableOpacity>
+                                );
+                            })}
+                        </View>
+                    )}
+                    <View className="h-6" />
+                </ScrollView>
+            )}
 
-                    {/* Handoff Button */}
-                    <TouchableOpacity
-                        className="bg-surface rounded-xl px-4 py-2.5 items-center justify-center flex-row"
-                        onPress={() => setShowHandoffs(true)}
-                    >
-                        <Text className="text-sm font-semibold text-text-secondary">
-                            Handoffs
-                        </Text>
-                        {activeHandoffCount > 0 && (
-                            <View className="bg-red-500 rounded-full w-5 h-5 items-center justify-center ml-1.5">
-                                <Text className="text-[11px] font-bold text-white">
-                                    {activeHandoffCount}
-                                </Text>
-                            </View>
-                        )}
-                    </TouchableOpacity>
-
-                    {/* Cards Button */}
-                    <TouchableOpacity
-                        className="bg-surface rounded-xl px-4 py-2.5 items-center justify-center"
-                        onPress={() => setShowCards(true)}
-                    >
-                        <Text className="text-sm font-semibold text-text-secondary">
-                            Cards
-                        </Text>
-                    </TouchableOpacity>
-
-                    {/* Create Task Button */}
-                    <TouchableOpacity
-                        className="bg-primary-600 rounded-xl w-11 py-2.5 items-center justify-center"
-                        onPress={() => setShowCreateTask(true)}
-                    >
-                        <Text className="text-lg font-bold text-white">+</Text>
-                    </TouchableOpacity>
-                </View>
-
-                {/* ===== LIST VIEW ===== */}
-                {viewMode === 'list' && (
-                    <View className="px-5">
-                        {userTasks.map((task) => {
-                            const overdue = isOverdue(task.dueDate) && task.status !== 'Done';
-                            const statusStyle = STATUS_STYLES[task.status];
-                            const isDone = task.status === 'Done';
-                            const pendingHandoff = getPendingHandoff(task.id);
-                            return (
+            {/* ===== BOARD VIEW ===== */}
+            {viewMode === 'board' && (
+                <View className="flex-1 px-5 pb-4">
+                    {STATUSES.map(status => {
+                        const statusTasks = tasksByStatus(status);
+                        const style = STATUS_STYLES[status];
+                        const isExpanded = expandedSection === status;
+                        const hasExpanded = expandedSection !== null;
+                        const sectionFlex = isExpanded ? 4 : hasExpanded ? 1 : 1;
+                        return (
+                            <View key={status} style={{ flex: sectionFlex, marginBottom: 8 }}>
                                 <TouchableOpacity
-                                    key={task.id}
-                                    className={`bg-surface mb-3 rounded-xl px-4 py-3.5 shadow-sm ${overdue ? 'border border-red-200' : ''}`}
-                                    onPress={() => setSelectedTask(task)}
+                                    className={`flex-row items-center justify-between px-4 py-2.5 rounded-t-xl ${style.headerBg}`}
+                                    onPress={() => setExpandedSection(prev => prev === status ? null : status)}
                                     activeOpacity={0.7}
                                 >
-                                    <View className="flex-row items-center">
-                                        <View className={`w-5 h-5 rounded border-2 mr-3 ${isDone ? 'bg-green-500 border-green-500' : overdue ? 'border-red-400' : 'border-border-strong'}`} />
-                                        <View className="flex-1">
-                                            <Text className={`text-[15px] font-medium ${isDone ? 'text-text-muted line-through' : overdue ? 'text-red-600' : 'text-text'}`}>
-                                                {task.name}
-                                            </Text>
-                                            <View className="flex-row items-center mt-0.5 gap-2">
-                                                <Text className="text-xs text-text-muted">
-                                                    {task.card}
-                                                </Text>
-                                                <View className={`px-1.5 py-0.5 rounded ${statusStyle.bg}`}>
-                                                    <Text className={`text-[10px] font-semibold ${statusStyle.text}`}>
-                                                        {task.status}
-                                                    </Text>
-                                                </View>
-                                            </View>
-                                        </View>
-                                        <View className="items-end">
-                                            <Text className={`text-xs ${overdue ? 'text-red-500 font-semibold' : 'text-text-secondary'}`}>
-                                                {overdue ? 'Overdue' : formatDate(task.dueDate)}
-                                            </Text>
-                                            {pendingHandoff && (
-                                                <View className="bg-amber-100 px-1.5 py-0.5 rounded mt-1">
-                                                    <Text className="text-[10px] font-semibold text-amber-600">
-                                                        {pendingHandoff.from === selectedPerson ? `→ ${pendingHandoff.to}` : `← ${pendingHandoff.from}`}
-                                                    </Text>
-                                                </View>
-                                            )}
-                                        </View>
+                                    <View className="flex-row items-center gap-2">
+                                        <Text className={`text-sm ${style.headerText}`}>
+                                            {isExpanded ? 'v' : '›'}
+                                        </Text>
+                                        <View className={`w-2.5 h-2.5 rounded-full ${style.accent}`} />
+                                        <Text className={`text-sm font-bold ${style.headerText}`}>
+                                            {status}
+                                        </Text>
+                                    </View>
+                                    <View className={`px-2 py-0.5 rounded-full ${style.accent}`}>
+                                        <Text className="text-[11px] font-bold text-white">
+                                            {statusTasks.length}
+                                        </Text>
                                     </View>
                                 </TouchableOpacity>
-                            );
-                        })}
-                    </View>
-                )}
-
-                {/* ===== BOARD VIEW ===== */}
-                {viewMode === 'board' && (
-                    <View className="px-5">
-                        {STATUSES.map(status => {
-                            const statusTasks = tasksByStatus(status);
-                            const style = STATUS_STYLES[status];
-                            return (
-                                <View key={status} className="mb-6">
-                                    <View className={`flex-row items-center justify-between px-4 py-3 rounded-t-xl ${style.headerBg}`}>
-                                        <View className="flex-row items-center gap-2">
-                                            <View className={`w-2.5 h-2.5 rounded-full ${style.accent}`} />
-                                            <Text className={`text-sm font-bold ${style.headerText}`}>
-                                                {status}
-                                            </Text>
+                                <ScrollView
+                                    className="flex-1 bg-surface-dim rounded-b-xl border border-t-0 border-border"
+                                    contentContainerStyle={{ paddingTop: 8, paddingBottom: 4, paddingHorizontal: 8 }}
+                                    nestedScrollEnabled
+                                >
+                                    {statusTasks.length === 0 ? (
+                                        <View className="py-4 items-center">
+                                            <Text className="text-sm text-text-muted">No tasks</Text>
                                         </View>
-                                        <View className={`px-2 py-0.5 rounded-full ${style.accent}`}>
-                                            <Text className="text-[11px] font-bold text-white">
-                                                {statusTasks.length}
-                                            </Text>
-                                        </View>
-                                    </View>
-                                    <View className="bg-surface-dim rounded-b-xl border border-t-0 border-border pt-2 pb-1 px-2">
-                                        {statusTasks.length === 0 ? (
-                                            <View className="py-6 items-center">
-                                                <Text className="text-sm text-text-muted">No tasks</Text>
-                                            </View>
-                                        ) : (
-                                            statusTasks.map((task) => {
-                                                const overdue = isOverdue(task.dueDate) && status !== 'Done';
-                                                return (
-                                                    <TouchableOpacity
-                                                        key={task.id}
-                                                        className={`bg-surface rounded-lg px-3.5 py-3 mb-2 shadow-sm ${overdue ? 'border border-red-200' : ''}`}
-                                                        onPress={() => setSelectedTask(task)}
-                                                        activeOpacity={0.7}
-                                                    >
-                                                        <Text className={`text-[14px] font-medium ${status === 'Done' ? 'text-text-muted line-through' : overdue ? 'text-red-600' : 'text-text'}`}>
-                                                            {task.name}
+                                    ) : (
+                                        statusTasks.map((task) => {
+                                            const overdue = isOverdue(task.dueDate) && status !== 'Done';
+                                            return (
+                                                <TouchableOpacity
+                                                    key={task.id}
+                                                    className={`bg-surface rounded-lg px-3.5 py-3 mb-2 shadow-sm ${overdue ? 'border border-red-200' : ''}`}
+                                                    onPress={() => setSelectedTask(task)}
+                                                    activeOpacity={0.7}
+                                                >
+                                                    <Text className={`text-[14px] font-medium ${status === 'Done' ? 'text-text-muted line-through' : overdue ? 'text-red-600' : 'text-text'}`}>
+                                                        {task.name}
+                                                    </Text>
+                                                    <View className="flex-row items-center justify-between mt-1.5">
+                                                        <Text className="text-xs text-text-muted">{task.card}</Text>
+                                                        <Text className={`text-xs ${overdue ? 'text-red-500 font-semibold' : 'text-text-secondary'}`}>
+                                                            {overdue ? 'Overdue' : formatDate(task.dueDate)}
                                                         </Text>
-                                                        <View className="flex-row items-center justify-between mt-1.5">
-                                                            <Text className="text-xs text-text-muted">{task.card}</Text>
-                                                            <Text className={`text-xs ${overdue ? 'text-red-500 font-semibold' : 'text-text-secondary'}`}>
-                                                                {overdue ? 'Overdue' : formatDate(task.dueDate)}
-                                                            </Text>
-                                                        </View>
-                                                    </TouchableOpacity>
-                                                );
-                                            })
-                                        )}
-                                    </View>
-                                </View>
-                            );
-                        })}
-                    </View>
-                )}
-
-                {/* Empty State */}
-                {userTasks.length === 0 && (
-                    <View className="p-10 items-center">
-                        <Text className="text-base text-text-muted text-center">
-                            No tasks assigned to {selectedPerson}
-                        </Text>
-                    </View>
-                )}
-
-                <View className="h-6" />
-            </ScrollView>
+                                                    </View>
+                                                </TouchableOpacity>
+                                            );
+                                        })
+                                    )}
+                                </ScrollView>
+                            </View>
+                        );
+                    })}
+                </View>
+            )}
 
             {/* ═══════════════════════════════════════════════════════ */}
             {/* HANDOFF MODAL                                          */}
