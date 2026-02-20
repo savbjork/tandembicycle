@@ -21,34 +21,33 @@ export type AuthStackParamList = {
   ForgotPassword: undefined;
 };
 
+// Cards Stack Navigator
+export type CardsStackParamList = {
+  CardsList: undefined;
+  CardDetail: { cardName: string };
+};
+
 // Main Bottom Tab Navigator
 export type MainTabParamList = {
   TasksTab: undefined;
-  CardsTab: undefined;
-  ProfileTab: undefined;
+  CardsTab: NavigatorScreenParams<CardsStackParamList>;
+  HomeTab: NavigatorScreenParams<HomeStackParamList>;
 };
 
-// Home Stack (inside Home Tab)
+// Home Stack (repurposed from Profile)
 export type HomeStackParamList = {
-  Dashboard: undefined;
-  Tasks: undefined;
-  CardDetail: { cardId: string };
+  HomeOverview: undefined;
+  EditProfile: undefined;
+  Settings: undefined;
+  About: undefined;
 };
 
-// Household Stack (inside Household Tab)
+// Household Stack (inside Household Tab/Section)
 export type HouseholdStackParamList = {
   HouseholdOverview: undefined;
   HouseholdSettings: undefined;
   InviteMembers: undefined;
   MemberProfile: { userId: string };
-};
-
-// Profile Stack (inside Profile Tab)
-export type ProfileStackParamList = {
-  ProfileOverview: undefined;
-  EditProfile: undefined;
-  Settings: undefined;
-  About: undefined;
 };
 
 declare global {

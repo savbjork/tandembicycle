@@ -2,9 +2,9 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { MainTabParamList } from './types';
-import { ProfileStackNavigator } from './stacks/ProfileStackNavigator';
+import { HomeStackNavigator } from './stacks/HomeStackNavigator';
+import { CardsStackNavigator } from './stacks/CardsStackNavigator';
 import { TasksScreen } from '@features/home/screens/TasksScreen';
-import { CardsScreen } from '@features/cards/screens/CardsScreen';
 import { COLORS } from '@shared/constants/colors';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -43,7 +43,7 @@ export const MainNavigator: React.FC = () => {
       />
       <Tab.Screen
         name="CardsTab"
-        component={CardsScreen}
+        component={CardsStackNavigator}
         options={{
           tabBarLabel: 'Cards',
           tabBarIcon: ({ color, size }) => (
@@ -52,12 +52,12 @@ export const MainNavigator: React.FC = () => {
         }}
       />
       <Tab.Screen
-        name="ProfileTab"
-        component={ProfileStackNavigator}
+        name="HomeTab"
+        component={HomeStackNavigator}
         options={{
-          tabBarLabel: 'Profile',
+          tabBarLabel: 'Home',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-circle" size={size} color={color} />
+            <Ionicons name="home" size={size} color={color} />
           ),
         }}
       />

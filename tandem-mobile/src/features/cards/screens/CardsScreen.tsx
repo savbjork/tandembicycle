@@ -6,15 +6,21 @@ import Swiper from 'react-native-deck-swiper';
 import { COLORS } from '@shared/constants/colors';
 import { fakeData } from '@shared/data/FakeDataStore';
 
+import { useNavigation } from '@react-navigation/native';
+import { CardsStackParamList } from '@app/navigation/types';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
 interface CardsScreenProps {
   onClose?: () => void;
 }
 
+type NavigationProp = NativeStackNavigationProp<CardsStackParamList>;
+
 export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
+  const navigation = useNavigation<NavigationProp>();
   const [showShuffleModal, setShowShuffleModal] = React.useState(false);
   const [showSwipeMode, setShowSwipeMode] = React.useState(false);
   const [showAddCard, setShowAddCard] = React.useState(false);
-  const [selectedCard, setSelectedCard] = React.useState<string | null>(null);
   const [currentCardIndex, setCurrentCardIndex] = React.useState(0);
   const [shuffledCards, setShuffledCards] = React.useState<Array<{ name: string, owner: string }>>([]);
   const swiperRef = React.useRef<Swiper<{ name: string, owner: string }>>(null);
@@ -126,7 +132,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
             <TouchableOpacity
               key={i}
               className="bg-surface p-4 rounded-xl mb-3 flex-row justify-between items-center border border-border-light shadow-sm"
-              onPress={() => setSelectedCard(card.name)}
+              onPress={() => navigation.navigate('CardDetail', { cardName: card.name })}
             >
               <View className="flex-1">
                 <Text className="text-[15px] font-semibold text-text mb-1">
@@ -356,11 +362,8 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
         </View>
       </Modal>
 
-      {/* Add Card Modal */}
+  // Add Card Modal
       {showAddCard && <AddCardModal onClose={() => setShowAddCard(false)} />}
-
-      {/* Edit Card Modal */}
-      {selectedCard && <CardEditModal cardName={selectedCard} onClose={() => setSelectedCard(null)} />}
     </ScrollView>
   );
 };
@@ -452,120 +455,3 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
   );
 };
 
-// ─── Edit Card Modal ──────────────────────────────────────────────────────────
-
-interface CardEditModalProps {
-  cardName: string;
-  onClose: () => void;
-}
-
-const CardEditModal: React.FC<CardEditModalProps> = ({ cardName, onClose }) => {
-  const [selectedOwner, setSelectedOwner] = React.useState<'Savannah' | 'Kevin'>('Savannah');
-  const [notes, setNotes] = React.useState('');
-
-  const handleSave = () => {
-    Alert.alert(
-      'Card Updated!',
-      `"${cardName}" has been updated.\n\nOwner: ${selectedOwner}`,
-      [{ text: 'OK', onPress: onClose }]
-    );
-  };
-
-  const handleDelete = () => {
-    Alert.alert(
-      'Delete Card',
-      `Are you sure you want to delete "${cardName}"?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => {
-            Alert.alert('Card Deleted', `"${cardName}" has been removed.`, [{ text: 'OK', onPress: onClose }]);
-          },
-        },
-      ]
-    );
-  };
-
-  return (
-    <Modal visible={true} animationType="slide" presentationStyle="pageSheet">
-      <View className="flex-1 bg-surface-dim">
-        {/* Header */}
-        <View className="flex-row items-center justify-between px-5 pt-[60px] pb-4">
-          <TouchableOpacity onPress={onClose}>
-            <Text className="text-base font-semibold text-text-secondary">
-              Cancel
-            </Text>
-          </TouchableOpacity>
-          <Text className="text-lg font-bold text-text">
-            Edit Card
-          </Text>
-          <TouchableOpacity onPress={handleSave}>
-            <Text className="text-base font-semibold text-primary-600">
-              Save
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <ScrollView className="flex-1 px-5" bounces={false}>
-          <Text className="text-[26px] font-bold text-text mb-8">
-            {cardName}
-          </Text>
-
-          <View className="mb-7">
-            <Text className="text-sm font-semibold text-text-secondary mb-3">Owner</Text>
-            <View className="flex-row gap-2">
-              <TouchableOpacity
-                className={`flex-1 py-4 rounded-[10px] items-center ${selectedOwner === 'Savannah' ? 'bg-primary-600' : 'bg-surface border border-border'
-                  }`}
-                onPress={() => setSelectedOwner('Savannah')}
-              >
-                <Text
-                  className={`text-base font-semibold ${selectedOwner === 'Savannah' ? 'text-white' : 'text-text-secondary'
-                    }`}
-                >
-                  Savannah
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                className={`flex-1 py-4 rounded-[10px] items-center ${selectedOwner === 'Kevin' ? 'bg-primary-600' : 'bg-surface border border-border'
-                  }`}
-                onPress={() => setSelectedOwner('Kevin')}
-              >
-                <Text
-                  className={`text-base font-semibold ${selectedOwner === 'Kevin' ? 'text-white' : 'text-text-secondary'
-                    }`}
-                >
-                  Kevin
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <View className="mb-7">
-            <Text className="text-sm font-semibold text-text-secondary mb-3">Notes</Text>
-            <TextInput
-              className="py-3.5 px-[18px] rounded-[10px] bg-surface border border-border text-base text-text min-h-[100px]"
-              placeholder="Add notes..."
-              value={notes}
-              onChangeText={setNotes}
-              multiline
-              numberOfLines={3}
-              style={{ textAlignVertical: 'top' }}
-            />
-          </View>
-
-          <TouchableOpacity
-            className="py-4 rounded-[10px] bg-primary-50 items-center border border-primary-200 mt-4"
-            onPress={handleDelete}
-          >
-            <Text className="text-base font-semibold text-primary-600">
-              Delete Card
-            </Text>
-          </TouchableOpacity>
-        </ScrollView>
-      </View>
-    </Modal>
-  );
-};

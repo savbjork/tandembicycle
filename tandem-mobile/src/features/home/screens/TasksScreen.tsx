@@ -227,13 +227,17 @@ export const TasksScreen: React.FC = () => {
     return (
         <View className="flex-1 bg-surface-dim">
             {/* Header */}
-            <View className="px-5 pt-[60px] pb-5">
+            <View className="px-5 pt-[60px] pb-5 flex-row justify-between items-center">
                 <Text className="text-[32px] font-bold text-text tracking-tight">
                     My Tasks
                 </Text>
-                <Text className="text-base text-text-secondary mt-1">
-                    {userTasks.length} tasks
-                </Text>
+                {/* Create Task Button */}
+                <TouchableOpacity
+                    className="bg-primary-600 rounded-xl w-11 py-2.5 items-center justify-center"
+                    onPress={() => setShowCreateTask(true)}
+                >
+                    <Text className="text-lg font-bold text-white">+</Text>
+                </TouchableOpacity>
             </View>
 
 
@@ -278,13 +282,7 @@ export const TasksScreen: React.FC = () => {
 
 
 
-                {/* Create Task Button */}
-                <TouchableOpacity
-                    className="bg-primary-600 rounded-xl w-11 py-2.5 items-center justify-center"
-                    onPress={() => setShowCreateTask(true)}
-                >
-                    <Text className="text-lg font-bold text-white">+</Text>
-                </TouchableOpacity>
+
             </View>
 
             {/* Time Filter Pills */}
