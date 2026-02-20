@@ -8,7 +8,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Barriecito-Regular'],
+        // sans: ['Barriecito-Regular'],
         barriecito: ['Barriecito-Regular'],
       },
       colors: {
