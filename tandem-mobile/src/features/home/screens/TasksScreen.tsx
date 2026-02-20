@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, ScrollView, TouchableOpacity, Modal, Alert } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { Text } from '@shared/components/ui/Text';
 import { TextInput } from '@shared/components/ui/TextInput';
 import { fakeData, type Person, type Task, type Handoff, type TaskStatus, type HandoffStatus } from '@shared/data/FakeDataStore';
@@ -42,6 +43,7 @@ export const TasksScreen: React.FC = () => {
     const [showHandoffs, setShowHandoffs] = React.useState(false);
     const [showCreateTask, setShowCreateTask] = React.useState(false);
     const [showCards, setShowCards] = React.useState(false);
+    const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
     const [tasks, setTasks] = React.useState<Task[]>(fakeData.tasks);
     const [handoffs, setHandoffs] = React.useState<Handoff[]>(fakeData.handoffs);
     const [declineTaskId, setDeclineTaskId] = React.useState<string | null>(null);
@@ -50,7 +52,8 @@ export const TasksScreen: React.FC = () => {
     // New task form state
     const [newTaskName, setNewTaskName] = React.useState('');
     const [newTaskCard, setNewTaskCard] = React.useState('');
-    const [newTaskDueDate, setNewTaskDueDate] = React.useState('');
+    const [newTaskDueDate, setNewTaskDueDate] = React.useState<Date>(new Date());
+    const [showNewTaskDatePicker, setShowNewTaskDatePicker] = React.useState(false);
     const [newTaskStatus, setNewTaskStatus] = React.useState<TaskStatus>('To Do');
     const [newTaskNote, setNewTaskNote] = React.useState('');
     const [sendToPartner, setSendToPartner] = React.useState(false);
@@ -130,7 +133,7 @@ export const TasksScreen: React.FC = () => {
     const resetCreateForm = () => {
         setNewTaskName('');
         setNewTaskCard('');
-        setNewTaskDueDate('');
+        setNewTaskDueDate(new Date());
         setNewTaskStatus('To Do');
         setNewTaskNote('');
         setSendToPartner(false);
@@ -150,7 +153,7 @@ export const TasksScreen: React.FC = () => {
             name: newTaskName.trim(),
             card: newTaskCard.trim() || 'Uncategorized',
             owner: sendToPartner ? selectedPerson : selectedPerson, // starts with creator
-            dueDate: newTaskDueDate || new Date().toISOString().split('T')[0],
+            dueDate: newTaskDueDate.toISOString().split('T')[0],
             status: newTaskStatus,
             note: newTaskNote.trim() || undefined,
         };
@@ -289,9 +292,11 @@ export const TasksScreen: React.FC = () => {
                             const isDone = task.status === 'Done';
                             const pendingHandoff = getPendingHandoff(task.id);
                             return (
-                                <View
+                                <TouchableOpacity
                                     key={task.id}
                                     className={`bg-surface mb-3 rounded-xl px-4 py-3.5 shadow-sm ${overdue ? 'border border-red-200' : ''}`}
+                                    onPress={() => setSelectedTask(task)}
+                                    activeOpacity={0.7}
                                 >
                                     <View className="flex-row items-center">
                                         <View className={`w-5 h-5 rounded border-2 mr-3 ${isDone ? 'bg-green-500 border-green-500' : overdue ? 'border-red-400' : 'border-border-strong'}`} />
@@ -323,7 +328,7 @@ export const TasksScreen: React.FC = () => {
                                             )}
                                         </View>
                                     </View>
-                                </View>
+                                </TouchableOpacity>
                             );
                         })}
                     </View>
@@ -359,9 +364,11 @@ export const TasksScreen: React.FC = () => {
                                             statusTasks.map((task) => {
                                                 const overdue = isOverdue(task.dueDate) && status !== 'Done';
                                                 return (
-                                                    <View
+                                                    <TouchableOpacity
                                                         key={task.id}
                                                         className={`bg-surface rounded-lg px-3.5 py-3 mb-2 shadow-sm ${overdue ? 'border border-red-200' : ''}`}
+                                                        onPress={() => setSelectedTask(task)}
+                                                        activeOpacity={0.7}
                                                     >
                                                         <Text className={`text-[14px] font-medium ${status === 'Done' ? 'text-text-muted line-through' : overdue ? 'text-red-600' : 'text-text'}`}>
                                                             {task.name}
@@ -372,7 +379,7 @@ export const TasksScreen: React.FC = () => {
                                                                 {overdue ? 'Overdue' : formatDate(task.dueDate)}
                                                             </Text>
                                                         </View>
-                                                    </View>
+                                                    </TouchableOpacity>
                                                 );
                                             })
                                         )}
@@ -606,12 +613,41 @@ export const TasksScreen: React.FC = () => {
                         <Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
                             Due Date
                         </Text>
-                        <TextInput
-                            className="bg-surface rounded-xl px-4 py-3.5 text-base text-text mb-4 border border-border"
-                            placeholder="YYYY-MM-DD (e.g. 2026-02-25)"
-                            value={newTaskDueDate}
-                            onChangeText={setNewTaskDueDate}
-                        />
+                        <TouchableOpacity
+                            className="bg-surface rounded-xl px-4 py-3.5 mb-4 border border-border flex-row items-center justify-between"
+                            onPress={() => setShowNewTaskDatePicker(true)}
+                        >
+                            <Text className="text-base text-text">
+                                {newTaskDueDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                            </Text>
+                            <Text className="text-sm text-text-muted">Change</Text>
+                        </TouchableOpacity>
+
+                        {/* Calendar Date Picker Modal */}
+                        <Modal visible={showNewTaskDatePicker} transparent animationType="fade">
+                            <TouchableOpacity
+                                className="flex-1 bg-black/40 justify-end"
+                                activeOpacity={1}
+                                onPress={() => setShowNewTaskDatePicker(false)}
+                            >
+                                <View className="bg-surface rounded-t-2xl px-4 pb-8 pt-4">
+                                    <View className="flex-row justify-between items-center mb-2 px-1">
+                                        <Text className="text-lg font-bold text-text">Select Date</Text>
+                                        <TouchableOpacity onPress={() => setShowNewTaskDatePicker(false)}>
+                                            <Text className="text-base font-semibold text-primary-600">Done</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                    <DateTimePicker
+                                        value={newTaskDueDate}
+                                        mode="date"
+                                        display="inline"
+                                        onChange={(_event: any, date?: Date) => {
+                                            if (date) setNewTaskDueDate(date);
+                                        }}
+                                    />
+                                </View>
+                            </TouchableOpacity>
+                        </Modal>
 
                         {/* Status Picker */}
                         <Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
@@ -707,6 +743,243 @@ export const TasksScreen: React.FC = () => {
                     <DashboardScreen onClose={() => setShowCards(false)} />
                 </View>
             </Modal>
+
+            {/* ═══════════════════════════════════════════════════════ */}
+            {/* EDIT TASK MODAL                                       */}
+            {/* ═══════════════════════════════════════════════════════ */}
+            {selectedTask && (
+                <EditTaskModal
+                    task={selectedTask}
+                    onClose={() => setSelectedTask(null)}
+                    onSave={(updatedTask) => {
+                        setTasks(prev => prev.map(t => t.id === updatedTask.id ? updatedTask : t));
+                        setSelectedTask(null);
+                    }}
+                    onDelete={(taskId) => {
+                        setTasks(prev => prev.filter(t => t.id !== taskId));
+                        setSelectedTask(null);
+                    }}
+                />
+            )}
         </View>
+    );
+};
+
+// ─── Edit Task Modal ─────────────────────────────────────────
+
+interface EditTaskModalProps {
+    task: Task;
+    onClose: () => void;
+    onSave: (task: Task) => void;
+    onDelete: (taskId: string) => void;
+}
+
+const EditTaskModal: React.FC<EditTaskModalProps> = ({ task, onClose, onSave, onDelete }) => {
+    const [editName, setEditName] = React.useState(task.name);
+    const [editCard, setEditCard] = React.useState(task.card);
+    const [editDueDateObj, setEditDueDateObj] = React.useState<Date>(new Date(task.dueDate + 'T00:00:00'));
+    const [showEditDatePicker, setShowEditDatePicker] = React.useState(false);
+    const [editStatus, setEditStatus] = React.useState<TaskStatus>(task.status);
+    const [editOwner, setEditOwner] = React.useState<Person>(task.owner);
+    const [editNote, setEditNote] = React.useState(task.note || '');
+
+    const handleSave = () => {
+        if (!editName.trim()) {
+            Alert.alert('Missing name', 'Please enter a task name.');
+            return;
+        }
+        onSave({
+            ...task,
+            name: editName.trim(),
+            card: editCard.trim() || 'Uncategorized',
+            dueDate: editDueDateObj.toISOString().split('T')[0],
+            status: editStatus,
+            owner: editOwner,
+            note: editNote.trim() || undefined,
+        });
+    };
+
+    const handleDelete = () => {
+        Alert.alert(
+            'Delete Task',
+            `Are you sure you want to delete "${task.name}"?`,
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: () => onDelete(task.id),
+                },
+            ]
+        );
+    };
+
+    return (
+        <Modal visible={true} animationType="slide" presentationStyle="pageSheet">
+            <View className="flex-1 bg-surface-dim">
+                {/* Modal Header */}
+                <View className="flex-row items-center justify-between px-5 pt-[60px] pb-4">
+                    <TouchableOpacity onPress={onClose}>
+                        <Text className="text-base font-semibold text-text-secondary">
+                            Cancel
+                        </Text>
+                    </TouchableOpacity>
+                    <Text className="text-lg font-bold text-text">
+                        Edit Task
+                    </Text>
+                    <TouchableOpacity onPress={handleSave}>
+                        <Text className="text-base font-bold text-primary-600">
+                            Save
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+
+                <ScrollView className="flex-1 px-5">
+                    {/* Task Name */}
+                    <Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2 mt-2">
+                        Task Name *
+                    </Text>
+                    <TextInput
+                        className="bg-surface rounded-xl px-4 py-3.5 text-base text-text mb-4 border border-border"
+                        placeholder="What needs to be done?"
+                        value={editName}
+                        onChangeText={setEditName}
+                    />
+
+                    {/* Card / Group */}
+                    <Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
+                        Card / Group
+                    </Text>
+                    <TextInput
+                        className="bg-surface rounded-xl px-4 py-3.5 text-base text-text mb-4 border border-border"
+                        placeholder="e.g. Daily Tidying, Meal Planning"
+                        value={editCard}
+                        onChangeText={setEditCard}
+                    />
+
+                    {/* Due Date */}
+                    <Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
+                        Due Date
+                    </Text>
+                    <TouchableOpacity
+                        className="bg-surface rounded-xl px-4 py-3.5 mb-4 border border-border flex-row items-center justify-between"
+                        onPress={() => setShowEditDatePicker(true)}
+                    >
+                        <Text className="text-base text-text">
+                            {editDueDateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                        </Text>
+                        <Text className="text-sm text-text-muted">Change</Text>
+                    </TouchableOpacity>
+
+                    {/* Calendar Date Picker Modal */}
+                    <Modal visible={showEditDatePicker} transparent animationType="fade">
+                        <TouchableOpacity
+                            className="flex-1 bg-black/40 justify-end"
+                            activeOpacity={1}
+                            onPress={() => setShowEditDatePicker(false)}
+                        >
+                            <View className="bg-surface rounded-t-2xl px-4 pb-8 pt-4">
+                                <View className="flex-row justify-between items-center mb-2 px-1">
+                                    <Text className="text-lg font-bold text-text">Select Date</Text>
+                                    <TouchableOpacity onPress={() => setShowEditDatePicker(false)}>
+                                        <Text className="text-base font-semibold text-primary-600">Done</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <DateTimePicker
+                                    value={editDueDateObj}
+                                    mode="date"
+                                    display="inline"
+                                    onChange={(_event: any, date?: Date) => {
+                                        if (date) setEditDueDateObj(date);
+                                    }}
+                                />
+                            </View>
+                        </TouchableOpacity>
+                    </Modal>
+
+                    {/* Status Picker */}
+                    <Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
+                        Status
+                    </Text>
+                    <View className="flex-row gap-2 mb-5">
+                        {STATUSES.map(status => {
+                            const style = STATUS_STYLES[status];
+                            const isSelected = editStatus === status;
+                            return (
+                                <TouchableOpacity
+                                    key={status}
+                                    className={`flex-1 py-3 rounded-xl items-center border-2 ${isSelected
+                                        ? `${style.headerBg} border-current`
+                                        : 'bg-surface border-border'
+                                        }`}
+                                    onPress={() => setEditStatus(status)}
+                                >
+                                    <Text className={`text-sm font-semibold ${isSelected ? style.headerText : 'text-text-secondary'
+                                        }`}>
+                                        {status}
+                                    </Text>
+                                </TouchableOpacity>
+                            );
+                        })}
+                    </View>
+
+                    {/* Owner */}
+                    <Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
+                        Owner
+                    </Text>
+                    <View className="flex-row gap-2 mb-5">
+                        <TouchableOpacity
+                            className={`flex-1 py-3.5 rounded-xl items-center border-2 ${editOwner === 'Savannah'
+                                ? 'bg-primary-600 border-primary-600'
+                                : 'bg-surface border-border'
+                                }`}
+                            onPress={() => setEditOwner('Savannah')}
+                        >
+                            <Text className={`text-base font-semibold ${editOwner === 'Savannah' ? 'text-white' : 'text-text-secondary'
+                                }`}>
+                                Savannah
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            className={`flex-1 py-3.5 rounded-xl items-center border-2 ${editOwner === 'Kevin'
+                                ? 'bg-secondary-600 border-secondary-600'
+                                : 'bg-surface border-border'
+                                }`}
+                            onPress={() => setEditOwner('Kevin')}
+                        >
+                            <Text className={`text-base font-semibold ${editOwner === 'Kevin' ? 'text-white' : 'text-text-secondary'
+                                }`}>
+                                Kevin
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    {/* Note */}
+                    <Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
+                        Note (optional)
+                    </Text>
+                    <TextInput
+                        className="bg-surface rounded-xl px-4 py-3.5 text-base text-text mb-5 border border-border"
+                        placeholder="Add any context or details..."
+                        value={editNote}
+                        onChangeText={setEditNote}
+                        multiline
+                        numberOfLines={3}
+                    />
+
+                    {/* Delete */}
+                    <TouchableOpacity
+                        className="bg-surface rounded-xl px-4 py-4 mb-4 border border-red-200 items-center"
+                        onPress={handleDelete}
+                    >
+                        <Text className="text-base font-semibold text-red-500">
+                            Delete Task
+                        </Text>
+                    </TouchableOpacity>
+
+                    <View className="h-10" />
+                </ScrollView>
+            </View>
+        </Modal>
     );
 };
