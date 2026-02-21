@@ -12,6 +12,9 @@ export type HouseholdId = Brand<string, 'HouseholdId'>;
 export type CardId = Brand<string, 'CardId'>;
 export type HouseholdCardId = Brand<string, 'HouseholdCardId'>;
 export type InvitationId = Brand<string, 'InvitationId'>;
+export type TaskId = Brand<string, 'TaskId'>;
+export type DropZoneItemId = Brand<string, 'DropZoneItemId'>;
+export type AuditableId = Brand<string, 'AuditableId'>;
 
 /**
  * Helper functions to create branded types
@@ -21,4 +24,7 @@ export const asHouseholdId = (id: string): HouseholdId => id as HouseholdId;
 export const asCardId = (id: string): CardId => id as CardId;
 export const asHouseholdCardId = (id: string): HouseholdCardId => id as HouseholdCardId;
 export const asInvitationId = (id: string): InvitationId => id as InvitationId;
+export const asTaskId = (id: string): TaskId => id as TaskId;
+export const asDropZoneItemId = (id: string): DropZoneItemId => id as DropZoneItemId;
+export const asAuditableId = (id: string): AuditableId => id as AuditableId;
 

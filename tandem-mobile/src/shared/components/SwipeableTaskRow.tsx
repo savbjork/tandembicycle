@@ -48,6 +48,7 @@ interface SwipeableTaskRowProps {
     task: Task;
     onPress: () => void;
     onStatusChange: (taskId: string, newStatus: TaskStatus) => void;
+    onAudible?: (taskId: string) => void;
     pendingHandoffLabel?: string | null;
     variant?: 'list' | 'board';
 }
@@ -58,6 +59,7 @@ export const SwipeableTaskRow: React.FC<SwipeableTaskRowProps> = ({
     task,
     onPress,
     onStatusChange,
+    onAudible,
     pendingHandoffLabel,
     variant = 'list',
 }) => {
@@ -81,7 +83,7 @@ export const SwipeableTaskRow: React.FC<SwipeableTaskRowProps> = ({
     const actionMarginBottom = isBoard ? 8 : 12;
     const btnMinWidth = isBoard ? 70 : 85;
 
-    // ─── Swipe Right → Show other stages ─────────────────
+    // ─── Swipe Left → Show other stages ─────────────────
     const renderLeftActions = (
         progress: Animated.AnimatedInterpolation<number>,
         _dragX: Animated.AnimatedInterpolation<number>,
@@ -128,13 +130,65 @@ export const SwipeableTaskRow: React.FC<SwipeableTaskRowProps> = ({
         );
     };
 
+    // ─── Swipe Left ← Show Audible ──────────────────────
+    const renderRightActions = (
+        progress: Animated.AnimatedInterpolation<number>,
+        _dragX: Animated.AnimatedInterpolation<number>,
+    ) => {
+        const scale = progress.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0.8, 1],
+            extrapolate: 'clamp',
+        });
+
+        if (task.status === 'Done') return null;
+
+        return (
+            <Animated.View
+                style={{
+                    flexDirection: 'row',
+                    marginBottom: actionMarginBottom,
+                    transform: [{ scale }],
+                }}
+            >
+                <TouchableOpacity
+                    onPress={() => {
+                        onAudible?.(task.id);
+                        swipeableRef.current?.close();
+                    }}
+                    activeOpacity={0.7}
+                    style={{
+                        backgroundColor: '#F59E0B', // amber-500
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        paddingHorizontal: btnPadding,
+                        minWidth: btnMinWidth + 20,
+                        borderRadius: actionRadius,
+                        marginLeft: 4,
+                    }}
+                >
+                    <Text style={{
+                        color: '#FFFFFF',
+                        fontSize: btnFontSize,
+                        fontWeight: '700',
+                    }}>
+                        CALL AUDIBLE
+                    </Text>
+                </TouchableOpacity>
+            </Animated.View>
+        );
+    };
+
     // ─── Render ──────────────────────────────────────────
     return (
         <Swipeable
             ref={swipeableRef}
             renderLeftActions={renderLeftActions}
+            renderRightActions={renderRightActions}
             leftThreshold={isBoard ? 60 : 80}
+            rightThreshold={isBoard ? 60 : 80}
             overshootLeft={false}
+            overshootRight={false}
             friction={2}
         >
             {isBoard ? (

@@ -2,9 +2,9 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { MainTabParamList } from './types';
-import { HomeStackNavigator } from './stacks/HomeStackNavigator';
 import { CardsStackNavigator } from './stacks/CardsStackNavigator';
 import { TasksScreen } from '@features/home/screens/TasksScreen';
+import { InboxScreen } from '@features/home/screens/InboxScreen';
 import { COLORS } from '@shared/constants/colors';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -32,32 +32,32 @@ export const MainNavigator: React.FC = () => {
       }}
     >
       <Tab.Screen
-        name="TasksTab"
+        name="BoardTab"
         component={TasksScreen}
         options={{
-          tabBarLabel: 'Tasks',
+          tabBarLabel: 'My Board',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="list" size={size} color={color} />
           ),
         }}
       />
       <Tab.Screen
-        name="CardsTab"
+        name="RosterTab"
         component={CardsStackNavigator}
         options={{
-          tabBarLabel: 'Cards',
+          tabBarLabel: 'Roster',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="card" size={size} color={color} />
+            <Ionicons name="people" size={size} color={color} />
           ),
         }}
       />
       <Tab.Screen
-        name="HomeTab"
-        component={HomeStackNavigator}
+        name="InboxTab"
+        component={InboxScreen}
         options={{
-          tabBarLabel: 'Home',
+          tabBarLabel: 'Inbox',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
+            <Ionicons name="mail" size={size} color={color} />
           ),
         }}
       />

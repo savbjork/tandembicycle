@@ -21,6 +21,8 @@ export interface HouseholdCard {
   cardId: CardId;
   currentOwner: UserId | null;
   isActive: boolean;
+  isArchived: boolean;
+  isPrivate: boolean;
   assignmentHistory: Assignment[];
   notes?: string;
   createdAt: Date;

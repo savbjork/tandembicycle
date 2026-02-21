@@ -29,9 +29,9 @@ export type CardsStackParamList = {
 
 // Main Bottom Tab Navigator
 export type MainTabParamList = {
-  TasksTab: undefined;
-  CardsTab: NavigatorScreenParams<CardsStackParamList>;
-  HomeTab: NavigatorScreenParams<HomeStackParamList>;
+  BoardTab: undefined;
+  RosterTab: NavigatorScreenParams<CardsStackParamList>;
+  InboxTab: undefined;
 };
 
 // Home Stack (repurposed from Profile)

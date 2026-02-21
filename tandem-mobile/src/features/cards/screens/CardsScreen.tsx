@@ -5,8 +5,9 @@ import { TextInput } from '@shared/components/ui/TextInput';
 import { AddButton } from '@shared/components/ui/AddButton';
 import { DoneButton } from '@shared/components/ui/HeaderButtons';
 import Swiper from 'react-native-deck-swiper';
+import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
-import { fakeData } from '@shared/data/FakeDataStore';
+import { fakeData, type Card } from '@shared/data/FakeDataStore';
 
 import { useNavigation } from '@react-navigation/native';
 import { CardsStackParamList } from '@app/navigation/types';
@@ -25,18 +26,16 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
   const [showAddCard, setShowAddCard] = React.useState(false);
   const [currentCardIndex, setCurrentCardIndex] = React.useState(0);
   const [shuffledCards, setShuffledCards] = React.useState<Array<{ name: string, owner: string }>>([]);
+  const [isSelecting, setIsSelecting] = React.useState(false);
+  const [selectedCardNames, setSelectedCardNames] = React.useState<string[]>([]);
+  const [cards, setCards] = React.useState<Card[]>(fakeData.cards);
   const swiperRef = React.useRef<Swiper<{ name: string, owner: string }>>(null);
-
-  const allCards = fakeData.cards;
 
   const handleSwipeLeft = (cardIndex: number) => {
     const updatedCards = [...shuffledCards];
     updatedCards[cardIndex] = { ...updatedCards[cardIndex], owner: 'Savannah' };
     setShuffledCards(updatedCards);
     setCurrentCardIndex(cardIndex + 1);
-    if (cardIndex >= shuffledCards.length - 1) {
-      finishShuffle(updatedCards);
-    }
   };
 
   const handleSwipeRight = (cardIndex: number) => {
@@ -44,116 +43,253 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
     updatedCards[cardIndex] = { ...updatedCards[cardIndex], owner: 'Kevin' };
     setShuffledCards(updatedCards);
     setCurrentCardIndex(cardIndex + 1);
-    if (cardIndex >= shuffledCards.length - 1) {
-      finishShuffle(updatedCards);
-    }
   };
 
   const finishShuffle = (updatedCards: typeof shuffledCards) => {
-    console.log('Shuffle complete:', updatedCards);
+    // Persistent state update (simulated for FakeDataStore)
+    const newCards = [...cards];
+    const newTasks = [...fakeData.tasks];
+
+    updatedCards.forEach(updated => {
+      const card = newCards.find(c => c.name === updated.name);
+      if (card) {
+        card.owner = updated.owner as any;
+
+        // Also move all associated tasks to the new owner
+        newTasks.forEach(task => {
+          if (task.card === updated.name) {
+            task.owner = updated.owner as any;
+          }
+        });
+      }
+    });
+
+    // Update global store
+    fakeData.cards = newCards;
+    fakeData.tasks = newTasks;
+    // Update local state to trigger re-render
+    setCards(newCards);
+
     setShowSwipeMode(false);
     setCurrentCardIndex(0);
+    setIsSelecting(false);
+    setSelectedCardNames([]);
   };
 
-  const startSwipeShuffle = () => {
+  const startSwipeShuffle = (cardsToShuffle: Card[] = cards) => {
     setShowShuffleModal(false);
-    setShuffledCards([...allCards]);
+    setShuffledCards([...cardsToShuffle]);
     setCurrentCardIndex(0);
     setShowSwipeMode(true);
   };
 
+  const toggleCardSelection = (name: string) => {
+    setSelectedCardNames(prev =>
+      prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]
+    );
+  };
+
+  const handleFreshStart = () => {
+    Alert.alert(
+      'Fresh Start?',
+      'This will delete ALL current cards and reset to a standard deck. This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reset Everything',
+          style: 'destructive',
+          onPress: () => {
+            const freshCards: Card[] = [
+              { name: 'Daily Tidying', owner: 'Savannah' },
+              { name: 'Laundry', owner: 'Savannah' },
+              { name: 'Meal Planning', owner: 'Savannah' },
+              { name: 'Dishes', owner: 'Kevin' },
+              { name: 'Yard Work', owner: 'Kevin' },
+              { name: 'Dinner', owner: 'Kevin' },
+            ];
+            fakeData.cards = freshCards;
+            setCards(freshCards);
+            setShowShuffleModal(false);
+            Alert.alert('Reset Complete', 'Standard deck restored.');
+          }
+        }
+      ]
+    );
+  };
+
+  const handleSelectiveShuffle = () => {
+    if (selectedCardNames.length === 0) {
+      Alert.alert('No Cards Selected', 'Please select at least one card to reassign.');
+      return;
+    }
+    const cardsToShuffle = cards.filter(c => selectedCardNames.includes(c.name));
+    startSwipeShuffle(cardsToShuffle);
+  };
+
   return (
-    <ScrollView className="flex-1 px-5 pt-[60px] pb-5 bg-surface-dim">
-      {/* Header */}
-      <View className="flex-row justify-between items-center mb-6">
-        <View className="flex-1">
-          <Text className="text-[32px] font-bold text-text tracking-tight">
-            Cards
-          </Text>
-        </View>
-        <View className="flex-row gap-2 mt-1">
-          <AddButton onPress={() => setShowAddCard(true)} />
-          {onClose && <DoneButton onPress={onClose} />}
-        </View>
-      </View>
-
-      {/* Balance Meter */}
-      <View className="bg-surface rounded-xl p-5 mb-6 shadow-sm">
-        <View className="flex-row justify-between items-start mb-4">
-          <View>
-            <Text className="text-base font-semibold text-text">
-              Balance
+    <View className="flex-1 bg-surface-dim">
+      <ScrollView className="flex-1 px-5 pt-[60px] pb-5">
+        {/* Header */}
+        <View className="flex-row justify-between items-center mb-6">
+          <View className="flex-1">
+            <Text className="text-[32px] font-bold text-text tracking-tight">
+              {isSelecting ? 'Select Cards' : 'Cards'}
             </Text>
-            <Text className="text-[13px] text-text-secondary mt-0.5">
-              {allCards.length} cards total
-            </Text>
+          </View>
+          <View className="flex-row gap-2 mt-1">
+            {isSelecting ? (
+              <TouchableOpacity
+                onPress={() => {
+                  setIsSelecting(false);
+                  setSelectedCardNames([]);
+                }}
+                className="bg-surface px-4 py-2 rounded-full border border-border"
+              >
+                <Text className="text-sm font-semibold text-text-secondary">Cancel</Text>
+              </TouchableOpacity>
+            ) : (
+              <>
+                <TouchableOpacity
+                  onPress={() => setShowShuffleModal(true)}
+                  className="bg-surface w-10 h-10 rounded-full items-center justify-center border border-border"
+                >
+                  <Ionicons name="shuffle" size={20} color={COLORS.text.secondary} />
+                </TouchableOpacity>
+                <AddButton onPress={() => setShowAddCard(true)} />
+                {onClose && <DoneButton onPress={onClose} />}
+              </>
+            )}
           </View>
         </View>
 
-        <View className="h-2 bg-border-muted rounded-full flex-row overflow-hidden mb-4">
-          <View className="h-full bg-primary-600" style={{ width: '43%' }} />
-          <View className="h-full bg-secondary-600" style={{ width: '57%' }} />
-        </View>
-
-        <View className="flex-row justify-around">
-          <View className="items-center">
-            <Text className="text-2xl font-bold text-primary-600">
-              6
-            </Text>
-            <Text className="text-[13px] text-text-secondary mt-1">
-              Savannah
-            </Text>
-          </View>
-          <View className="items-center">
-            <Text className="text-2xl font-bold text-secondary-600">
-              8
-            </Text>
-            <Text className="text-[13px] text-text-secondary mt-1">
-              Kevin
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Cards List */}
-      {allCards.length > 0 ? (
-        <>
-          {allCards.map((card, i) => (
-            <TouchableOpacity
-              key={i}
-              className="bg-surface p-4 rounded-xl mb-3 flex-row justify-between items-center border border-border-light shadow-sm"
-              onPress={() => navigation.navigate('CardDetail', { cardName: card.name })}
-            >
-              <View className="flex-1">
-                <Text className="text-[15px] font-semibold text-text mb-1">
-                  {card.name}
+        {/* Balance Meter */}
+        {!isSelecting && (
+          <View className="bg-surface rounded-xl p-5 mb-6 shadow-sm">
+            <View className="flex-row justify-between items-start mb-4">
+              <View>
+                <Text className="text-base font-semibold text-text">
+                  Balance
+                </Text>
+                <Text className="text-[13px] text-text-secondary mt-0.5">
+                  {cards.length} cards total
                 </Text>
               </View>
-              <View className="ml-3">
-                <View className={`w-8 h-8 rounded-full items-center justify-center ${card.owner === 'Savannah' ? 'bg-primary-600' : 'bg-secondary-600'}`}>
-                  <Text className="text-xs font-bold text-white">
-                    {card.owner.charAt(0)}
+              <TouchableOpacity
+                onPress={() => startSwipeShuffle()}
+                className="bg-primary-50 px-3 py-1.5 rounded-lg"
+              >
+                <Text className="text-xs font-bold text-primary-600 uppercase">Reshuffle All</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View className="h-2 bg-border-muted rounded-full flex-row overflow-hidden mb-4">
+              <View className="h-full bg-primary-600" style={{ width: `${(cards.filter((c: Card) => c.owner === 'Savannah').length / cards.length) * 100}%` }} />
+              <View className="h-full bg-secondary-600" style={{ width: `${(cards.filter((c: Card) => c.owner === 'Kevin').length / cards.length) * 100}%` }} />
+            </View>
+
+            <View className="flex-row justify-around">
+              <View className="items-center">
+                <Text className="text-2xl font-bold text-primary-600">
+                  {cards.filter((c: Card) => c.owner === 'Savannah').length}
+                </Text>
+                <Text className="text-[13px] text-text-secondary mt-1">
+                  Savannah
+                </Text>
+              </View>
+              <View className="items-center">
+                <Text className="text-2xl font-bold text-secondary-600">
+                  {cards.filter((c: Card) => c.owner === 'Kevin').length}
+                </Text>
+                <Text className="text-[13px] text-text-secondary mt-1">
+                  Kevin
+                </Text>
+              </View>
+            </View>
+          </View>
+        )}
+
+        <View className="mb-6">
+          <View className="flex-row items-center gap-2 mb-4">
+            <Ionicons name="hand-right" size={20} color={COLORS.primary[600]} />
+            <Text className="text-xl font-bold text-text">My Hand</Text>
+          </View>
+
+          {cards.filter((c: Card) => c.owner === 'Savannah').map((card: Card, i: number) => {
+            const isSelected = selectedCardNames.includes(card.name);
+            return (
+              <TouchableOpacity
+                key={i}
+                className={`bg-surface p-4 rounded-xl mb-3 flex-row justify-between items-center border shadow-sm ${isSelecting && isSelected ? 'border-primary-600' : 'border-border-light'
+                  }`}
+                onPress={() => isSelecting ? toggleCardSelection(card.name) : navigation.navigate('CardDetail', { cardName: card.name })}
+              >
+                <View className="flex-1 flex-row items-center gap-3">
+                  {isSelecting && (
+                    <Ionicons
+                      name={isSelected ? "checkbox" : "square-outline"}
+                      size={20}
+                      color={isSelected ? COLORS.primary[600] : COLORS.text.muted}
+                    />
+                  )}
+                  <Text className="text-[15px] font-semibold text-text">
+                    {card.name}
                   </Text>
                 </View>
-              </View>
-            </TouchableOpacity>
-          ))}
+                <Ionicons name="chevron-forward" size={18} color={COLORS.text.muted} />
+              </TouchableOpacity>
+            );
+          })}
+        </View>
 
-          {/* Shuffle Cards Button */}
+        <View className="mb-10">
+          <View className="flex-row items-center gap-2 mb-4">
+            <Ionicons name="people" size={20} color={COLORS.secondary[600]} />
+            <Text className="text-xl font-bold text-text">Partner's Hand</Text>
+          </View>
+
+          {cards.filter((c: Card) => c.owner === 'Kevin').map((card: Card, i: number) => {
+            const isSelected = selectedCardNames.includes(card.name);
+            return (
+              <TouchableOpacity
+                key={i}
+                className={`bg-surface p-4 rounded-xl mb-3 flex-row justify-between items-center border shadow-sm ${isSelecting && isSelected ? 'border-primary-600' : 'border-border-light'
+                  }`}
+                onPress={() => isSelecting ? toggleCardSelection(card.name) : navigation.navigate('CardDetail', { cardName: card.name })}
+              >
+                <View className="flex-1 flex-row items-center gap-3">
+                  {isSelecting && (
+                    <Ionicons
+                      name={isSelected ? "checkbox" : "square-outline"}
+                      size={20}
+                      color={isSelected ? COLORS.primary[600] : COLORS.text.muted}
+                    />
+                  )}
+                  <Text className="text-[15px] font-semibold text-text">
+                    {card.name}
+                  </Text>
+                </View>
+                <View className="bg-secondary-100 px-3 py-1 rounded-full">
+                  <Text className="text-[11px] font-bold text-secondary-700">DROP ZONE</Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+        <View className="h-20" />
+      </ScrollView>
+
+      {/* Floating Selective Shuffle Button */}
+      {isSelecting && (
+        <View className="absolute bottom-10 left-5 right-5">
           <TouchableOpacity
-            className="bg-primary-600 rounded-xl py-4 px-6 mb-6 items-center shadow-md"
-            onPress={() => setShowShuffleModal(true)}
+            className={`py-4 rounded-xl items-center shadow-lg ${selectedCardNames.length > 0 ? 'bg-primary-600' : 'bg-border'
+              }`}
+            onPress={handleSelectiveShuffle}
           >
-            <Text className="text-lg font-bold text-white tracking-tight">
-              Shuffle Cards
+            <Text className="text-white font-bold text-lg">
+              Reassign {selectedCardNames.length} Cards
             </Text>
           </TouchableOpacity>
-        </>
-      ) : (
-        <View className="bg-surface rounded-xl p-10 items-center mt-5">
-          <Text className="text-sm text-text-muted text-center">
-            No cards yet
-          </Text>
         </View>
       )}
 
@@ -165,40 +301,65 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
         onRequestClose={() => setShowShuffleModal(false)}
       >
         <View className="flex-1 bg-surface-dim">
-          {/* Visual Cushion / Grabber */}
           <View className="items-center pt-3 pb-2">
             <View className="w-10 h-1.5 bg-border-strong rounded-full opacity-20" />
           </View>
 
           <View className="p-6">
             <Text className="text-[22px] font-bold text-text mb-4">
-              Shuffle Cards
+              Rebalance Household
             </Text>
-
             <Text className="text-sm text-text-secondary mb-6 leading-5">
-              Redistribute cards between Savannah and Kevin to create a more
-              balanced household.
+              Periodically reassigning cards ensures a more balanced and fair distribution of domestic labor.
             </Text>
 
             <TouchableOpacity
-              className="bg-surface rounded-xl p-4 mb-4 border border-border shadow-sm"
-              onPress={() => {
-                setShowShuffleModal(false);
-                console.log('Start from scratch clicked');
-              }}
+              className="bg-surface rounded-xl p-5 mb-4 border border-border flex-row items-center gap-4 shadow-sm"
+              onPress={() => startSwipeShuffle()}
             >
-              <Text className="text-base font-semibold text-text mb-1.5">
-                Generate And Assign New Cards
-              </Text>
+              <View className="w-10 h-10 bg-primary-100 rounded-full items-center justify-center">
+                <Ionicons name="refresh" size={20} color={COLORS.primary[600]} />
+              </View>
+              <View className="flex-1">
+                <Text className="text-base font-bold text-text">Reassign Entire Deck</Text>
+                <Text className="text-xs text-text-secondary mt-0.5">Swipe through all current cards</Text>
+              </View>
             </TouchableOpacity>
 
             <TouchableOpacity
-              className="bg-primary-50 rounded-xl p-4 mb-3 border border-primary-100 shadow-sm"
-              onPress={startSwipeShuffle}
+              className="bg-surface rounded-xl p-5 mb-4 border border-border flex-row items-center gap-4 shadow-sm"
+              onPress={() => {
+                setShowShuffleModal(false);
+                setIsSelecting(true);
+              }}
             >
-              <Text className="text-base font-semibold text-primary-600 mb-1.5">
-                Assign Existing Cards
-              </Text>
+              <View className="w-10 h-10 bg-secondary-100 rounded-full items-center justify-center">
+                <Ionicons name="checkmark-circle" size={20} color={COLORS.secondary[600]} />
+              </View>
+              <View className="flex-1">
+                <Text className="text-base font-bold text-text">Selective Reassignment</Text>
+                <Text className="text-xs text-text-secondary mt-0.5">Choose specific cards to trade</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              className="bg-red-50 rounded-xl p-5 mb-8 border border-red-100 flex-row items-center gap-4 shadow-sm"
+              onPress={handleFreshStart}
+            >
+              <View className="w-10 h-10 bg-red-100 rounded-full items-center justify-center">
+                <Ionicons name="trash" size={20} color="#dc2626" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-base font-bold text-red-600">Fresh Start</Text>
+                <Text className="text-xs text-red-500 mt-0.5">Delete all and start with defaults</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => setShowShuffleModal(false)}
+              className="px-4 py-3 items-center"
+            >
+              <Text className="text-base font-semibold text-text-muted">Not right now</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -212,36 +373,32 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
         onRequestClose={() => setShowSwipeMode(false)}
       >
         <View className="flex-1 bg-surface-dim pt-10 pb-[30px] px-5">
-          {/* Header */}
           <View className="flex-row justify-between items-center mb-5">
             <Text className="text-2xl font-bold text-text">
               Assign Cards
             </Text>
             <TouchableOpacity onPress={() => setShowSwipeMode(false)}>
-              <Text className="text-lg font-semibold text-primary-600">Done</Text>
+              <Text className="text-lg font-semibold text-primary-600">Cancel</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Progress */}
           <View className="items-center mb-5">
             <Text className="text-base font-semibold text-text-secondary">
               {currentCardIndex} / {shuffledCards.length}
             </Text>
           </View>
 
-          {/* Instructions */}
           <View className="flex-row justify-between mb-5 px-5">
             <View className="flex-row items-center gap-2">
               <Text className="text-2xl font-bold text-primary-600">←</Text>
-              <Text className="text-base font-semibold text-text">Savannah</Text>
+              <Text className="text-base font-semibold text-text">Savannah Hand</Text>
             </View>
             <View className="flex-row items-center gap-2">
-              <Text className="text-base font-semibold text-text">Kevin</Text>
+              <Text className="text-base font-semibold text-text">Kevin Hand</Text>
               <Text className="text-2xl font-bold text-secondary-600">→</Text>
             </View>
           </View>
 
-          {/* Card Stack with Swiper */}
           <View className="flex-1 justify-center items-center relative">
             {shuffledCards.length > 0 && (
               <Swiper
@@ -258,9 +415,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
                 )}
                 onSwipedLeft={handleSwipeLeft}
                 onSwipedRight={handleSwipeRight}
-                onSwipedAll={() => {
-                  finishShuffle(shuffledCards);
-                }}
+                onSwipedAll={() => finishShuffle(shuffledCards)}
                 cardIndex={0}
                 backgroundColor="transparent"
                 stackSize={2}
@@ -323,7 +478,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
 
       {/* Add Card Modal */}
       {showAddCard && <AddCardModal onClose={() => setShowAddCard(false)} />}
-    </ScrollView>
+    </View>
   );
 };
 
@@ -344,15 +499,15 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
       return;
     }
 
-    if (isQuiet) {
-      fakeData.cards.push({ name: cardName.trim(), owner: selectedOwner });
-      onClose();
-    } else {
+    fakeData.cards.push({ name: cardName.trim(), owner: selectedOwner });
+    if (!isQuiet) {
       Alert.alert(
         'Card Added!',
         `"${cardName}" has been added to ${selectedOwner}'s cards.`,
         [{ text: 'OK', onPress: onClose }]
       );
+    } else {
+      onClose();
     }
   };
 
@@ -364,13 +519,11 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
       onRequestClose={() => handleAddCard(true)}
     >
       <View className="flex-1 bg-surface-dim">
-        {/* Visual Cushion / Grabber */}
         <View className="items-center pt-3 pb-2">
           <View className="w-10 h-1.5 bg-border-strong rounded-full opacity-20" />
         </View>
 
         <ScrollView className="flex-1 px-5" bounces={false}>
-          {/* Header */}
           <View className="pt-2 pb-6">
             <Text className="text-2xl font-bold text-text">New Card</Text>
           </View>
