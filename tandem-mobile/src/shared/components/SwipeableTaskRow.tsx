@@ -35,6 +35,7 @@ interface TaskRowProps {
     hideBackground?: boolean;
     hideCardName?: boolean;
     hideDueDate?: boolean;
+    showOwnerIcon?: boolean;
     pendingHandoffLabel?: string | null;
 }
 
@@ -46,6 +47,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
     hideBackground = false,
     hideCardName = false,
     hideDueDate = false,
+    showOwnerIcon = false,
     pendingHandoffLabel,
 }) => {
     const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -152,16 +154,25 @@ export const TaskRow: React.FC<TaskRowProps> = ({
                         </View>
                     )}
                 </View>
-                <View className="items-end">
-                    {!hideDueDate && (
-                        <Text className={`text-xs ${overdue ? 'text-red-500 font-semibold' : 'text-text-secondary'}`}>
-                            {overdue ? 'Overdue' : formatDate(task.dueDate)}
-                        </Text>
-                    )}
-                    {pendingHandoffLabel && (
-                        <View className="bg-amber-100 px-1.5 py-0.5 rounded mt-1">
-                            <Text className="text-[10px] font-semibold text-amber-600">
-                                {pendingHandoffLabel}
+                <View className="items-end flex-row items-center gap-3">
+                    <View className="items-end">
+                        {!hideDueDate && (
+                            <Text className={`text-xs ${overdue ? 'text-red-500 font-semibold' : 'text-text-secondary'}`}>
+                                {overdue ? 'Overdue' : formatDate(task.dueDate)}
+                            </Text>
+                        )}
+                        {pendingHandoffLabel && (
+                            <View className="bg-amber-100 px-1.5 py-0.5 rounded mt-1">
+                                <Text className="text-[10px] font-semibold text-amber-600">
+                                    {pendingHandoffLabel}
+                                </Text>
+                            </View>
+                        )}
+                    </View>
+                    {showOwnerIcon && (
+                        <View className={`w-8 h-8 rounded-full items-center justify-center ${task.owner === 'Savannah' ? 'bg-primary-600' : 'bg-secondary-600'}`}>
+                            <Text className="text-white text-[12px] font-bold">
+                                {task.owner.charAt(0)}
                             </Text>
                         </View>
                     )}

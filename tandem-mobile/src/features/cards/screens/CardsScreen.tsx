@@ -36,6 +36,8 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
   const [tasks, setTasks] = React.useState<Task[]>(fakeData.tasks);
   const [filter, setFilter] = React.useState<CardsFilter>('all');
   const [taskTimeFilter, setTaskTimeFilter] = React.useState<TaskTimeFilter>('week');
+  const [hideCompleted, setHideCompleted] = React.useState(false);
+  const [hideUndated, setHideUndated] = React.useState(false);
   const swiperRef = React.useRef<Swiper<{ name: string, owner: string }>>(null);
 
   const selectedPerson = 'Savannah';
@@ -152,6 +154,8 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
     if (taskTimeFilter === 'all') return true;
     if (taskTimeFilter === 'none') return false;
 
+    if (!task.dueDate) return !hideUndated;
+
     const taskDate = new Date(task.dueDate + 'T00:00:00');
     const now = new Date();
     now.setHours(0, 0, 0, 0);
@@ -203,14 +207,8 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
                 >
                   <Ionicons name="options-outline" size={20} color={COLORS.text.secondary} />
                   {(filter !== 'all' || taskTimeFilter !== 'none') && (
-                    <View className="absolute top-0 right-0 w-3 h-3 bg-primary-600 rounded-full border-2 border-surface" />
+                    <View className="absolute top-0 right-0 w-3 h-3 rounded-full border-2 border-surface" />
                   )}
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('MyBoard')}
-                  className="bg-primary-600 w-10 h-10 rounded-full items-center justify-center shadow-sm"
-                >
-                  <Ionicons name="list" size={20} color="white" />
                 </TouchableOpacity>
                 {filter === 'all' && (
                   <TouchableOpacity
@@ -222,6 +220,12 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
                 )}
                 <AddButton onPress={() => setShowAddCard(true)} />
                 {onClose && <DoneButton onPress={onClose} />}
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('MyBoard')}
+                  className="bg-primary-600 px-4 h-10 rounded-full flex-row items-center justify-center shadow-sm gap-2"
+                >
+                  <Text className="text-white font-bold text-sm">Tasks</Text>
+                </TouchableOpacity>
               </View>
             )}
           </View>
@@ -268,73 +272,17 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
         )}
 
         <View className="mb-6">
-          <View className="flex-row items-center gap-2 mb-4">
-            <Ionicons name="hand-right" size={20} color={COLORS.primary[600]} />
-            <Text className="text-xl font-bold text-text">My Hand</Text>
-          </View>
-
-          {cards.filter((c: Card) => c.owner === 'Savannah').map((card: Card, i: number) => {
-            const isSelected = selectedCardNames.includes(card.name);
-            return (
-              <TouchableOpacity
-                key={i}
-                className={`bg-surface p-4 rounded-xl mb-3 border-[0.5px] shadow-sm ${isSelecting && isSelected ? 'border-primary-600' : 'border-border-light'
-                  }`}
-                onPress={() => isSelecting ? toggleCardSelection(card.name) : navigation.navigate('CardDetail', { cardName: card.name })}
-              >
-                <View className="flex-row justify-between items-center">
-                  <View className="flex-1 flex-row items-center gap-3">
-                    {isSelecting && (
-                      <Ionicons
-                        name={isSelected ? "checkbox" : "square-outline"}
-                        size={20}
-                        color={isSelected ? COLORS.primary[600] : COLORS.text.muted}
-                      />
-                    )}
-                    <Text className="text-[17px] font-bold text-text">
-                      {card.name}
-                    </Text>
-                  </View>
-                  {!isSelecting && <Ionicons name="chevron-forward" size={18} color={COLORS.text.muted} />}
-                </View>
-
-                {!isSelecting && taskTimeFilter !== 'none' && (
-                  <>
-                    {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t) && t.owner === selectedPerson).length > 0 && (
-                      <View className="pl-0 mt-2">
-                        {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t) && t.owner === selectedPerson).slice(0, 3).map((task: Task) => (
-                          <TaskRow
-                            key={task.id}
-                            task={task}
-                            onToggleDone={handleToggleDone}
-                            variant="list"
-                            hideBackground
-                            hideCardName
-                          />
-                        ))}
-                        {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t) && t.owner === selectedPerson).length > 3 && (
-                          <Text className="text-[11px] text-text-muted italic ml-14">
-                            + {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t) && t.owner === selectedPerson).length - 3} more tasks
-                          </Text>
-                        )}
-                      </View>
-                    )}
-                  </>
-                )}
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        {filter === 'all' && (
-          <View className="mb-10">
-            <View className="flex-row items-center gap-2 mb-4">
-              <Ionicons name="people" size={20} color={COLORS.secondary[600]} />
-              <Text className="text-xl font-bold text-text">Partner's Hand</Text>
-            </View>
-
-            {cards.filter((c: Card) => c.owner === 'Kevin').map((card: Card, i: number) => {
+          {cards
+            .filter((c: Card) => filter === 'all' ? true : c.owner === 'Savannah')
+            .map((card: Card, i: number) => {
               const isSelected = selectedCardNames.includes(card.name);
+              const cardTasks = tasks.filter((t: Task) =>
+                t.card === card.name &&
+                isTaskInTimeFrame(t) &&
+                t.owner === 'Savannah' &&
+                (!hideCompleted || !t.isDone)
+              );
+
               return (
                 <TouchableOpacity
                   key={i}
@@ -355,13 +303,22 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
                         {card.name}
                       </Text>
                     </View>
+                    {!isSelecting && (
+                      <View className="flex-row items-center gap-2">
+                        {filter === 'all' && (
+                          <View className={`w-7 h-7 rounded-full items-center justify-center ${card.owner === 'Savannah' ? 'bg-primary-600' : 'bg-secondary-600'}`}>
+                            <Text className="text-white text-[10px] font-bold">{card.owner.charAt(0)}</Text>
+                          </View>
+                        )}
+                      </View>
+                    )}
                   </View>
 
                   {!isSelecting && taskTimeFilter !== 'none' && (
                     <>
-                      {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t) && t.owner === selectedPerson).length > 0 && (
+                      {cardTasks.length > 0 && (
                         <View className="pl-0 mt-2">
-                          {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t) && t.owner === selectedPerson).slice(0, 3).map((task: Task) => (
+                          {cardTasks.slice(0, 3).map((task: Task) => (
                             <TaskRow
                               key={task.id}
                               task={task}
@@ -369,11 +326,12 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
                               variant="list"
                               hideBackground
                               hideCardName
+                              showOwnerIcon={false}
                             />
                           ))}
-                          {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t) && t.owner === selectedPerson).length > 3 && (
+                          {cardTasks.length > 3 && (
                             <Text className="text-[11px] text-text-muted italic ml-14">
-                              + {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t) && t.owner === selectedPerson).length - 3} more tasks
+                              + {cardTasks.length - 3} more tasks
                             </Text>
                           )}
                         </View>
@@ -383,8 +341,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
                 </TouchableOpacity>
               );
             })}
-          </View>
-        )}
+        </View>
         <View className="h-20" />
       </ScrollView>
 
@@ -454,6 +411,28 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
               ))}
             </View>
 
+            <View className="mb-8">
+              <TouchableOpacity
+                onPress={() => setHideCompleted(!hideCompleted)}
+                className="flex-row items-center gap-3 mb-4 px-1"
+              >
+                <View className={`w-5 h-5 rounded border items-center justify-center ${hideCompleted ? 'bg-primary-600 border-primary-600' : 'bg-surface border-border'}`}>
+                  {hideCompleted && <Ionicons name="checkmark" size={14} color="white" />}
+                </View>
+                <Text className="text-[15px] font-medium text-text">Hide completed tasks</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setHideUndated(!hideUndated)}
+                className="flex-row items-center gap-3 px-1"
+              >
+                <View className={`w-5 h-5 rounded border items-center justify-center ${hideUndated ? 'bg-primary-600 border-primary-600' : 'bg-surface border-border'}`}>
+                  {hideUndated && <Ionicons name="checkmark" size={14} color="white" />}
+                </View>
+                <Text className="text-[15px] font-medium text-text">Hide tasks without a due date</Text>
+              </TouchableOpacity>
+            </View>
+
             <TouchableOpacity
               onPress={() => setShowFilterMenu(false)}
               className="bg-primary-600 py-4 rounded-2xl items-center shadow-sm"
@@ -468,16 +447,22 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
       <Modal
         visible={showShuffleModal}
         animationType="slide"
-        presentationStyle="pageSheet"
+        transparent={true}
         onRequestClose={() => setShowShuffleModal(false)}
       >
-        <View className="flex-1 bg-surface-dim">
-          <View className="items-center pt-3 pb-2">
-            <View className="w-10 h-1.5 bg-border-strong rounded-full opacity-20" />
-          </View>
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => setShowShuffleModal(false)}
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' }}
+        >
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={e => e.stopPropagation()}
+            style={{ backgroundColor: COLORS.surface.DEFAULT, borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 24, paddingBottom: 40 }}
+          >
+            <View className="w-10 h-1.5 bg-border rounded-full self-center mb-6 opacity-30" />
 
-          <View className="p-6">
-            <Text className="text-[22px] font-bold text-text mb-4">
+            <Text className="text-[22px] font-bold text-text mb-2">
               Rebalance Household
             </Text>
             <Text className="text-sm text-text-secondary mb-6 leading-5">
@@ -485,7 +470,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
             </Text>
 
             <TouchableOpacity
-              className="bg-surface rounded-xl p-5 mb-4 border border-border flex-row items-center gap-4 shadow-sm"
+              className="bg-surface rounded-xl p-4 mb-3 border border-border flex-row items-center gap-4 shadow-sm"
               onPress={() => startSwipeShuffle()}
             >
               <View className="w-10 h-10 bg-primary-100 rounded-full items-center justify-center">
@@ -498,7 +483,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              className="bg-surface rounded-xl p-5 mb-4 border border-border flex-row items-center gap-4 shadow-sm"
+              className="bg-surface rounded-xl p-4 mb-3 border border-border flex-row items-center gap-4 shadow-sm"
               onPress={() => {
                 setShowShuffleModal(false);
                 setIsSelecting(true);
@@ -514,7 +499,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              className="bg-red-50 rounded-xl p-5 mb-8 border border-red-100 flex-row items-center gap-4 shadow-sm"
+              className="bg-red-50 rounded-xl p-4 mb-6 border border-red-100 flex-row items-center gap-4 shadow-sm"
               onPress={handleFreshStart}
             >
               <View className="w-10 h-10 bg-red-100 rounded-full items-center justify-center">
@@ -526,14 +511,8 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={() => setShowShuffleModal(false)}
-              className="px-4 py-3 items-center"
-            >
-              <Text className="text-base font-semibold text-text-muted">Not right now</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
       </Modal>
 
       {/* Swipe Mode Modal */}
@@ -686,49 +665,53 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
     <Modal
       visible={true}
       animationType="slide"
-      presentationStyle="pageSheet"
+      transparent={true}
       onRequestClose={() => handleAddCard(true)}
     >
-      <View className="flex-1 bg-surface-dim">
-        <View className="items-center pt-3 pb-2">
-          <View className="w-10 h-1.5 bg-border-strong rounded-full opacity-20" />
-        </View>
+      <TouchableOpacity
+        activeOpacity={1}
+        onPress={() => handleAddCard(true)}
+        style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' }}
+      >
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={e => e.stopPropagation()}
+          style={{ backgroundColor: COLORS.surface.DEFAULT, borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 24, paddingBottom: 50 }}
+        >
+          <View className="w-10 h-1.5 bg-border rounded-full self-center mb-6 opacity-30" />
 
-        <ScrollView className="flex-1 px-5" bounces={false}>
-          <View className="pt-2 pb-6">
-            <Text className="text-2xl font-bold text-text">New Card</Text>
-          </View>
+          <Text className="text-xl font-bold text-text mb-6">New Card</Text>
 
           <TextInput
-            className="text-lg font-medium text-text mb-8 py-3.5 px-4 rounded-xl bg-surface border border-border"
+            className="text-lg font-medium text-text mb-6 py-3.5 px-4 rounded-xl bg-surface-dim border border-border"
             placeholder="Card Name (e.g. Groceries, Rent)"
             value={cardName}
             onChangeText={setCardName}
             autoFocus
           />
 
-          <View className="mb-7">
-            <Text className="text-sm font-semibold text-text-secondary mb-3 uppercase tracking-wider">Owner</Text>
+          <View className="mb-8">
+            <Text className="text-[11px] font-bold text-text-muted uppercase tracking-widest mb-3">Owner</Text>
             <View className="flex-row gap-2">
               <TouchableOpacity
-                className={`flex-1 py-4 rounded-xl items-center border ${selectedOwner === 'Savannah' ? 'bg-primary-600 border-primary-600' : 'bg-surface border-border'
+                className={`flex-1 py-3 px-4 rounded-xl items-center border ${selectedOwner === 'Savannah' ? 'bg-primary-50 border-primary-600' : 'bg-surface border-border'
                   }`}
                 onPress={() => setSelectedOwner('Savannah')}
               >
                 <Text
-                  className={`text-base font-semibold ${selectedOwner === 'Savannah' ? 'text-white' : 'text-text-secondary'
+                  className={`text-sm font-semibold ${selectedOwner === 'Savannah' ? 'text-primary-600' : 'text-text-secondary'
                     }`}
                 >
                   Savannah
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                className={`flex-1 py-4 rounded-xl items-center border ${selectedOwner === 'Kevin' ? 'bg-primary-600 border-primary-600' : 'bg-surface border-border'
+                className={`flex-1 py-3 px-4 rounded-xl items-center border ${selectedOwner === 'Kevin' ? 'bg-primary-50 border-primary-600' : 'bg-surface border-border'
                   }`}
                 onPress={() => setSelectedOwner('Kevin')}
               >
                 <Text
-                  className={`text-base font-semibold ${selectedOwner === 'Kevin' ? 'text-white' : 'text-text-secondary'
+                  className={`text-sm font-semibold ${selectedOwner === 'Kevin' ? 'text-primary-600' : 'text-text-secondary'
                     }`}
                 >
                   Kevin
@@ -738,13 +721,13 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
           </View>
 
           <TouchableOpacity
-            className="bg-primary-600 py-4 rounded-xl items-center shadow-sm"
+            className="bg-primary-600 py-4 rounded-2xl items-center shadow-sm"
             onPress={() => handleAddCard(false)}
           >
-            <Text className="text-lg font-bold text-white">Add Card</Text>
+            <Text className="text-white font-bold text-base">Add Card</Text>
           </TouchableOpacity>
-        </ScrollView>
-      </View>
+        </TouchableOpacity>
+      </TouchableOpacity>
     </Modal>
   );
 };

@@ -18,8 +18,43 @@ export const CardDetailScreen: React.FC = () => {
 
     // Find the current card to get its initial state
     const currentCard = fakeData.cards.find(c => c.name === cardName);
+    const [name, setName] = React.useState(cardName);
+    const [isEditingName, setIsEditingName] = React.useState(false);
     const [notes, setNotes] = React.useState('');
     const [tasks, setTasks] = React.useState(fakeData.tasks.filter(t => t.card === cardName && t.owner === 'Savannah'));
+
+    const handleSaveName = () => {
+        if (!name.trim() || name === cardName) {
+            setName(cardName);
+            setIsEditingName(false);
+            return;
+        }
+
+        // Check if new name already exists (simulated)
+        if (fakeData.cards.some(c => c.name === name.trim() && c.name !== cardName)) {
+            Alert.alert('Name Taken', 'A card with this name already exists.');
+            setName(cardName);
+            setIsEditingName(false);
+            return;
+        }
+
+        const newName = name.trim();
+
+        // Update global store
+        const cardIndex = fakeData.cards.findIndex(c => c.name === cardName);
+        if (cardIndex !== -1) {
+            fakeData.cards[cardIndex].name = newName;
+        }
+
+        // Update all associated tasks
+        fakeData.tasks.forEach(t => {
+            if (t.card === cardName) {
+                t.card = newName;
+            }
+        });
+
+        setIsEditingName(false);
+    };
 
     const handleToggleDone = (taskId: string, isDone: boolean) => {
         setTasks(prev => prev.map(t => t.id === taskId ? { ...t, isDone } : t));
@@ -42,7 +77,7 @@ export const CardDetailScreen: React.FC = () => {
                             <Ionicons name="people" size={40} color={COLORS.secondary[600]} />
                         </View>
                         <Text className="text-2xl font-bold text-text text-center mb-2">
-                            {cardName}
+                            {name}
                         </Text>
                         <Text className="text-base text-text-secondary text-center mb-4">
                             Domain of {currentCard?.owner}
@@ -69,29 +104,35 @@ export const CardDetailScreen: React.FC = () => {
             </View>
             <ScrollView className="flex-1 px-5" contentContainerStyle={{ paddingBottom: 40 }}>
                 {/* Private Workbench UI */}
-                <View className="mb-6 pt-4">
-                    <Text className="text-[32px] font-bold text-text tracking-tight mb-1">
-                        {cardName}
-                    </Text>
-                    <Text className="text-base text-text-secondary">
-                        Private Workbench
-                    </Text>
+                <View className="mb-6 pt-4 flex-row justify-between items-start">
+                    <View className="flex-1">
+                        {isEditingName ? (
+                            <TextInput
+                                className="text-[32px] font-bold text-text tracking-tight mb-1 p-0"
+                                value={name}
+                                onChangeText={setName}
+                                onBlur={handleSaveName}
+                                autoFocus
+                                returnKeyType="done"
+                            />
+                        ) : (
+                            <TouchableOpacity onPress={() => setIsEditingName(true)}>
+                                <Text className="text-[32px] font-bold text-text tracking-tight mb-1">
+                                    {name}
+                                </Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
                 </View>
 
-                <View className="bg-surface rounded-2xl p-5 border border-border shadow-sm mb-6">
-                    <Text className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-4">
-                        Card Info
-                    </Text>
-                    <TextInput
-                        className="py-3 px-4 rounded-xl bg-surface-dim border border-border text-base text-text min-h-[80px]"
-                        placeholder="Add private notes, checklists, or reminders for yourself..."
-                        value={notes}
-                        onChangeText={setNotes}
-                        multiline
-                        numberOfLines={3}
-                        style={{ textAlignVertical: 'top' }}
-                    />
-                </View>
+                <Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
+                    Card Notes
+                </Text>
+                <TextInput
+                    className="bg-surface rounded-xl px-4 py-3.5 text-base text-text mb-5 border border-border"
+                    value={notes}
+                    onChangeText={setNotes}
+                />
 
                 <View className="flex-row justify-between items-center mb-4">
                     <Text className="text-lg font-bold text-text">Private Tasks</Text>

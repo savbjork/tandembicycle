@@ -11,7 +11,6 @@ import { COLORS } from '@shared/constants/colors';
 
 // ─── View Constants ──────────────────────────────────────────
 
-type TimeFilter = 'week' | 'month' | 'year' | 'all';
 
 // Helper to get YYYY-MM-DD from a local Date object without UTC shifts
 const toDateStringLocal = (date: Date): string => {
@@ -28,7 +27,8 @@ export const TasksScreen: React.FC = () => {
     const selectedPerson: Person = 'Savannah';
     const [showCreateTask, setShowCreateTask] = React.useState(false);
     const [tasks, setTasks] = React.useState<Task[]>(fakeData.tasks);
-    const [timeFilter, setTimeFilter] = React.useState<TimeFilter>('all');
+    const [hideCompleted, setHideCompleted] = React.useState(false);
+    const [hideUndated, setHideUndated] = React.useState(false);
 
     // Refresh tasks when screen comes into focus
     useFocusEffect(
@@ -44,33 +44,11 @@ export const TasksScreen: React.FC = () => {
     const [newTaskNote, setNewTaskNote] = React.useState('');
 
     // Filter tasks for current user
-    const userTasks = tasks.filter((task) => {
-        const isOwner = task.owner === selectedPerson;
-        if (!isOwner) return false;
-
-        if (timeFilter === 'all') return true;
-
-        const taskDate = new Date(task.dueDate + 'T00:00:00');
-        const now = new Date();
-        now.setHours(0, 0, 0, 0);
-
-        if (timeFilter === 'week') {
-            const nextWeek = new Date(now);
-            nextWeek.setDate(now.getDate() + 7);
-            return taskDate >= now && taskDate <= nextWeek;
-        }
-        if (timeFilter === 'month') {
-            const nextMonth = new Date(now);
-            nextMonth.setMonth(now.getMonth() + 1);
-            return taskDate >= now && taskDate <= nextMonth;
-        }
-        if (timeFilter === 'year') {
-            const nextYear = new Date(now);
-            nextYear.setFullYear(now.getFullYear() + 1);
-            return taskDate >= now && taskDate <= nextYear;
-        }
-        return true;
-    });
+    const userTasks = tasks.filter((task) =>
+        task.owner === selectedPerson &&
+        (!hideCompleted || !task.isDone) &&
+        (!hideUndated || !!task.dueDate)
+    );
 
     const handleToggleDone = (taskId: string, isDone: boolean) => {
         setTasks((prev) =>
@@ -115,27 +93,32 @@ export const TasksScreen: React.FC = () => {
                         <Ionicons name="chevron-back" size={28} color={COLORS.text.DEFAULT} />
                     </TouchableOpacity>
                     <Text className="text-[32px] font-bold text-text tracking-tight">
-                        My Board
+                        My Tasks
                     </Text>
                 </View>
                 <AddButton onPress={() => setShowCreateTask(true)} />
             </View>
 
-            {/* Time Filter Pills */}
-            <View className="flex-row gap-2 px-5 mb-4">
-                {(['week', 'month', 'year', 'all'] as TimeFilter[]).map((f) => (
-                    <TouchableOpacity
-                        key={f}
-                        onPress={() => setTimeFilter(f)}
-                        className={`px-4 py-2 rounded-full border ${timeFilter === f ? 'bg-primary-600 border-primary-600' : 'bg-surface border-border'
-                            }`}
-                    >
-                        <Text className={`text-sm font-semibold capitalize ${timeFilter === f ? 'text-white' : 'text-text-secondary'
-                            }`}>
-                            {f}
-                        </Text>
-                    </TouchableOpacity>
-                ))}
+            <View className="px-5 mb-4 flex-row justify-end gap-4">
+                <TouchableOpacity
+                    onPress={() => setHideUndated(!hideUndated)}
+                    className="flex-row items-center gap-2"
+                >
+                    <View className={`w-4 h-4 rounded border items-center justify-center ${hideUndated ? 'bg-primary-600 border-primary-600' : 'bg-surface border-border'}`}>
+                        {hideUndated && <Ionicons name="checkmark" size={12} color="white" />}
+                    </View>
+                    <Text className="text-[13px] font-medium text-text-secondary">Hide Undated</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    onPress={() => setHideCompleted(!hideCompleted)}
+                    className="flex-row items-center gap-2"
+                >
+                    <View className={`w-4 h-4 rounded border items-center justify-center ${hideCompleted ? 'bg-primary-600 border-primary-600' : 'bg-surface border-border'}`}>
+                        {hideCompleted && <Ionicons name="checkmark" size={12} color="white" />}
+                    </View>
+                    <Text className="text-[13px] font-medium text-text-secondary">Hide Done</Text>
+                </TouchableOpacity>
             </View>
 
             {/* List View */}
@@ -156,17 +139,6 @@ export const TasksScreen: React.FC = () => {
                         />
                     ))
                 )}
-
-                {/* Manage Own Section */}
-                <View className="mt-10 mb-20 bg-primary-50 rounded-2xl p-6 border border-primary-100">
-                    <Text className="text-lg font-bold text-primary-900 mb-2">Manage Own</Text>
-                    <Text className="text-sm text-primary-700 mb-4">
-                        These are your private cards. No one else can see them until you hand them off.
-                    </Text>
-                    <TouchableOpacity className="bg-primary-600 py-3 rounded-xl items-center">
-                        <Text className="text-white font-bold">Edit Private Cards</Text>
-                    </TouchableOpacity>
-                </View>
             </ScrollView>
 
             {/* Create Task Modal */}

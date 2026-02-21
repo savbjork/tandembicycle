@@ -13,12 +13,12 @@ interface AddButtonProps extends TouchableOpacityProps {
  */
 export const AddButton: React.FC<AddButtonProps> = ({
     className,
-    size = 24,
+    size = 20,
     ...props
 }) => {
     return (
         <TouchableOpacity
-            className={`bg-primary-600 rounded-xl w-11 h-11 items-center justify-center shadow-sm active:opacity-70 ${className ?? ''}`}
+            className={`bg-primary-600 rounded-full w-10 h-10 items-center justify-center shadow-sm active:opacity-70 ${className ?? ''}`}
             {...props}
         >
             <Ionicons name="add" size={size} color="white" />
