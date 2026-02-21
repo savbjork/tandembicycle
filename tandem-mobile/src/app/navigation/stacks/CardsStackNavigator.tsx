@@ -20,6 +20,7 @@ export const CardsStackNavigator: React.FC = () => {
             <Stack.Screen
                 name="CardDetail"
                 component={CardDetailScreen}
+                options={{ presentation: 'modal' }}
             />
         </Stack.Navigator>
     );

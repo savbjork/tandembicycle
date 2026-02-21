@@ -162,7 +162,6 @@ export const SwipeableTaskRow: React.FC<SwipeableTaskRowProps> = ({
                     activeOpacity={0.7}
                 >
                     <View className="flex-row items-center">
-                        <View className={`w-5 h-5 rounded border-2 mr-3 ${isDone ? 'bg-green-500 border-green-500' : overdue ? 'border-red-400' : 'border-border-strong'}`} />
                         <View className="flex-1">
                             <Text className={`text-[15px] font-medium ${isDone ? 'text-text-muted line-through' : overdue ? 'text-red-600' : 'text-text'}`}>
                                 {task.name}

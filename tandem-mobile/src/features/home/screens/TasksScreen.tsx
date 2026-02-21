@@ -3,6 +3,7 @@ import { View, ScrollView, TouchableOpacity, Modal, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Text } from '@shared/components/ui/Text';
 import { TextInput } from '@shared/components/ui/TextInput';
+import { AddButton, DoneButton, DeleteButton } from '@shared/components/ui';
 import { SwipeableTaskRow } from '@shared/components/SwipeableTaskRow';
 import { fakeData, type Person, type Task, type Handoff, type TaskStatus, type HandoffStatus } from '@shared/data/FakeDataStore';
 
@@ -20,13 +21,24 @@ const STATUS_STYLES: Record<TaskStatus, { bg: string; text: string; headerBg: st
 const STATUSES: TaskStatus[] = ['To Do', 'In Progress', 'Done'];
 
 const formatDate = (dateStr: string): string => {
-    const date = new Date(dateStr);
+    // Append time to ensure it's treated as a local date, not UTC
+    const date = new Date(dateStr + 'T00:00:00');
     const today = new Date();
-    const tomorrow = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
     tomorrow.setDate(today.getDate() + 1);
+
     if (date.toDateString() === today.toDateString()) return 'Today';
     if (date.toDateString() === tomorrow.toDateString()) return 'Tomorrow';
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
+
+// Helper to get YYYY-MM-DD from a local Date object without UTC shifts
+const toDateStringLocal = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
 };
 
 // ─── Component ───────────────────────────────────────────────
@@ -178,9 +190,13 @@ export const TasksScreen: React.FC = () => {
         setHandoffMessage('');
     };
 
-    const handleCreateTask = () => {
+    const handleCreateTask = (isQuiet = false) => {
         if (!newTaskName.trim()) {
-            Alert.alert('Missing name', 'Please enter a task name.');
+            if (!isQuiet) Alert.alert('Missing name', 'Please enter a task name.');
+            else {
+                resetCreateForm();
+                setShowCreateTask(false);
+            }
             return;
         }
 
@@ -190,8 +206,8 @@ export const TasksScreen: React.FC = () => {
             id: taskId,
             name: newTaskName.trim(),
             card: newTaskCard.trim() || 'Uncategorized',
-            owner: sendToPartner ? selectedPerson : selectedPerson, // starts with creator
-            dueDate: newTaskDueDate.toISOString().split('T')[0],
+            owner: selectedPerson,
+            dueDate: toDateStringLocal(newTaskDueDate),
             status: newTaskStatus,
             note: newTaskNote.trim() || undefined,
         };
@@ -232,12 +248,7 @@ export const TasksScreen: React.FC = () => {
                     My Tasks
                 </Text>
                 {/* Create Task Button */}
-                <TouchableOpacity
-                    className="bg-primary-600 rounded-xl w-11 py-2.5 items-center justify-center"
-                    onPress={() => setShowCreateTask(true)}
-                >
-                    <Text className="text-lg font-bold text-white">+</Text>
-                </TouchableOpacity>
+                <AddButton onPress={() => setShowCreateTask(true)} />
             </View>
 
 
@@ -408,18 +419,19 @@ export const TasksScreen: React.FC = () => {
                 visible={showHandoffs}
                 animationType="slide"
                 presentationStyle="pageSheet"
+                onRequestClose={() => setShowHandoffs(false)}
             >
                 <View className="flex-1 bg-surface-dim">
+                    {/* Visual Cushion / Grabber */}
+                    <View className="items-center pt-3 pb-2">
+                        <View className="w-10 h-1.5 bg-border-strong rounded-full opacity-20" />
+                    </View>
+
                     {/* Modal Header */}
-                    <View className="flex-row items-center justify-between px-5 pt-[60px] pb-4">
+                    <View className="px-5 pt-2 pb-4">
                         <Text className="text-2xl font-bold text-text">
                             Handoffs
                         </Text>
-                        <TouchableOpacity onPress={() => setShowHandoffs(false)}>
-                            <Text className="text-base font-semibold text-primary-600">
-                                Done
-                            </Text>
-                        </TouchableOpacity>
                     </View>
 
                     <ScrollView className="flex-1 px-5">
@@ -566,23 +578,12 @@ export const TasksScreen: React.FC = () => {
                 visible={showCreateTask}
                 animationType="slide"
                 presentationStyle="pageSheet"
+                onRequestClose={() => handleCreateTask(true)}
             >
                 <View className="flex-1 bg-surface-dim">
-                    {/* Modal Header */}
-                    <View className="flex-row items-center justify-between px-5 pt-[60px] pb-4">
-                        <TouchableOpacity onPress={() => { resetCreateForm(); setShowCreateTask(false); }}>
-                            <Text className="text-base font-semibold text-text-secondary">
-                                Cancel
-                            </Text>
-                        </TouchableOpacity>
-                        <Text className="text-lg font-bold text-text">
-                            New Task
-                        </Text>
-                        <TouchableOpacity onPress={handleCreateTask}>
-                            <Text className="text-base font-bold text-primary-600">
-                                Save
-                            </Text>
-                        </TouchableOpacity>
+                    {/* Visual Cushion / Grabber */}
+                    <View className="items-center pt-3 pb-2">
+                        <View className="w-10 h-1.5 bg-border-strong rounded-full opacity-20" />
                     </View>
 
                     <ScrollView className="flex-1 px-5">
@@ -789,16 +790,17 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ task, availableCards, onC
     const [editOwner, setEditOwner] = React.useState<Person>(task.owner);
     const [editNote, setEditNote] = React.useState(task.note || '');
 
-    const handleSave = () => {
+    const handleSave = (isQuiet = false) => {
         if (!editName.trim()) {
-            Alert.alert('Missing name', 'Please enter a task name.');
+            if (!isQuiet) Alert.alert('Missing name', 'Please enter a task name.');
+            else onClose();
             return;
         }
         onSave({
             ...task,
             name: editName.trim(),
             card: editCard.trim() || 'Uncategorized',
-            dueDate: editDueDateObj.toISOString().split('T')[0],
+            dueDate: toDateStringLocal(editDueDateObj),
             status: editStatus,
             owner: editOwner,
             note: editNote.trim() || undefined,
@@ -821,25 +823,17 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ task, availableCards, onC
     };
 
     return (
-        <Modal visible={true} animationType="slide" presentationStyle="pageSheet">
+        <Modal
+            visible={true}
+            animationType="slide"
+            presentationStyle="pageSheet"
+            onRequestClose={() => handleSave(true)}
+        >
             <View className="flex-1 bg-surface-dim">
-                {/* Modal Header */}
-                <View className="flex-row items-center justify-between px-5 pt-[60px] pb-4">
-                    <TouchableOpacity onPress={onClose}>
-                        <Text className="text-base font-semibold text-text-secondary">
-                            Cancel
-                        </Text>
-                    </TouchableOpacity>
-                    <Text className="text-lg font-bold text-text">
-                        Edit Task
-                    </Text>
-                    <TouchableOpacity onPress={handleSave}>
-                        <Text className="text-base font-bold text-primary-600">
-                            Save
-                        </Text>
-                    </TouchableOpacity>
+                {/* Visual Cushion / Grabber */}
+                <View className="items-center pt-3 pb-2">
+                    <View className="w-10 h-1.5 bg-border-strong rounded-full opacity-20" />
                 </View>
-
                 <ScrollView className="flex-1 px-5">
                     {/* Task Name */}
                     <Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2 mt-2">
@@ -990,14 +984,11 @@ const EditTaskModal: React.FC<EditTaskModalProps> = ({ task, availableCards, onC
                     />
 
                     {/* Delete */}
-                    <TouchableOpacity
-                        className="bg-surface rounded-xl px-4 py-4 mb-4 border border-red-200 items-center"
+                    <DeleteButton
+                        title="Delete Task"
                         onPress={handleDelete}
-                    >
-                        <Text className="text-base font-semibold text-red-500">
-                            Delete Task
-                        </Text>
-                    </TouchableOpacity>
+                        className="mb-4"
+                    />
 
                     <View className="h-10" />
                 </ScrollView>

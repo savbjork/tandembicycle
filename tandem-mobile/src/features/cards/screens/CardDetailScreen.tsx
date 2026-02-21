@@ -2,6 +2,7 @@ import React from 'react';
 import { View, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { Text } from '@shared/components/ui/Text';
 import { TextInput } from '@shared/components/ui/TextInput';
+import { AddButton, DeleteButton } from '@shared/components/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { CardsStackParamList } from '@app/navigation/types';
@@ -18,6 +19,7 @@ export const CardDetailScreen: React.FC = () => {
 
     // Find the current card to get its initial state
     const currentCard = fakeData.cards.find(c => c.name === cardName);
+    const [editCardName, setEditCardName] = React.useState(cardName);
     const [selectedOwner, setSelectedOwner] = React.useState<'Savannah' | 'Kevin'>(
         (currentCard?.owner as 'Savannah' | 'Kevin') || 'Savannah'
     );
@@ -25,13 +27,19 @@ export const CardDetailScreen: React.FC = () => {
 
     const tasks = fakeData.tasks.filter(t => t.card === cardName);
 
-    const handleSave = () => {
-        Alert.alert(
-            'Changes Saved',
-            `"${cardName}" has been updated.`,
-            [{ text: 'OK' }]
-        );
-    };
+    React.useEffect(() => {
+        const unsubscribe = navigation.addListener('beforeRemove', () => {
+            // Auto-save on dismiss (gesture)
+            // Use the original cardName (from params) to find the correct card in the store
+            const card = fakeData.cards.find(c => c.name === cardName);
+            if (card) {
+                card.owner = selectedOwner;
+                if (editCardName.trim()) card.name = editCardName.trim();
+            }
+        });
+        return unsubscribe;
+    }, [navigation, selectedOwner, editCardName, cardName]);
+
 
     const handleDelete = () => {
         Alert.alert(
@@ -54,30 +62,22 @@ export const CardDetailScreen: React.FC = () => {
 
     return (
         <View className="flex-1 bg-surface-dim">
-            {/* Header */}
-            <View className="px-5 pt-[60px] pb-5 flex-row items-center border-b border-border/50 bg-surface">
-                <TouchableOpacity
-                    onPress={() => navigation.goBack()}
-                    className="w-10 h-10 items-center justify-center -ml-2 mr-1"
-                >
-                    <Ionicons name="chevron-back" size={28} color={COLORS.text.DEFAULT} />
-                </TouchableOpacity>
-                <View className="flex-1">
-                    <Text className="text-2xl font-bold text-text tracking-tight">
-                        {cardName}
-                    </Text>
-                </View>
-                <TouchableOpacity
-                    onPress={handleSave}
-                    className="px-4 py-2 bg-primary-600 rounded-full"
-                >
-                    <Text className="text-sm font-bold text-white">Save</Text>
-                </TouchableOpacity>
+            {/* Visual Cushion / Grabber */}
+            <View className="items-center pt-3 pb-2">
+                <View className="w-10 h-1.5 bg-border-strong rounded-full opacity-20" />
             </View>
+            <ScrollView className="flex-1 px-5" contentContainerStyle={{ paddingBottom: 40 }}>
+                <View className="p-5 bg-surface mb-2 rounded-2xl">
+                    <Text className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">
+                        Card Name
+                    </Text>
+                    <TextInput
+                        className="bg-surface-dim rounded-xl px-4 py-3.5 text-base text-text mb-6 border border-border font-semibold"
+                        placeholder="What's this card for?"
+                        value={editCardName}
+                        onChangeText={setEditCardName}
+                    />
 
-            <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 40 }}>
-                {/* ─── CARD SETTINGS ─────────────────────────────────────────────────── */}
-                <View className="p-5 bg-surface mb-2">
                     <Text className="text-xs font-bold text-text-secondary uppercase tracking-widest mb-4">
                         Card Settings
                     </Text>
@@ -128,10 +128,7 @@ export const CardDetailScreen: React.FC = () => {
                             style={{ textAlignVertical: 'top' }}
                         />
                     </View>
-
                 </View>
-
-                {/* ─── TASKS LIST ────────────────────────────────────────────────────── */}
                 <View className="px-5 pt-6">
                     <View className="flex-row justify-between items-center mb-4">
                         <View>
@@ -142,12 +139,7 @@ export const CardDetailScreen: React.FC = () => {
                                 {tasks.length} total responsibilities
                             </Text>
                         </View>
-                        <TouchableOpacity
-                            className="w-10 h-10 rounded-full bg-primary-600 items-center justify-center shadow-sm"
-                            onPress={() => {/* Add Task */ }}
-                        >
-                            <Ionicons name="add" size={24} color="white" />
-                        </TouchableOpacity>
+                        <AddButton onPress={() => { }} />
                     </View>
 
                     <View className="bg-surface rounded-2xl border border-border overflow-hidden">
@@ -159,15 +151,14 @@ export const CardDetailScreen: React.FC = () => {
                         ) : (
                             <View>
                                 {tasks.map((task, index) => (
-                                    <View key={task.id}>
-                                        <SwipeableTaskRow
-                                            task={task}
-                                            onPress={() => { }}
-                                            onStatusChange={(taskId, status) => {
-                                                console.log(`Status changed for ${taskId} to ${status}`);
-                                            }}
-                                            variant="board"
-                                        />
+                                    <View key={task.id}><SwipeableTaskRow
+                                        task={task}
+                                        onPress={() => { }}
+                                        onStatusChange={(taskId, status) => {
+                                            console.log(`Status changed for ${taskId} to ${status}`);
+                                        }}
+                                        variant="board"
+                                    />
                                         {index < tasks.length - 1 && (
                                             <View className="h-[1px] bg-border mx-4" />
                                         )}
@@ -177,14 +168,12 @@ export const CardDetailScreen: React.FC = () => {
                         )}
                     </View>
                 </View>
-
-                {/* Delete Button at the bottom */}
-                <TouchableOpacity
-                    className="py-10 items-center"
-                    onPress={handleDelete}
-                >
-                    <Text className="text-sm font-semibold text-primary-600">Delete this card</Text>
-                </TouchableOpacity>
+                <View className="px-5 mt-10 mb-10">
+                    <DeleteButton
+                        title="Delete Card"
+                        onPress={handleDelete}
+                    />
+                </View>
             </ScrollView>
         </View>
     );

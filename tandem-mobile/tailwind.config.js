@@ -8,8 +8,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        // sans: ['Barriecito-Regular'],
-        barriecito: ['Barriecito-Regular'],
+        nanum: ['NanumMyeongjo-Regular'],
       },
       colors: {
         primary: {

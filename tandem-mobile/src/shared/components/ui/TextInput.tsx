@@ -3,7 +3,7 @@ import { TextInput as RNTextInput, TextInputProps } from 'react-native';
 import { COLORS } from '@shared/constants/colors';
 
 /**
- * Custom TextInput component that automatically applies the Barriecito font
+ * Custom TextInput component that automatically applies the Nanum Myeongjo font
  * via NativeWind className and sets a consistent placeholder color.
  *
  * Use this instead of React Native's TextInput throughout the app.
@@ -12,7 +12,7 @@ export const TextInput = React.forwardRef<RNTextInput, TextInputProps & { classN
     ({ className, placeholderTextColor, ...props }, ref) => (
         <RNTextInput
             ref={ref}
-            className={`font-barriecito ${className ?? ''}`}
+            className={`font-nanum ${className ?? ''}`}
             placeholderTextColor={placeholderTextColor ?? COLORS.text.muted}
             {...props}
         />

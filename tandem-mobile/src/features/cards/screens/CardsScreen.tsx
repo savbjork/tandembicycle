@@ -2,6 +2,8 @@ import React from 'react';
 import { View, ScrollView, TouchableOpacity, Modal, Alert } from 'react-native';
 import { Text } from '@shared/components/ui/Text';
 import { TextInput } from '@shared/components/ui/TextInput';
+import { AddButton } from '@shared/components/ui/AddButton';
+import { DoneButton } from '@shared/components/ui/HeaderButtons';
 import Swiper from 'react-native-deck-swiper';
 import { COLORS } from '@shared/constants/colors';
 import { fakeData } from '@shared/data/FakeDataStore';
@@ -70,20 +72,8 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
           </Text>
         </View>
         <View className="flex-row gap-2 mt-1">
-          <TouchableOpacity
-            className="w-10 h-10 rounded-lg bg-primary-600 justify-center items-center"
-            onPress={() => setShowAddCard(true)}
-          >
-            <Text className="text-xl font-semibold text-white">+</Text>
-          </TouchableOpacity>
-          {onClose && (
-            <TouchableOpacity
-              className="h-10 rounded-lg bg-surface border border-border px-4 justify-center items-center"
-              onPress={onClose}
-            >
-              <Text className="text-base font-semibold text-text-secondary">Done</Text>
-            </TouchableOpacity>
-          )}
+          <AddButton onPress={() => setShowAddCard(true)} />
+          {onClose && <DoneButton onPress={onClose} />}
         </View>
       </View>
 
@@ -140,9 +130,11 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
                 </Text>
               </View>
               <View className="ml-3">
-                <Text className="text-xs text-text-secondary">
-                  {card.owner}
-                </Text>
+                <View className={`w-8 h-8 rounded-full items-center justify-center ${card.owner === 'Savannah' ? 'bg-primary-600' : 'bg-secondary-600'}`}>
+                  <Text className="text-xs font-bold text-white">
+                    {card.owner.charAt(0)}
+                  </Text>
+                </View>
               </View>
             </TouchableOpacity>
           ))}
@@ -178,11 +170,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
               <Text className="text-[22px] font-bold text-text">
                 Shuffle Cards
               </Text>
-              <TouchableOpacity onPress={() => setShowShuffleModal(false)}>
-                <Text className="text-[28px] text-text-secondary font-light leading-7">
-                  ✕
-                </Text>
-              </TouchableOpacity>
+              <View className="w-8" />{/* Spacer */}
             </View>
 
             <Text className="text-sm text-text-secondary mb-6 leading-5">
@@ -216,153 +204,132 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
                 Swipe left for Savannah, right for Kevin
               </Text>
             </TouchableOpacity>
-
-            <TouchableOpacity
-              className="bg-surface border-2 border-border rounded-xl py-3 mt-2 items-center"
-              onPress={() => setShowShuffleModal(false)}
+            {/* Swipe Mode Modal */}
+            <Modal
+              visible={showSwipeMode}
+              transparent={true}
+              animationType="fade"
+              onRequestClose={() => setShowSwipeMode(false)}
             >
-              <Text className="text-base font-semibold text-text-secondary">
-                Cancel
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
+              <View className="flex-1 bg-surface-dim pt-10 pb-[30px] px-5">
+                {/* Header */}
+                <View className="flex-row justify-between items-center mb-5">
+                  <Text className="text-2xl font-bold text-text">
+                    Assign Cards
+                  </Text>
+                  <Text className="text-lg font-semibold text-text-secondary">
+                    {currentCardIndex} / {shuffledCards.length}
+                  </Text>
+                </View>
 
-      {/* Swipe Mode Modal */}
-      <Modal
-        visible={showSwipeMode}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowSwipeMode(false)}
-      >
-        <View className="flex-1 bg-surface-dim pt-10 pb-[30px] px-5">
-          {/* Header */}
-          <View className="flex-row justify-between items-center mb-5">
-            <Text className="text-2xl font-bold text-text">
-              Assign Cards
-            </Text>
-            <Text className="text-lg font-semibold text-text-secondary">
-              {currentCardIndex} / {shuffledCards.length}
-            </Text>
-          </View>
-
-          {/* Instructions */}
-          <View className="flex-row justify-between mb-5 px-5">
-            <View className="flex-row items-center gap-2">
-              <Text className="text-2xl font-bold text-primary-600">
-                ←
-              </Text>
-              <Text className="text-base font-semibold text-text">
-                Savannah
-              </Text>
-            </View>
-            <View className="flex-row items-center gap-2">
-              <Text className="text-base font-semibold text-text">
-                Kevin
-              </Text>
-              <Text className="text-2xl font-bold text-primary-600">
-                →
-              </Text>
-            </View>
-          </View>
-
-          {/* Card Stack with Swiper */}
-          <View className="flex-1 justify-center items-center relative">
-            {shuffledCards.length > 0 && (
-              <Swiper
-                ref={swiperRef}
-                cards={shuffledCards}
-                renderCard={(card) => (
-                  <View className="h-[250px] w-full bg-surface rounded-2xl p-5 justify-center items-center shadow-lg">
-                    <View className="items-center">
-                      <Text className="text-2xl font-bold text-text text-center mb-4">
-                        {card.name}
-                      </Text>
-                    </View>
+                {/* Instructions */}
+                <View className="flex-row justify-between mb-5 px-5">
+                  <View className="flex-row items-center gap-2">
+                    <Text className="text-2xl font-bold text-primary-600">
+                      ←
+                    </Text>
+                    <Text className="text-base font-semibold text-text">
+                      Savannah
+                    </Text>
                   </View>
-                )}
-                onSwipedLeft={handleSwipeLeft}
-                onSwipedRight={handleSwipeRight}
-                onSwipedAll={() => {
-                  finishShuffle(shuffledCards);
-                }}
-                cardIndex={0}
-                backgroundColor="transparent"
-                stackSize={2}
-                stackScale={5}
-                stackSeparation={15}
-                disableTopSwipe
-                disableBottomSwipe
-                verticalSwipe={false}
-                cardVerticalMargin={100}
-                cardHorizontalMargin={30}
-                overlayLabels={{
-                  left: {
-                    title: 'SAVANNAH',
-                    style: {
-                      label: {
-                        backgroundColor: COLORS.primary[600],
-                        color: COLORS.white,
-                        fontFamily: 'Barriecito-Regular',
-                        fontSize: 18,
-                        fontWeight: 'bold',
-                        borderRadius: 8,
-                        padding: 10,
-                      },
-                      wrapper: {
-                        flexDirection: 'column',
-                        alignItems: 'flex-end',
-                        justifyContent: 'flex-start',
-                        marginTop: 30,
-                        marginLeft: -30,
-                      },
-                    },
-                  },
-                  right: {
-                    title: 'KEVIN',
-                    style: {
-                      label: {
-                        backgroundColor: COLORS.secondary[600],
-                        color: COLORS.white,
-                        fontFamily: 'Barriecito-Regular',
-                        fontSize: 18,
-                        fontWeight: 'bold',
-                        borderRadius: 8,
-                        padding: 10,
-                      },
-                      wrapper: {
-                        flexDirection: 'column',
-                        alignItems: 'flex-start',
-                        justifyContent: 'flex-start',
-                        marginTop: 30,
-                        marginLeft: 30,
-                      },
-                    },
-                  },
-                }}
-                animateOverlayLabelsOpacity
-                animateCardOpacity
-              />
-            )}
-          </View>
+                  <View className="flex-row items-center gap-2">
+                    <Text className="text-base font-semibold text-text">
+                      Kevin
+                    </Text>
+                    <Text className="text-2xl font-bold text-primary-600">
+                      →
+                    </Text>
+                  </View>
+                </View>
 
-          {/* Cancel Button */}
-          <TouchableOpacity
-            className="bg-surface border-2 border-border rounded-xl py-3.5 items-center mt-5"
-            onPress={() => {
-              setShowSwipeMode(false);
-              setCurrentCardIndex(0);
-            }}
-          >
-            <Text className="text-base font-semibold text-text-secondary">
-              Cancel
-            </Text>
-          </TouchableOpacity>
+                {/* Card Stack with Swiper */}
+                <View className="flex-1 justify-center items-center relative">
+                  {shuffledCards.length > 0 && (
+                    <Swiper
+                      ref={swiperRef}
+                      cards={shuffledCards}
+                      renderCard={(card) => (
+                        <View className="h-[250px] w-full bg-surface rounded-2xl p-5 justify-center items-center shadow-lg">
+                          <View className="items-center">
+                            <Text className="text-2xl font-bold text-text text-center mb-4">
+                              {card.name}
+                            </Text>
+                          </View>
+                        </View>
+                      )}
+                      onSwipedLeft={handleSwipeLeft}
+                      onSwipedRight={handleSwipeRight}
+                      onSwipedAll={() => {
+                        finishShuffle(shuffledCards);
+                      }}
+                      cardIndex={0}
+                      backgroundColor="transparent"
+                      stackSize={2}
+                      stackScale={5}
+                      stackSeparation={15}
+                      disableTopSwipe
+                      disableBottomSwipe
+                      verticalSwipe={false}
+                      cardVerticalMargin={100}
+                      cardHorizontalMargin={30}
+                      overlayLabels={{
+                        left: {
+                          title: 'SAVANNAH',
+                          style: {
+                            label: {
+                              backgroundColor: COLORS.primary[600],
+                              color: COLORS.white,
+                              fontFamily: 'Barriecito-Regular',
+                              fontSize: 18,
+                              fontWeight: 'bold',
+                              borderRadius: 8,
+                              padding: 10,
+                            },
+                            wrapper: {
+                              flexDirection: 'column',
+                              alignItems: 'flex-end',
+                              justifyContent: 'flex-start',
+                              marginTop: 30,
+                              marginLeft: -30,
+                            },
+                          },
+                        },
+                        right: {
+                          title: 'KEVIN',
+                          style: {
+                            label: {
+                              backgroundColor: COLORS.secondary[600],
+                              color: COLORS.white,
+                              fontFamily: 'Barriecito-Regular',
+                              fontSize: 18,
+                              fontWeight: 'bold',
+                              borderRadius: 8,
+                              padding: 10,
+                            },
+                            wrapper: {
+                              flexDirection: 'column',
+                              alignItems: 'flex-start',
+                              justifyContent: 'flex-start',
+                              marginTop: 30,
+                              marginLeft: 30,
+                            },
+                          },
+                        },
+                      }}
+                      animateOverlayLabelsOpacity
+                      animateCardOpacity
+                    />
+                  )}
+                </View>
+
+                {/* Swipe Mode Logic ends here */}
+              </View>
+            </Modal>
+          </View>
         </View>
       </Modal>
 
-  // Add Card Modal
+      {/* Add Card Modal */}
       {showAddCard && <AddCardModal onClose={() => setShowAddCard(false)} />}
     </ScrollView>
   );
@@ -378,37 +345,36 @@ const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
   const [cardName, setCardName] = React.useState('');
   const [selectedOwner, setSelectedOwner] = React.useState<'Savannah' | 'Kevin'>('Savannah');
 
-  const handleAddCard = () => {
+  const handleAddCard = (isQuiet = false) => {
     if (!cardName.trim()) {
-      Alert.alert('Missing Information', 'Please enter a card name.');
+      if (!isQuiet) Alert.alert('Missing Information', 'Please enter a card name.');
+      onClose();
       return;
     }
 
-    Alert.alert(
-      'Card Added!',
-      `"${cardName}" has been added to ${selectedOwner}'s cards.`,
-      [{ text: 'OK', onPress: onClose }]
-    );
+    if (isQuiet) {
+      fakeData.cards.push({ name: cardName.trim(), owner: selectedOwner });
+      onClose();
+    } else {
+      Alert.alert(
+        'Card Added!',
+        `"${cardName}" has been added to ${selectedOwner}'s cards.`,
+        [{ text: 'OK', onPress: onClose }]
+      );
+    }
   };
 
   return (
-    <Modal visible={true} animationType="slide" presentationStyle="pageSheet">
+    <Modal
+      visible={true}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      onRequestClose={() => handleAddCard(true)}
+    >
       <View className="flex-1 bg-surface-dim">
-        {/* Header */}
-        <View className="flex-row items-center justify-between px-5 pt-[60px] pb-4">
-          <TouchableOpacity onPress={onClose}>
-            <Text className="text-base font-semibold text-text-secondary">
-              Cancel
-            </Text>
-          </TouchableOpacity>
-          <Text className="text-lg font-bold text-text">
-            Add New Card
-          </Text>
-          <TouchableOpacity onPress={handleAddCard}>
-            <Text className="text-base font-semibold text-primary-600">
-              Add
-            </Text>
-          </TouchableOpacity>
+        {/* Visual Cushion / Grabber */}
+        <View className="items-center pt-3 pb-2">
+          <View className="w-10 h-1.5 bg-border-strong rounded-full opacity-20" />
         </View>
 
         <ScrollView className="flex-1 px-5" bounces={false}>

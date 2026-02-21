@@ -5,7 +5,7 @@ import { useAuthStore } from '@store';
 import { useMockAuth } from '@shared/hooks/useMockAuth';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
-import { Button, Input } from '@shared/components/ui';
+import { Button, Input, EditIconButton } from '@shared/components/ui';
 
 export const HomeOverviewScreen: React.FC = () => {
   const { user, setUser } = useAuthStore();
@@ -22,10 +22,10 @@ export const HomeOverviewScreen: React.FC = () => {
   };
 
   const handleUpdateName = () => {
-    if (newName.trim() && householdName.trim() && user) {
+    if (newName.trim() && user) {
       setUser({ ...user, name: newName });
-      setIsEditModalVisible(false);
     }
+    setIsEditModalVisible(false);
   };
 
   return (
@@ -49,9 +49,13 @@ export const HomeOverviewScreen: React.FC = () => {
           >
             <View>
               <Text className="text-lg font-bold text-text">{householdName}</Text>
-              <Text className="text-xs text-text-secondary mt-0.5">Tap to edit hub details</Text>
             </View>
-            <Ionicons name="pencil-outline" size={20} color={COLORS.text.muted} />
+            <EditIconButton
+              onPress={() => {
+                setNewName(user?.name || '');
+                setIsEditModalVisible(true);
+              }}
+            />
           </TouchableOpacity>
 
           {/* Partners List */}
@@ -123,20 +127,15 @@ export const HomeOverviewScreen: React.FC = () => {
         visible={isEditModalVisible}
         animationType="slide"
         presentationStyle="pageSheet"
-        onRequestClose={() => setIsEditModalVisible(false)}
+        onRequestClose={handleUpdateName}
       >
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           className="flex-1 bg-surface-dim"
         >
-          <View className="flex-row items-center justify-between px-5 pt-[60px] pb-4 border-b border-border-muted bg-surface">
-            <TouchableOpacity onPress={() => setIsEditModalVisible(false)}>
-              <Text className="text-base font-semibold text-text-secondary">Cancel</Text>
-            </TouchableOpacity>
-            <Text className="text-lg font-bold text-text">Hub Details</Text>
-            <TouchableOpacity onPress={handleUpdateName}>
-              <Text className="text-base font-semibold text-primary-600">Save</Text>
-            </TouchableOpacity>
+          {/* Visual Cushion / Grabber */}
+          <View className="items-center pt-3 pb-2">
+            <View className="w-10 h-1.5 bg-border-strong rounded-full opacity-20" />
           </View>
 
           <View className="p-6">

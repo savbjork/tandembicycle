@@ -15,7 +15,8 @@ SplashScreen.preventAutoHideAsync();
  */
 export const App: React.FC = () => {
   const [fontsLoaded] = useFonts({
-    'Barriecito-Regular': require('../../assets/fonts/Barriecito/Barriecito-Regular.ttf'),
+    // 'Barriecito-Regular': require('../../assets/fonts/Barriecito/Barriecito-Regular.ttf'),
+    'NanumMyeongjo-Regular': require('../../assets/fonts/Nanum_Myeongjo/NanumMyeongjo-Regular.ttf')
   });
 
   useEffect(() => {
