@@ -17,6 +17,17 @@ export interface Task {
     note?: string;
 }
 
+export type DropZoneItemStatus = 'pending' | 'converted' | 'dismissed' | 'archived';
+
+export interface DropZoneItem {
+    id: string;
+    sender: Person;
+    receiver: Person;
+    content: string;
+    status: DropZoneItemStatus;
+    createdAt: Date;
+}
+
 
 // ─── Fake Data Store ─────────────────────────────────────────
 
@@ -83,6 +94,26 @@ class FakeDataStore {
         { id: 't40', name: 'Drive to activities', card: 'Kid Activities', owner: 'Kevin', dueDate: '2026-02-24', isDone: false },
         { id: 't41', name: 'Watch practice', card: 'Kid Activities', owner: 'Kevin', dueDate: '2026-02-24', isDone: false },
         { id: 't42', name: 'Pick up kids', card: 'Kid Activities', owner: 'Kevin', dueDate: '2026-02-24', isDone: false },
+    ];
+
+    // ── Drop Zone Items ─────────────────────────────────────
+    dropZoneItems: DropZoneItem[] = [
+        {
+            id: 'd1',
+            sender: 'Kevin',
+            receiver: 'Savannah',
+            content: 'Pick up some oat milk if you have a chance!',
+            status: 'pending',
+            createdAt: new Date(),
+        },
+        {
+            id: 'd2',
+            sender: 'Savannah',
+            receiver: 'Kevin',
+            content: 'Could we do tacos tonight?',
+            status: 'pending',
+            createdAt: new Date(),
+        }
     ];
 
 }

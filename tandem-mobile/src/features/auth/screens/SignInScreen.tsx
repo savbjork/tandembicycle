@@ -27,12 +27,14 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
         keyboardShouldPersistTaps="handled"
       >
         <View className="mb-10">
-          <Text className="text-[32px] font-bold text-text mb-2">
-            Welcome Back
-          </Text>
-          <Text className="text-base text-text-secondary leading-6">
-            Sign in to continue managing your household
-          </Text>
+          <View className="items-center mb-12">
+            <Text className="text-4xl font-bold text-text mb-4">
+              Tandem
+            </Text>
+            <Text className="text-lg text-text-secondary text-center leading-[26px]">
+              Achieve equitable division of household responsibilities
+            </Text>
+          </View>
         </View>
 
         <View className="mb-8">
@@ -88,15 +90,6 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
               Create Account
             </Text>
           </Text>
-
-          <TouchableOpacity
-            className="mt-4 py-2"
-            onPress={() => navigation.navigate('Welcome')}
-          >
-            <Text className="text-sm text-text-secondary text-center">
-              ← Back to Welcome
-            </Text>
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

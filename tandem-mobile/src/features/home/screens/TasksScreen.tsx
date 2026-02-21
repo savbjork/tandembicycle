@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, ScrollView, TouchableOpacity, LayoutAnimation, Alert, Modal } from 'react-native';
-import { Text, TextInput, Button, BottomSheet } from '@shared/components/ui';
+import { useNavigation } from '@react-navigation/native';
+import { Text, TextInput, Button, BottomSheet, ScreenHeader, AddButton } from '@shared/components/ui';
 import { TaskRow } from '@shared/components/SwipeableTaskRow';
 import { Ionicons } from '@expo/vector-icons';
 import { fakeData, type Person, type Task } from '@shared/data/FakeDataStore';
@@ -16,6 +17,7 @@ const toDateStringLocal = (date: Date): string => {
 };
 
 export const TasksScreen: React.FC = () => {
+    const navigation = useNavigation();
     const selectedPerson: Person = 'Savannah';
     const [showCreateTask, setShowCreateTask] = React.useState(false);
     const [tasks, setTasks] = React.useState<Task[]>(fakeData.tasks);
@@ -74,26 +76,22 @@ export const TasksScreen: React.FC = () => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     };
 
-    const availableCards = Array.from(new Set(fakeData.cards.map(c => c.name)));
+    const availableCards = fakeData.cards.filter(c => c.owner === selectedPerson).map(c => c.name);
 
     return (
         <View className="flex-1 bg-surface-dim">
-            {/* Header Area */}
-            <View className="px-6 pt-12 pb-4 flex-row justify-between items-end">
-                <View>
-                    <Text className="text-[34px] font-bold text-text tracking-tight">
-                        My Tasks
-                    </Text>
-                </View>
-                <TouchableOpacity
-                    onPress={() => setShowCreateTask(true)}
-                    className="bg-primary-600 rounded-full p-3 shadow-sm"
-                >
-                    <Ionicons name="add" size={24} color="white" />
-                </TouchableOpacity>
-            </View>
+            <ScreenHeader
+                title="My Tasks"
+                showBack
+                onBack={() => navigation.goBack()}
+                rightAction={
+                    <AddButton
+                        onPress={() => setShowCreateTask(true)}
+                    />
+                }
+            />
 
-            <View className="mb-4" />
+            <View className="mb-2" />
 
             {/* List */}
             <ScrollView className="flex-1 px-4" contentContainerStyle={{ paddingBottom: 40 }}>

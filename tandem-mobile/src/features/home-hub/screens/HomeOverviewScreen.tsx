@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { Text, Button, Input, BottomSheet } from '@shared/components/ui';
+import { Text, Button, Input, BottomSheet, ScreenHeader } from '@shared/components/ui';
 import { useAuthStore } from '@store';
 import { useMockAuth } from '@shared/hooks/useMockAuth';
 import { Ionicons } from '@expo/vector-icons';
@@ -61,18 +61,13 @@ export const HomeOverviewScreen: React.FC = () => {
 
   return (
     <View className="flex-1 bg-surface-dim">
-      <ScrollView className="flex-1 px-5 pt-[60px] pb-5">
-        {/* Header */}
-        <View className="mb-8">
-          <View className="flex-row items-center gap-3 mb-1">
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Ionicons name="chevron-back" size={28} color={COLORS.text.DEFAULT} />
-            </TouchableOpacity>
-            <Text className="text-[32px] font-bold text-text tracking-tight">
-              House
-            </Text>
-          </View>
-        </View>
+      <ScreenHeader
+        title="Home"
+        showBack
+        onBack={() => navigation.goBack()}
+      />
+
+      <ScrollView className="flex-1 px-5 pb-5">
 
         {/* 1. Profile Section */}
         <View className="bg-surface rounded-3xl p-6 mb-6 shadow-sm border border-border-muted">

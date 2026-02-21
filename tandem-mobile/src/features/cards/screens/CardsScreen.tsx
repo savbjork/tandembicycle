@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, ScrollView, TouchableOpacity, Modal, TextInput, Alert } from 'react-native';
-import { Text, Button, BottomSheet, Checkbox } from '@shared/components/ui';
+import { Text, Button, BottomSheet, Checkbox, ScreenHeader } from '@shared/components/ui';
 import { AddButton } from '@shared/components/ui/AddButton';
 import { DoneButton } from '@shared/components/ui/HeaderButtons';
 import Swiper from 'react-native-deck-swiper';
@@ -19,7 +19,7 @@ interface CardsScreenProps {
 }
 
 type CardsFilter = 'all' | 'me';
-type TaskTimeFilter = 'none' | 'week' | 'month' | 'year' | 'all';
+type TaskTimeFilter = 'hidden' | 'thisWeek' | 'next7' | 'next30' | 'thisYear' | 'all';
 type NavigationProp = CompositeNavigationProp<
   NativeStackNavigationProp<CardsStackParamList>,
   BottomTabNavigationProp<MainTabParamList>
@@ -38,9 +38,10 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
   const [cards, setCards] = React.useState<Card[]>(fakeData.cards);
   const [tasks, setTasks] = React.useState<Task[]>(fakeData.tasks);
   const [filter, setFilter] = React.useState<CardsFilter>('all');
-  const [taskTimeFilter, setTaskTimeFilter] = React.useState<TaskTimeFilter>('week');
+  const [taskTimeFilter, setTaskTimeFilter] = React.useState<TaskTimeFilter>('thisWeek');
   const [hideCompleted, setHideCompleted] = React.useState(false);
   const [hideUndated, setHideUndated] = React.useState(false);
+  const [hideEmptyCards, setHideEmptyCards] = React.useState(false);
   const swiperRef = React.useRef<Swiper<{ name: string, owner: string }>>(null);
 
   const selectedPerson = 'Savannah';
@@ -155,7 +156,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
 
   const isTaskInTimeFrame = (task: Task) => {
     if (taskTimeFilter === 'all') return true;
-    if (taskTimeFilter === 'none') return false;
+    if (taskTimeFilter === 'hidden') return false;
 
     if (!task.dueDate) return !hideUndated;
 
@@ -163,70 +164,73 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
     const now = new Date();
     now.setHours(0, 0, 0, 0);
 
-    if (taskTimeFilter === 'week') {
-      const nextWeek = new Date(now);
-      nextWeek.setDate(now.getDate() + 7);
-      return taskDate >= now && taskDate <= nextWeek;
+    if (taskTimeFilter === 'thisWeek') {
+      const endOfWeek = new Date(now);
+      const day = now.getDay();
+      const diff = 7 - day; // This will go to next Sunday
+      endOfWeek.setDate(now.getDate() + diff);
+      endOfWeek.setHours(23, 59, 59, 999);
+      return taskDate >= now && taskDate <= endOfWeek;
     }
-    if (taskTimeFilter === 'month') {
-      const nextMonth = new Date(now);
-      nextMonth.setMonth(now.getMonth() + 1);
-      return taskDate >= now && taskDate <= nextMonth;
+    if (taskTimeFilter === 'next7') {
+      const next7 = new Date(now);
+      next7.setDate(now.getDate() + 7);
+      return taskDate >= now && taskDate <= next7;
     }
-    if (taskTimeFilter === 'year') {
-      const nextYear = new Date(now);
-      nextYear.setFullYear(now.getFullYear() + 1);
-      return taskDate >= now && taskDate <= nextYear;
+    if (taskTimeFilter === 'next30') {
+      const next30 = new Date(now);
+      next30.setDate(now.getDate() + 30);
+      return taskDate >= now && taskDate <= next30;
+    }
+    if (taskTimeFilter === 'thisYear') {
+      const endOfYear = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
+      return taskDate >= now && taskDate <= endOfYear;
     }
     return true;
   };
 
   return (
     <View className="flex-1 bg-surface-dim">
-      <ScrollView className="flex-1 px-5 pt-[60px] pb-5">
-        {/* Header */}
-        <View className="flex-row justify-between items-center mb-5">
-          <View className="flex-1">
-            <Text className="text-[32px] font-bold text-text tracking-tight">
-              {isSelecting ? 'Select Cards' : 'Cards'}
-            </Text>
-          </View>
-          <View className="flex-row gap-2 mt-1">
-            {isSelecting ? (
-              <TouchableOpacity
-                onPress={() => {
-                  setIsSelecting(false);
-                  setSelectedCardNames([]);
-                }}
-                className="bg-surface px-4 py-2 rounded-full border border-border"
-              >
-                <Text className="text-sm font-semibold text-text-secondary">Cancel</Text>
-              </TouchableOpacity>
-            ) : (
-              <View className="flex-row gap-2">
-                {filter === 'all' && (
-                  <TouchableOpacity
-                    onPress={() => setShowShuffleModal(true)}
-                    className="bg-surface w-10 h-10 rounded-full items-center justify-center border border-border"
-                  >
-                    <Ionicons name="shuffle" size={20} color={COLORS.text.secondary} />
-                  </TouchableOpacity>
-                )}
+      <ScreenHeader
+        title={isSelecting ? 'Select Cards' : 'Cards'}
+        rightAction={
+          isSelecting ? (
+            <TouchableOpacity
+              onPress={() => {
+                setIsSelecting(false);
+                setSelectedCardNames([]);
+              }}
+              className="bg-surface px-4 py-2 rounded-full border border-border"
+            >
+              <Text className="text-sm font-semibold text-text-secondary">Cancel</Text>
+            </TouchableOpacity>
+          ) : (
+            <View className="flex-row gap-2">
+              {filter === 'all' && (
                 <TouchableOpacity
-                  onPress={() => setShowFilterMenu(true)}
-                  className="bg-surface w-10 h-10 rounded-full items-center justify-center border border-border"
+                  onPress={() => setShowShuffleModal(true)}
+                  className="bg-surface w-11 h-11 rounded-full items-center justify-center border border-border"
                 >
-                  <Ionicons name="options-outline" size={20} color={COLORS.text.secondary} />
-                  {(filter !== 'all' || taskTimeFilter !== 'none') && (
-                    <View className="absolute top-0 right-0 w-3 h-3 rounded-full border-2 border-surface" />
-                  )}
+                  <Ionicons name="shuffle" size={24} color={COLORS.text.secondary} />
                 </TouchableOpacity>
-                <AddButton onPress={() => setShowAddCard(true)} />
-                {onClose && <DoneButton onPress={onClose} />}
-              </View>
-            )}
-          </View>
-        </View>
+              )}
+              <TouchableOpacity
+                onPress={() => setShowFilterMenu(true)}
+                className="bg-surface w-11 h-11 rounded-full items-center justify-center border border-border"
+              >
+                <Ionicons name="options-outline" size={24} color={COLORS.text.secondary} />
+                {(filter !== 'all' || taskTimeFilter !== 'hidden' || hideEmptyCards || hideCompleted || hideUndated) && (
+                  <View className="absolute top-0 right-0 w-3.5 h-3.5 rounded-full bg-primary-600 border-2 border-surface" />
+                )}
+              </TouchableOpacity>
+              <AddButton onPress={() => setShowAddCard(true)} />
+              {onClose && <DoneButton onPress={onClose} />}
+            </View>
+          )
+        }
+      />
+
+      <ScrollView className="flex-1 px-5 pb-5">
 
         {/* Navigation Row */}
         {!isSelecting && (
@@ -299,7 +303,20 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
 
         <View className="mb-6">
           {cards
-            .filter((c: Card) => filter === 'all' ? true : c.owner === 'Savannah')
+            .filter((c: Card) => {
+              const matchesOwnership = filter === 'all' ? true : c.owner === 'Savannah';
+              if (!matchesOwnership) return false;
+
+              if (hideEmptyCards) {
+                const hasTasks = tasks.some((t: Task) =>
+                  t.card === c.name &&
+                  isTaskInTimeFrame(t) &&
+                  (!hideCompleted || !t.isDone)
+                );
+                return hasTasks;
+              }
+              return true;
+            })
             .map((card: Card, i: number) => {
               const isSelected = selectedCardNames.includes(card.name);
               const cardTasks = tasks.filter((t: Task) =>
@@ -340,7 +357,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
                     )}
                   </View>
 
-                  {!isSelecting && taskTimeFilter !== 'none' && (
+                  {!isSelecting && taskTimeFilter !== 'hidden' && (
                     <>
                       {cardTasks.length > 0 && (
                         <View className="pl-0 mt-2">
@@ -399,7 +416,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
             onPress={() => setFilter('all')}
             className={`flex-1 py-3 px-4 rounded-xl border items-center ${filter === 'all' ? 'bg-primary-50 border-primary-600' : 'bg-surface border-border'}`}
           >
-            <Text className={`font-semibold ${filter === 'all' ? 'text-primary-600' : 'text-text-secondary'}`}>All Hands</Text>
+            <Text className={`font-semibold ${filter === 'all' ? 'text-primary-600' : 'text-text-secondary'}`}>Everyone</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => setFilter('me')}
@@ -411,14 +428,21 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
 
         <Text className="text-[11px] font-bold text-text-muted uppercase tracking-widest mb-3">Task Visibility</Text>
         <View className="flex-row flex-wrap gap-2 mb-8">
-          {(['none', 'week', 'month', 'year', 'all'] as TaskTimeFilter[]).map(f => (
+          {[
+            { key: 'hidden', label: 'None' },
+            { key: 'thisWeek', label: 'This Week' },
+            { key: 'next7', label: 'Next 7 Days' },
+            { key: 'next30', label: 'Next 30 Days' },
+            { key: 'thisYear', label: 'This Year' },
+            { key: 'all', label: 'All' },
+          ].map(f => (
             <TouchableOpacity
-              key={f}
-              onPress={() => setTaskTimeFilter(f)}
-              className={`py-2.5 px-4 rounded-xl border ${taskTimeFilter === f ? 'bg-primary-50 border-primary-600' : 'bg-surface border-border'}`}
+              key={f.key}
+              onPress={() => setTaskTimeFilter(f.key as TaskTimeFilter)}
+              className={`py-2.5 px-4 rounded-xl border ${taskTimeFilter === f.key ? 'bg-primary-50 border-primary-600' : 'bg-surface border-border'}`}
             >
-              <Text className={`text-sm font-semibold capitalize ${taskTimeFilter === f ? 'text-primary-600' : 'text-text-muted'}`}>
-                {f === 'none' ? 'Hidden' : f}
+              <Text className={`text-sm font-semibold ${taskTimeFilter === f.key ? 'text-primary-600' : 'text-text-muted'}`}>
+                {f.label}
               </Text>
             </TouchableOpacity>
           ))}
@@ -436,6 +460,13 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
             label="Hide tasks without a due date"
             checked={hideUndated}
             onPress={() => setHideUndated(!hideUndated)}
+            className="mb-4"
+          />
+
+          <Checkbox
+            label="Hide cards without tasks"
+            checked={hideEmptyCards}
+            onPress={() => setHideEmptyCards(!hideEmptyCards)}
           />
         </View>
 

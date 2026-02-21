@@ -21,3 +21,4 @@ export { BottomSheet } from './BottomSheet';
 export { Checkbox } from './Checkbox';
 export { EditableTitle } from './EditableTitle';
 export { SectionHeader } from './SectionHeader';
+export { ScreenHeader } from './ScreenHeader';
