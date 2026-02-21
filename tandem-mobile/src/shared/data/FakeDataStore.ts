@@ -1,7 +1,6 @@
 // ─── Domain Types ────────────────────────────────────────────
 
 export type Person = 'Savannah' | 'Kevin';
-export type HandoffStatus = 'Pending' | 'Accepted' | 'Declined' | 'Canceled';
 
 export interface Card {
     name: string;
@@ -18,16 +17,6 @@ export interface Task {
     note?: string;
 }
 
-export interface Handoff {
-    id: string;
-    taskId: string;
-    from: Person;
-    to: Person;
-    message: string;
-    createdAt: string;
-    status: HandoffStatus;
-    declineNote?: string;
-}
 
 // ─── Fake Data Store ─────────────────────────────────────────
 
@@ -96,37 +85,6 @@ class FakeDataStore {
         { id: 't42', name: 'Pick up kids', card: 'Kid Activities', owner: 'Kevin', dueDate: '2026-02-24', isDone: false },
     ];
 
-    // ── Handoffs ───────────────────────────────────────────
-    handoffs: Handoff[] = [
-        {
-            id: 'h1',
-            taskId: 't17',
-            from: 'Savannah',
-            to: 'Kevin',
-            message: 'Got this email from Ms. Smith — permission slip needs to be signed by Friday.',
-            createdAt: '2026-02-20T10:30:00',
-            status: 'Pending',
-        },
-        {
-            id: 'h2',
-            taskId: 't22',
-            from: 'Kevin',
-            to: 'Savannah',
-            message: 'I have a meeting Saturday, can you handle the vacuuming?',
-            createdAt: '2026-02-20T09:15:00',
-            status: 'Pending',
-        },
-        {
-            id: 'h3',
-            taskId: 't6',
-            from: 'Kevin',
-            to: 'Savannah',
-            message: 'Can you fold these? I ran out of time.',
-            createdAt: '2026-02-19T18:00:00',
-            status: 'Declined',
-            declineNote: 'I already did the washing and drying — your turn to fold!',
-        },
-    ];
 }
 
 // Singleton instance — shared across all screens

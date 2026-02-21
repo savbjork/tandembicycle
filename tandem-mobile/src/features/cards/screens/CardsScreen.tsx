@@ -25,6 +25,7 @@ type NavigationProp = NativeStackNavigationProp<CardsStackParamList>;
 export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
   const navigation = useNavigation<NavigationProp>();
   const [showShuffleModal, setShowShuffleModal] = React.useState(false);
+  const [showFilterMenu, setShowFilterMenu] = React.useState(false);
   const [showSwipeMode, setShowSwipeMode] = React.useState(false);
   const [showAddCard, setShowAddCard] = React.useState(false);
   const [currentCardIndex, setCurrentCardIndex] = React.useState(0);
@@ -196,6 +197,21 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
               </TouchableOpacity>
             ) : (
               <View className="flex-row gap-2">
+                <TouchableOpacity
+                  onPress={() => setShowFilterMenu(true)}
+                  className="bg-surface w-10 h-10 rounded-full items-center justify-center border border-border"
+                >
+                  <Ionicons name="options-outline" size={20} color={COLORS.text.secondary} />
+                  {(filter !== 'all' || taskTimeFilter !== 'none') && (
+                    <View className="absolute top-0 right-0 w-3 h-3 bg-primary-600 rounded-full border-2 border-surface" />
+                  )}
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('MyBoard')}
+                  className="bg-primary-600 w-10 h-10 rounded-full items-center justify-center shadow-sm"
+                >
+                  <Ionicons name="list" size={20} color="white" />
+                </TouchableOpacity>
                 {filter === 'all' && (
                   <TouchableOpacity
                     onPress={() => setShowShuffleModal(true)}
@@ -210,52 +226,6 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
             )}
           </View>
         </View>
-
-        {/* Filter Pills */}
-        {!isSelecting && (
-          <View className="mb-6">
-            <View className="flex-row gap-2 mb-4">
-              <TouchableOpacity
-                onPress={() => setFilter('all')}
-                className={`px-4 py-2 rounded-full border ${filter === 'all' ? 'bg-primary-600 border-primary-600' : 'bg-surface border-border'
-                  }`}
-              >
-                <Text className={`text-sm font-semibold ${filter === 'all' ? 'text-white' : 'text-text-secondary'}`}>
-                  All Hands
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => setFilter('me')}
-                className={`px-4 py-2 rounded-full border ${filter === 'me' ? 'bg-primary-600 border-primary-600' : 'bg-surface border-border'
-                  }`}
-              >
-                <Text className={`text-sm font-semibold ${filter === 'me' ? 'text-white' : 'text-text-secondary'}`}>
-                  Just Me
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            <View className="flex-row items-center mb-2">
-              <Ionicons name="filter" size={14} color={COLORS.text.muted} />
-              <Text className="text-[11px] font-bold text-text-muted uppercase tracking-wider ml-1">
-                Show Tasks Due:
-              </Text>
-            </View>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
-              {(['none', 'week', 'month', 'year', 'all'] as TaskTimeFilter[]).map(f => (
-                <TouchableOpacity
-                  key={f}
-                  onPress={() => setTaskTimeFilter(f)}
-                  className={`px-3 py-1.5 rounded-lg border ${taskTimeFilter === f ? 'bg-surface-dim border-primary-600' : 'bg-surface border-border-light'}`}
-                >
-                  <Text className={`text-xs font-semibold capitalize ${taskTimeFilter === f ? 'text-primary-600' : 'text-text-muted'}`}>
-                    {f === 'none' ? 'Hidden' : f}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-        )}
 
         {/* Balance Meter */}
         {!isSelecting && filter === 'all' && (
@@ -330,9 +300,9 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
 
                 {!isSelecting && taskTimeFilter !== 'none' && (
                   <>
-                    {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t)).length > 0 && (
+                    {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t) && t.owner === selectedPerson).length > 0 && (
                       <View className="pl-0 mt-2">
-                        {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t)).slice(0, 3).map((task: Task) => (
+                        {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t) && t.owner === selectedPerson).slice(0, 3).map((task: Task) => (
                           <TaskRow
                             key={task.id}
                             task={task}
@@ -342,9 +312,9 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
                             hideCardName
                           />
                         ))}
-                        {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t)).length > 3 && (
+                        {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t) && t.owner === selectedPerson).length > 3 && (
                           <Text className="text-[11px] text-text-muted italic ml-14">
-                            + {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t)).length - 3} more tasks
+                            + {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t) && t.owner === selectedPerson).length - 3} more tasks
                           </Text>
                         )}
                       </View>
@@ -385,16 +355,13 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
                         {card.name}
                       </Text>
                     </View>
-                    <View className="bg-secondary-100 px-3 py-1 rounded-full">
-                      <Text className="text-[11px] font-bold text-secondary-700">DROP ZONE</Text>
-                    </View>
                   </View>
 
                   {!isSelecting && taskTimeFilter !== 'none' && (
                     <>
-                      {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t)).length > 0 && (
+                      {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t) && t.owner === selectedPerson).length > 0 && (
                         <View className="pl-0 mt-2">
-                          {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t)).slice(0, 3).map((task: Task) => (
+                          {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t) && t.owner === selectedPerson).slice(0, 3).map((task: Task) => (
                             <TaskRow
                               key={task.id}
                               task={task}
@@ -404,9 +371,9 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
                               hideCardName
                             />
                           ))}
-                          {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t)).length > 3 && (
+                          {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t) && t.owner === selectedPerson).length > 3 && (
                             <Text className="text-[11px] text-text-muted italic ml-14">
-                              + {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t)).length - 3} more tasks
+                              + {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t) && t.owner === selectedPerson).length - 3} more tasks
                             </Text>
                           )}
                         </View>
@@ -435,6 +402,67 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
           </TouchableOpacity>
         </View>
       )}
+
+      {/* Filter Menu Modal */}
+      <Modal
+        visible={showFilterMenu}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowFilterMenu(false)}
+      >
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => setShowFilterMenu(false)}
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' }}
+        >
+          <TouchableOpacity
+            activeOpacity={1}
+            onPress={e => e.stopPropagation()}
+            style={{ backgroundColor: COLORS.surface.DEFAULT, borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 24, paddingBottom: 50 }}
+          >
+            <View className="w-10 h-1.5 bg-border rounded-full self-center mb-6 opacity-30" />
+            <Text className="text-xl font-bold text-text mb-6">Filter Roster</Text>
+
+            <Text className="text-[11px] font-bold text-text-muted uppercase tracking-widest mb-3">Ownership</Text>
+            <View className="flex-row gap-2 mb-8">
+              <TouchableOpacity
+                onPress={() => setFilter('all')}
+                className={`flex-1 py-3 px-4 rounded-xl border items-center ${filter === 'all' ? 'bg-primary-50 border-primary-600' : 'bg-surface border-border'}`}
+              >
+                <Text className={`font-semibold ${filter === 'all' ? 'text-primary-600' : 'text-text-secondary'}`}>All Hands</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setFilter('me')}
+                className={`flex-1 py-3 px-4 rounded-xl border items-center ${filter === 'me' ? 'bg-primary-50 border-primary-600' : 'bg-surface border-border'}`}
+              >
+                <Text className={`font-semibold ${filter === 'me' ? 'text-primary-600' : 'text-text-secondary'}`}>Just Me</Text>
+              </TouchableOpacity>
+            </View>
+
+            <Text className="text-[11px] font-bold text-text-muted uppercase tracking-widest mb-3">Task Visibility</Text>
+            <View className="flex-row flex-wrap gap-2 mb-8">
+              {(['none', 'week', 'month', 'year', 'all'] as TaskTimeFilter[]).map(f => (
+                <TouchableOpacity
+                  key={f}
+                  onPress={() => setTaskTimeFilter(f)}
+                  className={`py-2.5 px-4 rounded-xl border ${taskTimeFilter === f ? 'bg-primary-50 border-primary-600' : 'bg-surface border-border'}`}
+                >
+                  <Text className={`text-sm font-semibold capitalize ${taskTimeFilter === f ? 'text-primary-600' : 'text-text-muted'}`}>
+                    {f === 'none' ? 'Hidden' : f}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <TouchableOpacity
+              onPress={() => setShowFilterMenu(false)}
+              className="bg-primary-600 py-4 rounded-2xl items-center shadow-sm"
+            >
+              <Text className="text-white font-bold text-base">Show Results</Text>
+            </TouchableOpacity>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
 
       {/* Shuffle Modal (Options) */}
       <Modal

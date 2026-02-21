@@ -3,7 +3,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { MainTabParamList } from './types';
 import { CardsStackNavigator } from './stacks/CardsStackNavigator';
-import { TasksScreen } from '@features/home/screens/TasksScreen';
 import { InboxScreen } from '@features/home/screens/InboxScreen';
 import { COLORS } from '@shared/constants/colors';
 
@@ -31,16 +30,6 @@ export const MainNavigator: React.FC = () => {
         },
       }}
     >
-      <Tab.Screen
-        name="BoardTab"
-        component={TasksScreen}
-        options={{
-          tabBarLabel: 'My Board',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="list" size={size} color={color} />
-          ),
-        }}
-      />
       <Tab.Screen
         name="RosterTab"
         component={CardsStackNavigator}

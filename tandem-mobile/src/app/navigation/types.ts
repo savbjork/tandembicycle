@@ -26,11 +26,11 @@ export type AuthStackParamList = {
 export type CardsStackParamList = {
   CardsList: undefined;
   CardDetail: { cardName: string };
+  MyBoard: undefined;
 };
 
 // Main Bottom Tab Navigator
 export type MainTabParamList = {
-  BoardTab: undefined;
   RosterTab: NavigatorScreenParams<CardsStackParamList>;
   InboxTab: undefined;
 };

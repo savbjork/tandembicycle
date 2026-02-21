@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { CardsStackParamList } from '@app/navigation/types';
 import { fakeData } from '@shared/data/FakeDataStore';
-import { SwipeableTaskRow } from '@shared/components/SwipeableTaskRow';
+import { TaskRow } from '@shared/components/SwipeableTaskRow';
 import { COLORS } from '@shared/constants/colors';
 
 type CardDetailRouteProp = RouteProp<CardsStackParamList, 'CardDetail'>;
@@ -19,7 +19,7 @@ export const CardDetailScreen: React.FC = () => {
     // Find the current card to get its initial state
     const currentCard = fakeData.cards.find(c => c.name === cardName);
     const [notes, setNotes] = React.useState('');
-    const [tasks, setTasks] = React.useState(fakeData.tasks.filter(t => t.card === cardName));
+    const [tasks, setTasks] = React.useState(fakeData.tasks.filter(t => t.card === cardName && t.owner === 'Savannah'));
 
     const handleToggleDone = (taskId: string, isDone: boolean) => {
         setTasks(prev => prev.map(t => t.id === taskId ? { ...t, isDone } : t));
@@ -29,13 +29,6 @@ export const CardDetailScreen: React.FC = () => {
     };
 
     const isOwner = currentCard?.owner === 'Savannah';
-    const [dropItem, setDropItem] = React.useState('');
-
-    const handleDrop = () => {
-        if (!dropItem.trim()) return;
-        Alert.alert('Dropped!', `"${dropItem}" sent to ${currentCard?.owner}'s ${cardName} card.`);
-        setDropItem('');
-    };
 
     if (!isOwner) {
         return (
@@ -46,29 +39,22 @@ export const CardDetailScreen: React.FC = () => {
                 <ScrollView className="flex-1 px-5">
                     <View className="p-8 bg-surface mt-10 rounded-3xl border border-border shadow-sm items-center">
                         <View className="w-20 h-20 bg-secondary-100 rounded-full items-center justify-center mb-6">
-                            <Ionicons name="download" size={40} color={COLORS.secondary[600]} />
+                            <Ionicons name="people" size={40} color={COLORS.secondary[600]} />
                         </View>
                         <Text className="text-2xl font-bold text-text text-center mb-2">
-                            {cardName} Drop Zone
+                            {cardName}
                         </Text>
-                        <Text className="text-base text-text-secondary text-center mb-8">
-                            This domain is owned by {currentCard?.owner}. You can't see their tasks, but you can drop items here for them to handle.
+                        <Text className="text-base text-text-secondary text-center mb-4">
+                            Domain of {currentCard?.owner}
                         </Text>
-
-                        <TextInput
-                            className="bg-surface-dim rounded-2xl px-5 py-4 text-base text-text mb-4 border border-border w-full"
-                            placeholder="e.g. Need milk, forgot the dryer..."
-                            value={dropItem}
-                            onChangeText={setDropItem}
-                            multiline
-                        />
-
-                        <TouchableOpacity
-                            className="bg-secondary-600 py-4 rounded-2xl items-center w-full shadow-sm"
-                            onPress={handleDrop}
-                        >
-                            <Text className="text-lg font-bold text-white">Drop Item</Text>
-                        </TouchableOpacity>
+                        <View className="h-[0.5px] w-full bg-border my-4" />
+                        <Text className="text-[15px] text-text-muted text-center leading-relaxed">
+                            This card is currently assigned to {currentCard?.owner}.
+                            You can't see their private tasks or manage this workbench directly.
+                        </Text>
+                        <Text className="text-[13px] text-primary-600 font-semibold mt-10 text-center">
+                            Requests are managed in the Inbox
+                        </Text>
                     </View>
                 </ScrollView>
             </View>
@@ -121,7 +107,7 @@ export const CardDetailScreen: React.FC = () => {
                     ) : (
                         <View>
                             {tasks.map((task) => (
-                                <SwipeableTaskRow
+                                <TaskRow
                                     key={task.id}
                                     task={task}
                                     onToggleDone={handleToggleDone}

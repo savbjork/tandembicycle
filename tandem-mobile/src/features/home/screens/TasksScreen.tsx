@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, ScrollView, TouchableOpacity, Modal, Alert, TextInput } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Text } from '@shared/components/ui/Text';
 import { AddButton } from '@shared/components/ui';
-import { SwipeableTaskRow } from '@shared/components/SwipeableTaskRow';
+import { TaskRow } from '@shared/components/SwipeableTaskRow';
 import { Ionicons } from '@expo/vector-icons';
 import { fakeData, type Person, type Task } from '@shared/data/FakeDataStore';
 import { COLORS } from '@shared/constants/colors';
@@ -24,6 +24,7 @@ const toDateStringLocal = (date: Date): string => {
 // ─── Component ───────────────────────────────────────────────
 
 export const TasksScreen: React.FC = () => {
+    const navigation = useNavigation();
     const selectedPerson: Person = 'Savannah';
     const [showCreateTask, setShowCreateTask] = React.useState(false);
     const [tasks, setTasks] = React.useState<Task[]>(fakeData.tasks);
@@ -77,20 +78,6 @@ export const TasksScreen: React.FC = () => {
         );
     };
 
-    const handleAudible = (taskId: string) => {
-        const task = tasks.find(t => t.id === taskId);
-        Alert.alert(
-            'Call an Audible?',
-            `Ask Kevin to help with "${task?.name}"?`,
-            [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                    text: 'Send Request',
-                    onPress: () => Alert.alert('Sent!', 'Kevin will see this request in his Inbox.')
-                }
-            ]
-        );
-    };
 
     const handleCreateTask = () => {
         if (!newTaskName.trim()) {
@@ -123,7 +110,10 @@ export const TasksScreen: React.FC = () => {
         <View className="flex-1 bg-surface-dim">
             {/* Header */}
             <View className="px-5 pt-[60px] pb-5 flex-row justify-between items-center">
-                <View>
+                <View className="flex-row items-center gap-3">
+                    <TouchableOpacity onPress={() => navigation.goBack()}>
+                        <Ionicons name="chevron-back" size={28} color={COLORS.text.DEFAULT} />
+                    </TouchableOpacity>
                     <Text className="text-[32px] font-bold text-text tracking-tight">
                         My Board
                     </Text>
@@ -159,11 +149,10 @@ export const TasksScreen: React.FC = () => {
                     </View>
                 ) : (
                     userTasks.map((task) => (
-                        <SwipeableTaskRow
+                        <TaskRow
                             key={task.id}
                             task={task}
                             onToggleDone={handleToggleDone}
-                            onAudible={handleAudible}
                         />
                     ))
                 )}
@@ -172,7 +161,7 @@ export const TasksScreen: React.FC = () => {
                 <View className="mt-10 mb-20 bg-primary-50 rounded-2xl p-6 border border-primary-100">
                     <Text className="text-lg font-bold text-primary-900 mb-2">Manage Own</Text>
                     <Text className="text-sm text-primary-700 mb-4">
-                        These are your private cards. No one else can see them until you hand them off or call an audible.
+                        These are your private cards. No one else can see them until you hand them off.
                     </Text>
                     <TouchableOpacity className="bg-primary-600 py-3 rounded-xl items-center">
                         <Text className="text-white font-bold">Edit Private Cards</Text>
