@@ -14,8 +14,8 @@ import { CARD_TEMPLATES } from './cardTemplates';
 // Mock Users
 export const MOCK_USER_1: User = {
   id: asUserId('user-1'),
-  email: 'sarah@example.com',
-  name: 'Sarah Johnson',
+  email: 'savannah@tandem.app',
+  name: 'Savannah',
   authProvider: AuthProvider.EMAIL,
   currentHouseholdId: asHouseholdId('household-1'),
   householdIds: [asHouseholdId('household-1')],
@@ -25,8 +25,8 @@ export const MOCK_USER_1: User = {
 
 export const MOCK_USER_2: User = {
   id: asUserId('user-2'),
-  email: 'mike@example.com',
-  name: 'Mike Johnson',
+  email: 'kevin@tandem.app',
+  name: 'Kevin',
   authProvider: AuthProvider.EMAIL,
   currentHouseholdId: asHouseholdId('household-1'),
   householdIds: [asHouseholdId('household-1')],
@@ -60,6 +60,8 @@ export const MOCK_HOUSEHOLD_CARDS: HouseholdCard[] = [
     cardId: asCardId('card-1'), // Daily Tidying
     currentOwner: asUserId('user-1'),
     isActive: true,
+    isArchived: false,
+    isPrivate: false,
     assignmentHistory: [
       {
         assignedTo: asUserId('user-1'),
@@ -76,6 +78,8 @@ export const MOCK_HOUSEHOLD_CARDS: HouseholdCard[] = [
     cardId: asCardId('card-2'), // Laundry
     currentOwner: asUserId('user-1'),
     isActive: true,
+    isArchived: false,
+    isPrivate: false,
     assignmentHistory: [
       {
         assignedTo: asUserId('user-1'),
@@ -92,6 +96,8 @@ export const MOCK_HOUSEHOLD_CARDS: HouseholdCard[] = [
     cardId: asCardId('card-11'), // Meal Planning
     currentOwner: asUserId('user-1'),
     isActive: true,
+    isArchived: false,
+    isPrivate: false,
     assignmentHistory: [
       {
         assignedTo: asUserId('user-1'),
@@ -108,6 +114,8 @@ export const MOCK_HOUSEHOLD_CARDS: HouseholdCard[] = [
     cardId: asCardId('card-12'), // Grocery Shopping
     currentOwner: asUserId('user-1'),
     isActive: true,
+    isArchived: false,
+    isPrivate: false,
     assignmentHistory: [
       {
         assignedTo: asUserId('user-1'),
@@ -124,6 +132,8 @@ export const MOCK_HOUSEHOLD_CARDS: HouseholdCard[] = [
     cardId: asCardId('card-19'), // Morning Routine
     currentOwner: asUserId('user-1'),
     isActive: true,
+    isArchived: false,
+    isPrivate: false,
     assignmentHistory: [
       {
         assignedTo: asUserId('user-1'),
@@ -140,6 +150,8 @@ export const MOCK_HOUSEHOLD_CARDS: HouseholdCard[] = [
     cardId: asCardId('card-21'), // School Communication
     currentOwner: asUserId('user-1'),
     isActive: true,
+    isArchived: false,
+    isPrivate: false,
     assignmentHistory: [
       {
         assignedTo: asUserId('user-1'),
@@ -158,6 +170,8 @@ export const MOCK_HOUSEHOLD_CARDS: HouseholdCard[] = [
     cardId: asCardId('card-3'), // Dishes & Kitchen Cleanup
     currentOwner: asUserId('user-2'),
     isActive: true,
+    isArchived: false,
+    isPrivate: false,
     assignmentHistory: [
       {
         assignedTo: asUserId('user-2'),
@@ -174,6 +188,8 @@ export const MOCK_HOUSEHOLD_CARDS: HouseholdCard[] = [
     cardId: asCardId('card-4'), // Deep Cleaning
     currentOwner: asUserId('user-2'),
     isActive: true,
+    isArchived: false,
+    isPrivate: false,
     assignmentHistory: [
       {
         assignedTo: asUserId('user-2'),
@@ -190,6 +206,8 @@ export const MOCK_HOUSEHOLD_CARDS: HouseholdCard[] = [
     cardId: asCardId('card-5'), // Trash & Recycling
     currentOwner: asUserId('user-2'),
     isActive: true,
+    isArchived: false,
+    isPrivate: false,
     assignmentHistory: [
       {
         assignedTo: asUserId('user-2'),
@@ -206,6 +224,8 @@ export const MOCK_HOUSEHOLD_CARDS: HouseholdCard[] = [
     cardId: asCardId('card-7'), // Yard Work
     currentOwner: asUserId('user-2'),
     isActive: true,
+    isArchived: false,
+    isPrivate: false,
     assignmentHistory: [
       {
         assignedTo: asUserId('user-2'),
@@ -222,6 +242,8 @@ export const MOCK_HOUSEHOLD_CARDS: HouseholdCard[] = [
     cardId: asCardId('card-10'), // Car Care
     currentOwner: asUserId('user-2'),
     isActive: true,
+    isArchived: false,
+    isPrivate: false,
     assignmentHistory: [
       {
         assignedTo: asUserId('user-2'),
@@ -238,6 +260,8 @@ export const MOCK_HOUSEHOLD_CARDS: HouseholdCard[] = [
     cardId: asCardId('card-15'), // Dinner
     currentOwner: asUserId('user-2'),
     isActive: true,
+    isArchived: false,
+    isPrivate: false,
     assignmentHistory: [
       {
         assignedTo: asUserId('user-2'),
@@ -254,6 +278,8 @@ export const MOCK_HOUSEHOLD_CARDS: HouseholdCard[] = [
     cardId: asCardId('card-20'), // Bedtime Routine
     currentOwner: asUserId('user-2'),
     isActive: true,
+    isArchived: false,
+    isPrivate: false,
     assignmentHistory: [
       {
         assignedTo: asUserId('user-2'),
@@ -271,6 +297,8 @@ export const MOCK_HOUSEHOLD_CARDS: HouseholdCard[] = [
     cardId: asCardId('card-23'), // Kid Activities & Sports
     currentOwner: asUserId('user-2'),
     isActive: true,
+    isArchived: false,
+    isPrivate: false,
     assignmentHistory: [
       {
         assignedTo: asUserId('user-2'),

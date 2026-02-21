@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { View, ScrollView, TouchableOpacity, Modal, KeyboardAvoidingView, Platform, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { Text } from '@shared/components/ui/Text';
+import { View, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { Text, Button, Input, BottomSheet } from '@shared/components/ui';
 import { useAuthStore } from '@store';
 import { useMockAuth } from '@shared/hooks/useMockAuth';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
-import { Button, Input, EditIconButton } from '@shared/components/ui';
+import { useNavigation } from '@react-navigation/native';
 
 export const HomeOverviewScreen: React.FC = () => {
   const { user, setUser } = useAuthStore();
@@ -178,137 +177,114 @@ export const HomeOverviewScreen: React.FC = () => {
         </View>
       </ScrollView>
 
-      {/* Edit Settings Modal */}
-      <Modal
+      <BottomSheet
         visible={isEditModalVisible}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={() => setIsEditModalVisible(false)}
+        onClose={() => setIsEditModalVisible(false)}
+        containerStyle={{ padding: 32 }}
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          className="flex-1 bg-surface-dim"
-        >
-          <View className="items-center pt-3 pb-2">
-            <View className="w-10 h-1.5 bg-border rounded-full opacity-30" />
-          </View>
+        <Text className="text-2xl font-bold text-text mb-8">Edit Details</Text>
 
-          <View className="p-8">
-            <Text className="text-2xl font-bold text-text mb-8">Edit Details</Text>
-
-            <View className="mb-8">
-              <Text className="text-[11px] font-bold text-text-muted uppercase tracking-widest mb-4">Personal Identity</Text>
-              <Input
-                label="Display Name"
-                value={newName}
-                onChangeText={setNewName}
-                placeholder="Enter your name"
-                className="bg-surface border-border-muted"
-              />
-              <Input
-                label="Email Address"
-                value={newEmail}
-                onChangeText={setNewEmail}
-                placeholder="savannah@tandem.app"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                className="bg-surface border-border-muted mt-2"
-              />
-              <Input
-                label="Password"
-                value={newPassword}
-                onChangeText={setNewPassword}
-                placeholder="Enter new password"
-                secureTextEntry
-                className="bg-surface border-border-muted mt-2"
-              />
-            </View>
-
-            <View className="mb-10">
-              <Text className="text-[11px] font-bold text-text-muted uppercase tracking-widest mb-4">Household Identity</Text>
-              <Input
-                label="Household Name"
-                value={householdName}
-                onChangeText={setHouseholdName}
-                placeholder="Enter household name"
-                className="bg-surface border-border-muted"
-              />
-            </View>
-
-            <TouchableOpacity
-              onPress={handleUpdateProfile}
-              className="bg-primary-600 py-4 rounded-2xl items-center shadow-md"
-            >
-              <Text className="text-white font-bold text-lg">Save Changes</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => setIsEditModalVisible(false)}
-              className="py-4 mt-2 items-center"
-            >
-              <Text className="text-text-muted font-bold">Discard</Text>
-            </TouchableOpacity>
-          </View>
-        </KeyboardAvoidingView>
-      </Modal>
-
-      {/* Invite Modal */}
-      <Modal
-        visible={showInviteModal}
-        animationType="slide"
-        presentationStyle="pageSheet"
-        onRequestClose={() => setShowInviteModal(false)}
-      >
-        <View className="flex-1 bg-surface-dim">
-          <View className="items-center pt-3 pb-2">
-            <View className="w-10 h-1.5 bg-border rounded-full opacity-30" />
-          </View>
-
-          <View className="p-8">
-            <View className="w-16 h-16 bg-primary-100 rounded-2xl items-center justify-center mb-6">
-              <Ionicons name="person-add" size={32} color={COLORS.primary[600]} />
-            </View>
-
-            <Text className="text-2xl font-bold text-text mb-2">Invite Member</Text>
-            <Text className="text-text-secondary text-base mb-8">
-              Share the load. Invite your partner or housemate to join '{householdName}'.
-            </Text>
-
-            <Input
-              label="Email Address"
-              value={inviteEmail}
-              onChangeText={setInviteEmail}
-              placeholder="partner@example.com"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoFocus
-              className="bg-surface border-border-muted"
-            />
-
-            <View className="flex-row gap-4 mt-8">
-              <TouchableOpacity
-                onPress={() => setShowInviteModal(false)}
-                className="flex-1 py-4 border border-border-strong rounded-2xl items-center"
-              >
-                <Text className="text-text font-bold text-base">Cancel</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={handleSendInvite}
-                className="flex-2 bg-primary-600 py-4 rounded-2xl items-center shadow-md px-10"
-              >
-                <Text className="text-white font-bold text-base">Send Invite</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View className="mt-12 p-4 bg-surface rounded-2xl border border-border-muted">
-              <Text className="text-xs text-text-secondary text-center leading-5">
-                The agency rule ensures that members only manage their own personal data, while shared cards and tasks are visible to all household members.
-              </Text>
-            </View>
-          </View>
+        <View className="mb-8">
+          <Text className="text-[11px] font-bold text-text-muted uppercase tracking-widest mb-4">Personal Identity</Text>
+          <Input
+            label="Display Name"
+            value={newName}
+            onChangeText={setNewName}
+            placeholder="Enter your name"
+            className="bg-surface border-border-muted"
+          />
+          <Input
+            label="Email Address"
+            value={newEmail}
+            onChangeText={setNewEmail}
+            placeholder="savannah@tandem.app"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            className="bg-surface border-border-muted mt-2"
+          />
+          <Input
+            label="Password"
+            value={newPassword}
+            onChangeText={setNewPassword}
+            placeholder="Enter new password"
+            secureTextEntry
+            className="bg-surface border-border-muted mt-2"
+          />
         </View>
-      </Modal>
+
+        <View className="mb-10">
+          <Text className="text-[11px] font-bold text-text-muted uppercase tracking-widest mb-4">Household Identity</Text>
+          <Input
+            label="Household Name"
+            value={householdName}
+            onChangeText={setHouseholdName}
+            placeholder="Enter household name"
+            className="bg-surface border-border-muted"
+          />
+        </View>
+
+        <Button
+          title="Save Changes"
+          onPress={handleUpdateProfile}
+          variant="primary"
+          className="shadow-md"
+        />
+
+        <TouchableOpacity
+          onPress={() => setIsEditModalVisible(false)}
+          className="py-4 mt-2 items-center"
+        >
+          <Text className="text-text-muted font-bold">Discard</Text>
+        </TouchableOpacity>
+      </BottomSheet>
+
+      <BottomSheet
+        visible={showInviteModal}
+        onClose={() => setShowInviteModal(false)}
+        containerStyle={{ padding: 32 }}
+      >
+        <View className="w-16 h-16 bg-primary-100 rounded-2xl items-center justify-center mb-6">
+          <Ionicons name="person-add" size={32} color={COLORS.primary[600]} />
+        </View>
+
+        <Text className="text-2xl font-bold text-text mb-2">Invite Member</Text>
+        <Text className="text-text-secondary text-base mb-8">
+          Share the load. Invite your partner or housemate to join '{householdName}'.
+        </Text>
+
+        <Input
+          label="Email Address"
+          value={inviteEmail}
+          onChangeText={setInviteEmail}
+          placeholder="partner@example.com"
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoFocus
+          className="bg-surface border-border-muted"
+        />
+
+        <View className="flex-row gap-4 mt-8">
+          <TouchableOpacity
+            onPress={() => setShowInviteModal(false)}
+            className="flex-1 py-4 border border-border-strong rounded-2xl items-center"
+          >
+            <Text className="text-text font-bold text-base">Cancel</Text>
+          </TouchableOpacity>
+
+          <Button
+            title="Send Invite"
+            onPress={handleSendInvite}
+            variant="primary"
+            className="flex-2 shadow-md px-10"
+          />
+        </View>
+
+        <View className="mt-12 p-4 bg-surface rounded-2xl border border-border-muted">
+          <Text className="text-xs text-text-secondary text-center leading-5">
+            The agency rule ensures that members only manage their own personal data, while shared cards and tasks are visible to all household members.
+          </Text>
+        </View>
+      </BottomSheet>
     </View>
   );
 };

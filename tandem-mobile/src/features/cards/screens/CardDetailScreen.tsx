@@ -1,8 +1,6 @@
 import React from 'react';
 import { View, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { Text } from '@shared/components/ui/Text';
-import { TextInput } from '@shared/components/ui/TextInput';
-import { AddButton } from '@shared/components/ui';
+import { Text, TextInput, AddButton, EditableTitle, SectionHeader } from '@shared/components/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { CardsStackParamList } from '@app/navigation/types';
@@ -104,26 +102,14 @@ export const CardDetailScreen: React.FC = () => {
             </View>
             <ScrollView className="flex-1 px-5" contentContainerStyle={{ paddingBottom: 40 }}>
                 {/* Private Workbench UI */}
-                <View className="mb-6 pt-4 flex-row justify-between items-start">
-                    <View className="flex-1">
-                        {isEditingName ? (
-                            <TextInput
-                                className="text-[32px] font-bold text-text tracking-tight mb-1 p-0"
-                                value={name}
-                                onChangeText={setName}
-                                onBlur={handleSaveName}
-                                autoFocus
-                                returnKeyType="done"
-                            />
-                        ) : (
-                            <TouchableOpacity onPress={() => setIsEditingName(true)}>
-                                <Text className="text-[32px] font-bold text-text tracking-tight mb-1">
-                                    {name}
-                                </Text>
-                            </TouchableOpacity>
-                        )}
-                    </View>
-                </View>
+                <EditableTitle
+                    value={name}
+                    isEditing={isEditingName}
+                    setIsEditing={setIsEditingName}
+                    onChangeText={setName}
+                    onSave={handleSaveName}
+                    className="pt-4"
+                />
 
                 <Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
                     Card Notes
@@ -134,10 +120,10 @@ export const CardDetailScreen: React.FC = () => {
                     onChangeText={setNotes}
                 />
 
-                <View className="flex-row justify-between items-center mb-4">
-                    <Text className="text-lg font-bold text-text">Private Tasks</Text>
-                    <AddButton onPress={() => { }} />
-                </View>
+                <SectionHeader
+                    title="Private Tasks"
+                    action={<AddButton onPress={() => { }} />}
+                />
 
                 <View>
                     {tasks.length === 0 ? (

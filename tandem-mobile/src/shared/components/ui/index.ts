@@ -10,7 +10,14 @@ export { Avatar } from './Avatar';
 export { Badge } from './Badge';
 export { Divider } from './Divider';
 export { EmptyState } from './EmptyState';
+export { Text } from './Text';
+export { TextInput } from './TextInput';
 
 export { AddButton } from './AddButton';
 export { DeleteButton } from './DeleteButton';
 export { SaveButton, CancelButton, DoneButton, BackButton, EditIconButton, CloseButton } from './HeaderButtons';
+
+export { BottomSheet } from './BottomSheet';
+export { Checkbox } from './Checkbox';
+export { EditableTitle } from './EditableTitle';
+export { SectionHeader } from './SectionHeader';

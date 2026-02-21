@@ -1,7 +1,6 @@
 import React from 'react';
-import { View, ScrollView, TouchableOpacity, Modal, Alert } from 'react-native';
-import { Text } from '@shared/components/ui/Text';
-import { TextInput } from '@shared/components/ui/TextInput';
+import { View, ScrollView, TouchableOpacity, Modal, TextInput, Alert } from 'react-native';
+import { Text, Button, BottomSheet, Checkbox } from '@shared/components/ui';
 import { AddButton } from '@shared/components/ui/AddButton';
 import { DoneButton } from '@shared/components/ui/HeaderButtons';
 import Swiper from 'react-native-deck-swiper';
@@ -205,6 +204,14 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
               </TouchableOpacity>
             ) : (
               <View className="flex-row gap-2">
+                {filter === 'all' && (
+                  <TouchableOpacity
+                    onPress={() => setShowShuffleModal(true)}
+                    className="bg-surface w-10 h-10 rounded-full items-center justify-center border border-border"
+                  >
+                    <Ionicons name="shuffle" size={20} color={COLORS.text.secondary} />
+                  </TouchableOpacity>
+                )}
                 <TouchableOpacity
                   onPress={() => setShowFilterMenu(true)}
                   className="bg-surface w-10 h-10 rounded-full items-center justify-center border border-border"
@@ -214,14 +221,6 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
                     <View className="absolute top-0 right-0 w-3 h-3 rounded-full border-2 border-surface" />
                   )}
                 </TouchableOpacity>
-                {filter === 'all' && (
-                  <TouchableOpacity
-                    onPress={() => setShowShuffleModal(true)}
-                    className="bg-surface w-10 h-10 rounded-full items-center justify-center border border-border"
-                  >
-                    <Ionicons name="shuffle" size={20} color={COLORS.text.secondary} />
-                  </TouchableOpacity>
-                )}
                 <AddButton onPress={() => setShowAddCard(true)} />
                 {onClose && <DoneButton onPress={onClose} />}
               </View>
@@ -387,88 +386,66 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
         </View>
       )}
 
-      {/* Filter Menu Modal */}
-      <Modal
+      {/* Filter Menu BottomSheet */}
+      <BottomSheet
         visible={showFilterMenu}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowFilterMenu(false)}
+        onClose={() => setShowFilterMenu(false)}
       >
-        <TouchableOpacity
-          activeOpacity={1}
-          onPress={() => setShowFilterMenu(false)}
-          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' }}
-        >
+        <Text className="text-xl font-bold text-text mb-6">Filter Roster</Text>
+
+        <Text className="text-[11px] font-bold text-text-muted uppercase tracking-widest mb-3">Ownership</Text>
+        <View className="flex-row gap-2 mb-8">
           <TouchableOpacity
-            activeOpacity={1}
-            onPress={e => e.stopPropagation()}
-            style={{ backgroundColor: COLORS.surface.DEFAULT, borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 24, paddingBottom: 50 }}
+            onPress={() => setFilter('all')}
+            className={`flex-1 py-3 px-4 rounded-xl border items-center ${filter === 'all' ? 'bg-primary-50 border-primary-600' : 'bg-surface border-border'}`}
           >
-            <View className="w-10 h-1.5 bg-border rounded-full self-center mb-6 opacity-30" />
-            <Text className="text-xl font-bold text-text mb-6">Filter Roster</Text>
-
-            <Text className="text-[11px] font-bold text-text-muted uppercase tracking-widest mb-3">Ownership</Text>
-            <View className="flex-row gap-2 mb-8">
-              <TouchableOpacity
-                onPress={() => setFilter('all')}
-                className={`flex-1 py-3 px-4 rounded-xl border items-center ${filter === 'all' ? 'bg-primary-50 border-primary-600' : 'bg-surface border-border'}`}
-              >
-                <Text className={`font-semibold ${filter === 'all' ? 'text-primary-600' : 'text-text-secondary'}`}>All Hands</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => setFilter('me')}
-                className={`flex-1 py-3 px-4 rounded-xl border items-center ${filter === 'me' ? 'bg-primary-50 border-primary-600' : 'bg-surface border-border'}`}
-              >
-                <Text className={`font-semibold ${filter === 'me' ? 'text-primary-600' : 'text-text-secondary'}`}>Just Me</Text>
-              </TouchableOpacity>
-            </View>
-
-            <Text className="text-[11px] font-bold text-text-muted uppercase tracking-widest mb-3">Task Visibility</Text>
-            <View className="flex-row flex-wrap gap-2 mb-8">
-              {(['none', 'week', 'month', 'year', 'all'] as TaskTimeFilter[]).map(f => (
-                <TouchableOpacity
-                  key={f}
-                  onPress={() => setTaskTimeFilter(f)}
-                  className={`py-2.5 px-4 rounded-xl border ${taskTimeFilter === f ? 'bg-primary-50 border-primary-600' : 'bg-surface border-border'}`}
-                >
-                  <Text className={`text-sm font-semibold capitalize ${taskTimeFilter === f ? 'text-primary-600' : 'text-text-muted'}`}>
-                    {f === 'none' ? 'Hidden' : f}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            <View className="mb-8">
-              <TouchableOpacity
-                onPress={() => setHideCompleted(!hideCompleted)}
-                className="flex-row items-center gap-3 mb-4 px-1"
-              >
-                <View className={`w-5 h-5 rounded border items-center justify-center ${hideCompleted ? 'bg-primary-600 border-primary-600' : 'bg-surface border-border'}`}>
-                  {hideCompleted && <Ionicons name="checkmark" size={14} color="white" />}
-                </View>
-                <Text className="text-[15px] font-medium text-text">Hide completed tasks</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={() => setHideUndated(!hideUndated)}
-                className="flex-row items-center gap-3 px-1"
-              >
-                <View className={`w-5 h-5 rounded border items-center justify-center ${hideUndated ? 'bg-primary-600 border-primary-600' : 'bg-surface border-border'}`}>
-                  {hideUndated && <Ionicons name="checkmark" size={14} color="white" />}
-                </View>
-                <Text className="text-[15px] font-medium text-text">Hide tasks without a due date</Text>
-              </TouchableOpacity>
-            </View>
-
-            <TouchableOpacity
-              onPress={() => setShowFilterMenu(false)}
-              className="bg-primary-600 py-4 rounded-2xl items-center shadow-sm"
-            >
-              <Text className="text-white font-bold text-base">Show Results</Text>
-            </TouchableOpacity>
+            <Text className={`font-semibold ${filter === 'all' ? 'text-primary-600' : 'text-text-secondary'}`}>All Hands</Text>
           </TouchableOpacity>
-        </TouchableOpacity>
-      </Modal>
+          <TouchableOpacity
+            onPress={() => setFilter('me')}
+            className={`flex-1 py-3 px-4 rounded-xl border items-center ${filter === 'me' ? 'bg-primary-50 border-primary-600' : 'bg-surface border-border'}`}
+          >
+            <Text className={`font-semibold ${filter === 'me' ? 'text-primary-600' : 'text-text-secondary'}`}>Just Me</Text>
+          </TouchableOpacity>
+        </View>
+
+        <Text className="text-[11px] font-bold text-text-muted uppercase tracking-widest mb-3">Task Visibility</Text>
+        <View className="flex-row flex-wrap gap-2 mb-8">
+          {(['none', 'week', 'month', 'year', 'all'] as TaskTimeFilter[]).map(f => (
+            <TouchableOpacity
+              key={f}
+              onPress={() => setTaskTimeFilter(f)}
+              className={`py-2.5 px-4 rounded-xl border ${taskTimeFilter === f ? 'bg-primary-50 border-primary-600' : 'bg-surface border-border'}`}
+            >
+              <Text className={`text-sm font-semibold capitalize ${taskTimeFilter === f ? 'text-primary-600' : 'text-text-muted'}`}>
+                {f === 'none' ? 'Hidden' : f}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <View className="mb-8">
+          <Checkbox
+            label="Hide completed tasks"
+            checked={hideCompleted}
+            onPress={() => setHideCompleted(!hideCompleted)}
+            className="mb-4"
+          />
+
+          <Checkbox
+            label="Hide tasks without a due date"
+            checked={hideUndated}
+            onPress={() => setHideUndated(!hideUndated)}
+          />
+        </View>
+
+        <Button
+          title="Done"
+          onPress={() => setShowFilterMenu(false)}
+          variant="primary"
+          className="mt-4"
+        />
+      </BottomSheet>
 
       {/* Shuffle Modal (Options) */}
       <Modal
@@ -655,7 +632,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
 
       {/* Add Card Modal */}
       {showAddCard && <AddCardModal onClose={() => setShowAddCard(false)} />}
-    </View>
+    </View >
   );
 };
 

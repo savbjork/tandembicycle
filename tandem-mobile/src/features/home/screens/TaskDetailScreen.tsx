@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, ScrollView, TouchableOpacity, Modal, Alert, TextInput } from 'react-native';
-import { Text } from '@shared/components/ui/Text';
+import { View, ScrollView, TouchableOpacity, Modal, Alert } from 'react-native';
+import { Text, TextInput, EditableTitle } from '@shared/components/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { fakeData, type Person, type Task } from '@shared/data/FakeDataStore';
 import { COLORS } from '@shared/constants/colors';
@@ -30,6 +30,7 @@ export const TaskDetailScreen: React.FC<TaskDetailScreenProps> = ({ navigation, 
     }
 
     const [editName, setEditName] = React.useState(task.name);
+    const [isEditingName, setIsEditingName] = React.useState(false);
     const [editCard, setEditCard] = React.useState(task.card);
     const [editDueDateObj, setEditDueDateObj] = React.useState<Date>(new Date(task.dueDate + 'T00:00:00'));
     const [showEditDatePicker, setShowEditDatePicker] = React.useState(false);
@@ -38,6 +39,15 @@ export const TaskDetailScreen: React.FC<TaskDetailScreenProps> = ({ navigation, 
     const [editNote, setEditNote] = React.useState(task.note || '');
 
     const availableCards = Array.from(new Set(fakeData.tasks.map((t) => t.card))).filter((c): c is string => !!c);
+
+    const handleSaveName = () => {
+        if (!editName.trim()) {
+            setEditName(task.name);
+        } else {
+            setEditName(editName.trim());
+        }
+        setIsEditingName(false);
+    };
 
     const handleSave = () => {
         if (!editName.trim()) {
@@ -94,20 +104,21 @@ export const TaskDetailScreen: React.FC<TaskDetailScreenProps> = ({ navigation, 
                 <TouchableOpacity onPress={() => navigation.goBack()}>
                     <Text className="text-text-secondary font-medium text-lg">Cancel</Text>
                 </TouchableOpacity>
-                <Text className="text-xl font-bold text-text">Edit Task</Text>
+                <View />
                 <TouchableOpacity onPress={handleSave}>
                     <Text className="text-primary-600 font-bold text-lg">Save</Text>
                 </TouchableOpacity>
             </View>
 
-            <ScrollView className="flex-1 px-5 pt-5">
-                <Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
-                    Task Name *
-                </Text>
-                <TextInput
-                    className="bg-surface rounded-xl px-4 py-3.5 text-base text-text mb-5 border border-border"
+            <ScrollView className="flex-1 px-5">
+                <EditableTitle
                     value={editName}
+                    isEditing={isEditingName}
+                    setIsEditing={setIsEditingName}
                     onChangeText={setEditName}
+                    onSave={handleSaveName}
+                    subtitle={`Assigned to ${editOwner}`}
+                    className="pt-6"
                 />
 
                 <Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
