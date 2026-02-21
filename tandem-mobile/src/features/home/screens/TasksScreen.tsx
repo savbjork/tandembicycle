@@ -27,8 +27,6 @@ export const TasksScreen: React.FC = () => {
     const selectedPerson: Person = 'Savannah';
     const [showCreateTask, setShowCreateTask] = React.useState(false);
     const [tasks, setTasks] = React.useState<Task[]>(fakeData.tasks);
-    const [hideCompleted, setHideCompleted] = React.useState(false);
-    const [hideUndated, setHideUndated] = React.useState(false);
 
     // Refresh tasks when screen comes into focus
     useFocusEffect(
@@ -44,11 +42,7 @@ export const TasksScreen: React.FC = () => {
     const [newTaskNote, setNewTaskNote] = React.useState('');
 
     // Filter tasks for current user
-    const userTasks = tasks.filter((task) =>
-        task.owner === selectedPerson &&
-        (!hideCompleted || !task.isDone) &&
-        (!hideUndated || !!task.dueDate)
-    );
+    const userTasks = tasks.filter((task) => task.owner === selectedPerson);
 
     const handleToggleDone = (taskId: string, isDone: boolean) => {
         setTasks((prev) =>
@@ -99,27 +93,7 @@ export const TasksScreen: React.FC = () => {
                 <AddButton onPress={() => setShowCreateTask(true)} />
             </View>
 
-            <View className="px-5 mb-4 flex-row justify-end gap-4">
-                <TouchableOpacity
-                    onPress={() => setHideUndated(!hideUndated)}
-                    className="flex-row items-center gap-2"
-                >
-                    <View className={`w-4 h-4 rounded border items-center justify-center ${hideUndated ? 'bg-primary-600 border-primary-600' : 'bg-surface border-border'}`}>
-                        {hideUndated && <Ionicons name="checkmark" size={12} color="white" />}
-                    </View>
-                    <Text className="text-[13px] font-medium text-text-secondary">Hide Undated</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                    onPress={() => setHideCompleted(!hideCompleted)}
-                    className="flex-row items-center gap-2"
-                >
-                    <View className={`w-4 h-4 rounded border items-center justify-center ${hideCompleted ? 'bg-primary-600 border-primary-600' : 'bg-surface border-border'}`}>
-                        {hideCompleted && <Ionicons name="checkmark" size={12} color="white" />}
-                    </View>
-                    <Text className="text-[13px] font-medium text-text-secondary">Hide Done</Text>
-                </TouchableOpacity>
-            </View>
+            <View className="mb-4" />
 
             {/* List View */}
             <ScrollView className="flex-1 px-5">

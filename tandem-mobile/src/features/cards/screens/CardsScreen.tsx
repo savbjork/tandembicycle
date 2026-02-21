@@ -9,8 +9,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
 import { fakeData, type Card, type Task } from '@shared/data/FakeDataStore';
 
-import { useNavigation } from '@react-navigation/native';
-import { CardsStackParamList } from '@app/navigation/types';
+import { useNavigation, CompositeNavigationProp } from '@react-navigation/native';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { CardsStackParamList, MainTabParamList } from '@app/navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { TaskRow } from '@shared/components/SwipeableTaskRow';
 
@@ -20,7 +21,10 @@ interface CardsScreenProps {
 
 type CardsFilter = 'all' | 'me';
 type TaskTimeFilter = 'none' | 'week' | 'month' | 'year' | 'all';
-type NavigationProp = NativeStackNavigationProp<CardsStackParamList>;
+type NavigationProp = CompositeNavigationProp<
+  NativeStackNavigationProp<CardsStackParamList>,
+  BottomTabNavigationProp<MainTabParamList>
+>;
 
 export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
   const navigation = useNavigation<NavigationProp>();
@@ -220,16 +224,39 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
                 )}
                 <AddButton onPress={() => setShowAddCard(true)} />
                 {onClose && <DoneButton onPress={onClose} />}
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('MyBoard')}
-                  className="bg-primary-600 px-4 h-10 rounded-full flex-row items-center justify-center shadow-sm gap-2"
-                >
-                  <Text className="text-white font-bold text-sm">Tasks</Text>
-                </TouchableOpacity>
               </View>
             )}
           </View>
         </View>
+
+        {/* Navigation Row */}
+        {!isSelecting && (
+          <View className="flex-row gap-2 mb-6">
+            <TouchableOpacity
+              onPress={() => navigation.navigate('MyBoard')}
+              className="flex-1 bg-surface h-11 rounded-2xl flex-row items-center justify-center gap-2 border border-border-light shadow-sm"
+            >
+              <Ionicons name="list-outline" size={18} color={COLORS.text.secondary} />
+              <Text className="text-text-secondary font-bold text-[15px]">Tasks</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Inbox')}
+              className="flex-1 bg-surface h-11 rounded-2xl flex-row items-center justify-center gap-2 border border-border-light shadow-sm"
+            >
+              <Ionicons name="mail-outline" size={18} color={COLORS.text.secondary} />
+              <Text className="text-text-secondary font-bold text-[15px]">Inbox</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Home')}
+              className="flex-1 bg-surface h-11 rounded-2xl flex-row items-center justify-center gap-2 border border-border-light shadow-sm"
+            >
+              <Ionicons name="home-outline" size={18} color={COLORS.text.secondary} />
+              <Text className="text-text-secondary font-bold text-[15px]">Home</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Balance Meter */}
         {!isSelecting && filter === 'all' && (

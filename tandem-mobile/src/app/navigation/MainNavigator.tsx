@@ -17,12 +17,7 @@ export const MainNavigator: React.FC = () => {
         tabBarActiveTintColor: COLORS.primary[600],
         tabBarInactiveTintColor: COLORS.text.muted,
         tabBarStyle: {
-          borderTopWidth: 1,
-          borderTopColor: COLORS.border.DEFAULT,
-          paddingBottom: 8,
-          paddingTop: 8,
-          height: 60,
-          backgroundColor: COLORS.surface.DEFAULT,
+          display: 'none',
         },
         tabBarLabelStyle: {
           fontFamily: 'Barriecito-Regular',

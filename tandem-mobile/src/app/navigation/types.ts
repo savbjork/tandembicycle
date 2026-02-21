@@ -27,6 +27,8 @@ export type CardsStackParamList = {
   CardsList: undefined;
   CardDetail: { cardName: string };
   MyBoard: undefined;
+  Inbox: undefined;
+  Home: undefined;
 };
 
 // Main Bottom Tab Navigator

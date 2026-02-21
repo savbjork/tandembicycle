@@ -1,14 +1,19 @@
 import React from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { Text } from '@shared/components/ui/Text';
 import { COLORS } from '@shared/constants/colors';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 export const InboxScreen: React.FC = () => {
+    const navigation = useNavigation();
 
     return (
         <View className="flex-1 bg-surface-dim">
-            <View className="px-5 pt-[60px] pb-5">
+            <View className="px-5 pt-[60px] pb-5 flex-row items-center gap-3">
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <Ionicons name="chevron-back" size={28} color={COLORS.text.DEFAULT} />
+                </TouchableOpacity>
                 <Text className="text-[32px] font-bold text-text tracking-tight">
                     Inbox
                 </Text>

@@ -4,6 +4,8 @@ import { CardsStackParamList } from '../types';
 import { CardsScreen } from '@features/cards/screens/CardsScreen';
 import { CardDetailScreen } from '@features/cards/screens/CardDetailScreen';
 import { TasksScreen } from '@features/home/screens/TasksScreen';
+import { InboxScreen } from '@features/home/screens/InboxScreen';
+import { HomeOverviewScreen } from '@features/home-hub/screens/HomeOverviewScreen';
 
 const Stack = createNativeStackNavigator<CardsStackParamList>();
 
@@ -26,6 +28,14 @@ export const CardsStackNavigator: React.FC = () => {
             <Stack.Screen
                 name="MyBoard"
                 component={TasksScreen}
+            />
+            <Stack.Screen
+                name="Inbox"
+                component={InboxScreen}
+            />
+            <Stack.Screen
+                name="Home"
+                component={HomeOverviewScreen}
             />
         </Stack.Navigator>
     );

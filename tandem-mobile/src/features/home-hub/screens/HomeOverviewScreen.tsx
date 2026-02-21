@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, ScrollView, TouchableOpacity, Modal, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { Text } from '@shared/components/ui/Text';
 import { useAuthStore } from '@store';
 import { useMockAuth } from '@shared/hooks/useMockAuth';
@@ -56,6 +57,7 @@ export const HomeOverviewScreen: React.FC = () => {
     setShowInviteModal(false);
   };
 
+  const navigation = useNavigation();
   const initials = user?.name?.split(' ').map((n: string) => n[0]).join('') || 'U';
 
   return (
@@ -63,10 +65,14 @@ export const HomeOverviewScreen: React.FC = () => {
       <ScrollView className="flex-1 px-5 pt-[60px] pb-5">
         {/* Header */}
         <View className="mb-8">
-          <Text className="text-[32px] font-bold text-text tracking-tight">
-            House
-          </Text>
-          <Text className="text-text-secondary text-base mt-1">Management & Profile</Text>
+          <View className="flex-row items-center gap-3 mb-1">
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons name="chevron-back" size={28} color={COLORS.text.DEFAULT} />
+            </TouchableOpacity>
+            <Text className="text-[32px] font-bold text-text tracking-tight">
+              House
+            </Text>
+          </View>
         </View>
 
         {/* 1. Profile Section */}
