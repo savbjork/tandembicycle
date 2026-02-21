@@ -1,5 +1,4 @@
 import { TaskId, HouseholdCardId, UserId } from '@shared/types/branded';
-import { TaskStatus } from '@shared/types/enums';
 
 export type TaskType = 'one-off' | 'recurring' | 'checklist';
 
@@ -13,7 +12,7 @@ export interface Task {
     ownerId: UserId;
     name: string;
     dueDate: Date | null;
-    status: TaskStatus;
+    isDone: boolean;
     type: TaskType;
     note?: string;
     createdAt: Date;
@@ -38,7 +37,7 @@ export interface CreateTaskDTO {
 export interface UpdateTaskDTO {
     name?: string;
     dueDate?: Date | null;
-    status?: TaskStatus;
+    isDone?: boolean;
     type?: TaskType;
     note?: string;
 }

@@ -2,28 +2,12 @@ import React, { useRef } from 'react';
 import { View, TouchableOpacity, Animated } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 import { Text } from '@shared/components/ui/Text';
-import type { Task, TaskStatus } from '@shared/data/FakeDataStore';
-
-// ─── Status helpers ──────────────────────────────────────────
-
-const STATUS_STYLES: Record<TaskStatus, { bg: string; text: string }> = {
-    'To Do': { bg: 'bg-gray-100', text: 'text-gray-600' },
-    'In Progress': { bg: 'bg-blue-100', text: 'text-blue-600' },
-    'Done': { bg: 'bg-green-100', text: 'text-green-600' },
-};
-
-const STATUSES: TaskStatus[] = ['To Do', 'In Progress', 'Done'];
-
-const STATUS_COLORS: Record<TaskStatus, string> = {
-    'To Do': '#6B7280',       // gray
-    'In Progress': '#3B82F6', // blue
-    'Done': '#22C55E',        // green
-};
-
-/** All statuses except the current one */
-const getOtherStatuses = (current: TaskStatus): TaskStatus[] => {
-    return STATUSES.filter(s => s !== current);
-};
+import type { Task } from '@shared/data/FakeDataStore';
+import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@shared/constants/colors';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '@app/navigation/types';
 
 const formatDate = (dateStr: string): string => {
     const date = new Date(dateStr);
@@ -44,13 +28,159 @@ const isOverdue = (dateStr: string): boolean => {
 
 // ─── Props ───────────────────────────────────────────────────
 
+interface TaskRowProps {
+    task: Task;
+    onPress?: () => void;
+    onToggleDone?: (taskId: string, isDone: boolean) => void;
+    variant?: 'list' | 'board' | 'compact';
+    hideBackground?: boolean;
+    hideCardName?: boolean;
+    hideDueDate?: boolean;
+    pendingHandoffLabel?: string | null;
+}
+
+export const TaskRow: React.FC<TaskRowProps> = ({
+    task,
+    onPress,
+    onToggleDone,
+    variant = 'list',
+    hideBackground = false,
+    hideCardName = false,
+    hideDueDate = false,
+    pendingHandoffLabel,
+}) => {
+    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+    const isBoard = variant === 'board';
+    const isCompact = variant === 'compact';
+    const overdue = isOverdue(task.dueDate) && !task.isDone;
+    const isDone = task.isDone;
+
+    const handlePress = () => {
+        if (onPress) {
+            onPress();
+        } else {
+            navigation.navigate('TaskDetail', { taskId: task.id });
+        }
+    };
+
+    const handleToggle = () => {
+        onToggleDone?.(task.id, !task.isDone);
+    };
+
+    if (isCompact) {
+        return (
+            <TouchableOpacity
+                onPress={handlePress}
+                className="flex-row items-center py-2 gap-3"
+                activeOpacity={0.7}
+            >
+                <TouchableOpacity onPress={handleToggle}>
+                    <Ionicons
+                        name={isDone ? "checkmark-circle" : "ellipse-outline"}
+                        size={20}
+                        color={isDone ? COLORS.success[600] : COLORS.text.muted}
+                    />
+                </TouchableOpacity>
+                <Text
+                    className={`text-[14px] flex-1 ${isDone ? 'text-text-muted line-through' : 'text-text-secondary'}`}
+                    numberOfLines={1}
+                >
+                    {task.name}
+                </Text>
+                {!hideDueDate && (
+                    <Text className={`text-[11px] ${overdue ? 'text-red-500 font-semibold' : 'text-text-muted'}`}>
+                        {formatDate(task.dueDate)}
+                    </Text>
+                )}
+            </TouchableOpacity>
+        );
+    }
+
+    if (isBoard) {
+        return (
+            <TouchableOpacity
+                className={`${hideBackground ? '' : 'bg-surface shadow-sm ' + (overdue ? 'border border-red-200' : '')} rounded-lg px-3.5 py-3 mb-2`}
+                onPress={handlePress}
+                activeOpacity={0.7}
+            >
+                <View className="flex-row items-center gap-2">
+                    <TouchableOpacity onPress={handleToggle}>
+                        <Ionicons
+                            name={isDone ? "checkmark-circle" : "ellipse-outline"}
+                            size={18}
+                            color={isDone ? COLORS.success[600] : COLORS.text.muted}
+                        />
+                    </TouchableOpacity>
+                    <Text className={`text-[14px] font-medium flex-1 ${isDone ? 'text-text-muted line-through' : overdue ? 'text-red-600' : 'text-text'}`}>
+                        {task.name}
+                    </Text>
+                </View>
+                <View className="flex-row items-center justify-between mt-1.5 ml-6">
+                    {!hideCardName && <Text className="text-xs text-text-muted">{task.card}</Text>}
+                    {!hideDueDate && (
+                        <Text className={`text-xs ${overdue ? 'text-red-500 font-semibold' : 'text-text-secondary'}`}>
+                            {overdue ? 'Overdue' : formatDate(task.dueDate)}
+                        </Text>
+                    )}
+                </View>
+            </TouchableOpacity>
+        );
+    }
+
+    return (
+        <TouchableOpacity
+            className={`${hideBackground ? '' : 'bg-surface shadow-sm ' + (overdue ? 'border border-red-200' : '')} ${hideCardName ? 'mb-1.5 py-1.5' : 'mb-3 py-3.5'} rounded-xl px-4`}
+            onPress={handlePress}
+            activeOpacity={0.7}
+        >
+            <View className={`flex-row items-center ${hideCardName ? 'gap-2.5' : 'gap-3'}`}>
+                <TouchableOpacity onPress={handleToggle}>
+                    <Ionicons
+                        name={isDone ? "checkmark-circle" : "ellipse-outline"}
+                        size={hideCardName ? 20 : 24}
+                        color={isDone ? COLORS.success[600] : COLORS.text.muted}
+                    />
+                </TouchableOpacity>
+                <View className="flex-1">
+                    <Text className={`${hideCardName ? 'text-[14px]' : 'text-[15px]'} font-medium ${isDone ? 'text-text-muted line-through' : overdue ? 'text-red-600' : 'text-text'}`}>
+                        {task.name}
+                    </Text>
+                    {!hideCardName && (
+                        <View className="flex-row items-center mt-0.5">
+                            <Text className="text-xs text-text-muted">
+                                {task.card}
+                            </Text>
+                        </View>
+                    )}
+                </View>
+                <View className="items-end">
+                    {!hideDueDate && (
+                        <Text className={`text-xs ${overdue ? 'text-red-500 font-semibold' : 'text-text-secondary'}`}>
+                            {overdue ? 'Overdue' : formatDate(task.dueDate)}
+                        </Text>
+                    )}
+                    {pendingHandoffLabel && (
+                        <View className="bg-amber-100 px-1.5 py-0.5 rounded mt-1">
+                            <Text className="text-[10px] font-semibold text-amber-600">
+                                {pendingHandoffLabel}
+                            </Text>
+                        </View>
+                    )}
+                </View>
+            </View>
+        </TouchableOpacity>
+    );
+};
+
 interface SwipeableTaskRowProps {
     task: Task;
-    onPress: () => void;
-    onStatusChange: (taskId: string, newStatus: TaskStatus) => void;
+    onPress?: () => void;
+    onToggleDone: (taskId: string, isDone: boolean) => void;
     onAudible?: (taskId: string) => void;
     pendingHandoffLabel?: string | null;
     variant?: 'list' | 'board';
+    hideCardName?: boolean;
+    hideDueDate?: boolean;
 }
 
 // ─── Component ───────────────────────────────────────────────
@@ -58,32 +188,26 @@ interface SwipeableTaskRowProps {
 export const SwipeableTaskRow: React.FC<SwipeableTaskRowProps> = ({
     task,
     onPress,
-    onStatusChange,
+    onToggleDone,
     onAudible,
     pendingHandoffLabel,
     variant = 'list',
+    hideCardName = false,
+    hideDueDate = false,
 }) => {
-    const isBoard = variant === 'board';
     const swipeableRef = useRef<Swipeable>(null);
+    const isDone = task.isDone;
 
-    const overdue = isOverdue(task.dueDate) && task.status !== 'Done';
-    const statusStyle = STATUS_STYLES[task.status];
-    const isDone = task.status === 'Done';
-
-    const otherStatuses = getOtherStatuses(task.status);
-
-    const handleChangeStatus = (newStatus: TaskStatus) => {
-        onStatusChange(task.id, newStatus);
+    const handleToggle = (taskId: string, isDone: boolean) => {
+        onToggleDone(taskId, isDone);
         swipeableRef.current?.close();
     };
 
-    const btnPadding = isBoard ? 10 : 14;
-    const btnFontSize = isBoard ? 11 : 13;
-    const actionRadius = isBoard ? 8 : 12;
-    const actionMarginBottom = isBoard ? 8 : 12;
-    const btnMinWidth = isBoard ? 70 : 85;
+    const actionMarginBottom = variant === 'board' ? 8 : 12;
+    const actionRadius = variant === 'board' ? 8 : 12;
+    const btnMinWidth = variant === 'board' ? 80 : 100;
 
-    // ─── Swipe Left → Show other stages ─────────────────
+    // ─── Swipe Right → Toggle Done (Swipe from left) ─────────────────
     const renderLeftActions = (
         progress: Animated.AnimatedInterpolation<number>,
         _dragX: Animated.AnimatedInterpolation<number>,
@@ -102,35 +226,28 @@ export const SwipeableTaskRow: React.FC<SwipeableTaskRowProps> = ({
                     transform: [{ scale }],
                 }}
             >
-                {otherStatuses.map((status) => (
-                    <TouchableOpacity
-                        key={status}
-                        onPress={() => handleChangeStatus(status)}
-                        activeOpacity={0.7}
-                        style={{
-                            backgroundColor: STATUS_COLORS[status],
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            paddingHorizontal: btnPadding,
-                            minWidth: btnMinWidth,
-                            borderRadius: actionRadius,
-                            marginRight: 4,
-                        }}
-                    >
-                        <Text style={{
-                            color: '#FFFFFF',
-                            fontSize: btnFontSize,
-                            fontWeight: '700',
-                        }}>
-                            {status}
-                        </Text>
-                    </TouchableOpacity>
-                ))}
+                <TouchableOpacity
+                    onPress={() => handleToggle(task.id, !isDone)}
+                    activeOpacity={0.7}
+                    style={{
+                        backgroundColor: isDone ? COLORS.text.muted : COLORS.success[600],
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        minWidth: btnMinWidth,
+                        borderRadius: actionRadius,
+                        marginRight: 4,
+                    }}
+                >
+                    <Ionicons name={isDone ? "arrow-undo" : "checkmark-circle"} size={24} color="#FFFFFF" />
+                    <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: '700', marginTop: 2 }}>
+                        {isDone ? 'UNDO' : 'DONE'}
+                    </Text>
+                </TouchableOpacity>
             </Animated.View>
         );
     };
 
-    // ─── Swipe Left ← Show Audible ──────────────────────
+    // ─── Swipe Left ← Show Audible (Swipe from right) ──────────────────────
     const renderRightActions = (
         progress: Animated.AnimatedInterpolation<number>,
         _dragX: Animated.AnimatedInterpolation<number>,
@@ -141,7 +258,7 @@ export const SwipeableTaskRow: React.FC<SwipeableTaskRowProps> = ({
             extrapolate: 'clamp',
         });
 
-        if (task.status === 'Done') return null;
+        if (isDone) return null;
 
         return (
             <Animated.View
@@ -158,94 +275,43 @@ export const SwipeableTaskRow: React.FC<SwipeableTaskRowProps> = ({
                     }}
                     activeOpacity={0.7}
                     style={{
-                        backgroundColor: '#F59E0B', // amber-500
+                        backgroundColor: COLORS.warning[500],
                         justifyContent: 'center',
                         alignItems: 'center',
-                        paddingHorizontal: btnPadding,
                         minWidth: btnMinWidth + 20,
                         borderRadius: actionRadius,
                         marginLeft: 4,
                     }}
                 >
-                    <Text style={{
-                        color: '#FFFFFF',
-                        fontSize: btnFontSize,
-                        fontWeight: '700',
-                    }}>
-                        CALL AUDIBLE
+                    <Ionicons name="megaphone" size={24} color="#FFFFFF" />
+                    <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: '700', marginTop: 2 }}>
+                        AUDIBLE
                     </Text>
                 </TouchableOpacity>
             </Animated.View>
         );
     };
 
-    // ─── Render ──────────────────────────────────────────
     return (
         <Swipeable
             ref={swipeableRef}
             renderLeftActions={renderLeftActions}
             renderRightActions={renderRightActions}
-            leftThreshold={isBoard ? 60 : 80}
-            rightThreshold={isBoard ? 60 : 80}
+            leftThreshold={40}
+            rightThreshold={40}
             overshootLeft={false}
             overshootRight={false}
             friction={2}
         >
-            {isBoard ? (
-                /* ── Board variant: compact card ── */
-                <TouchableOpacity
-                    className={`bg-surface rounded-lg px-3.5 py-3 mb-2 shadow-sm ${overdue ? 'border border-red-200' : ''}`}
-                    onPress={onPress}
-                    activeOpacity={0.7}
-                >
-                    <Text className={`text-[14px] font-medium ${isDone ? 'text-text-muted line-through' : overdue ? 'text-red-600' : 'text-text'}`}>
-                        {task.name}
-                    </Text>
-                    <View className="flex-row items-center justify-between mt-1.5">
-                        <Text className="text-xs text-text-muted">{task.card}</Text>
-                        <Text className={`text-xs ${overdue ? 'text-red-500 font-semibold' : 'text-text-secondary'}`}>
-                            {overdue ? 'Overdue' : formatDate(task.dueDate)}
-                        </Text>
-                    </View>
-                </TouchableOpacity>
-            ) : (
-                /* ── List variant: full row ── */
-                <TouchableOpacity
-                    className={`bg-surface mb-3 rounded-xl px-4 py-3.5 shadow-sm ${overdue ? 'border border-red-200' : ''}`}
-                    onPress={onPress}
-                    activeOpacity={0.7}
-                >
-                    <View className="flex-row items-center">
-                        <View className="flex-1">
-                            <Text className={`text-[15px] font-medium ${isDone ? 'text-text-muted line-through' : overdue ? 'text-red-600' : 'text-text'}`}>
-                                {task.name}
-                            </Text>
-                            <View className="flex-row items-center mt-0.5 gap-2">
-                                <Text className="text-xs text-text-muted">
-                                    {task.card}
-                                </Text>
-                                <View className={`px-1.5 py-0.5 rounded ${statusStyle.bg}`}>
-                                    <Text className={`text-[10px] font-semibold ${statusStyle.text}`}>
-                                        {task.status}
-                                    </Text>
-                                </View>
-                            </View>
-                        </View>
-                        <View className="items-end">
-                            <Text className={`text-xs ${overdue ? 'text-red-500 font-semibold' : 'text-text-secondary'}`}>
-                                {overdue ? 'Overdue' : formatDate(task.dueDate)}
-                            </Text>
-                            {pendingHandoffLabel && (
-                                <View className="bg-amber-100 px-1.5 py-0.5 rounded mt-1">
-                                    <Text className="text-[10px] font-semibold text-amber-600">
-                                        {pendingHandoffLabel}
-                                    </Text>
-                                </View>
-                            )}
-                        </View>
-                    </View>
-                </TouchableOpacity>
-            )}
+            <TaskRow
+                task={task}
+                onPress={onPress}
+                onToggleDone={onToggleDone}
+                variant={variant}
+                hideCardName={hideCardName}
+                hideDueDate={hideDueDate}
+                pendingHandoffLabel={pendingHandoffLabel}
+            />
         </Swipeable>
     );
 };

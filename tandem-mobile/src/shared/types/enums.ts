@@ -32,12 +32,6 @@ export enum AuthProvider {
   APPLE = 'apple',
 }
 
-export enum TaskStatus {
-  TODO = 'todo',
-  IN_PROGRESS = 'in_progress',
-  DONE = 'done',
-}
-
 /**
  * Display labels for categories
  */

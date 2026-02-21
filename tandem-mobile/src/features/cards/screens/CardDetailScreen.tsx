@@ -19,11 +19,14 @@ export const CardDetailScreen: React.FC = () => {
     // Find the current card to get its initial state
     const currentCard = fakeData.cards.find(c => c.name === cardName);
     const [notes, setNotes] = React.useState('');
+    const [tasks, setTasks] = React.useState(fakeData.tasks.filter(t => t.card === cardName));
 
-    const tasks = fakeData.tasks.filter(t => t.card === cardName);
-
-
-
+    const handleToggleDone = (taskId: string, isDone: boolean) => {
+        setTasks(prev => prev.map(t => t.id === taskId ? { ...t, isDone } : t));
+        // Update global store
+        const globalTask = fakeData.tasks.find(t => t.id === taskId);
+        if (globalTask) globalTask.isDone = isDone;
+    };
 
     const isOwner = currentCard?.owner === 'Savannah';
     const [dropItem, setDropItem] = React.useState('');
@@ -109,28 +112,22 @@ export const CardDetailScreen: React.FC = () => {
                     <AddButton onPress={() => { }} />
                 </View>
 
-                <View className="bg-surface rounded-2xl border border-border overflow-hidden shadow-sm">
+                <View>
                     {tasks.length === 0 ? (
-                        <View className="py-12 items-center justify-center">
+                        <View className="bg-surface rounded-2xl border border-border py-12 items-center justify-center shadow-sm">
                             <Ionicons name="clipboard-outline" size={32} color={COLORS.text.muted} />
                             <Text className="text-sm text-text-muted mt-2 italic">No tasks created for this card</Text>
                         </View>
                     ) : (
                         <View>
-                            {tasks.map((task, index) => (
-                                <View key={task.id}>
-                                    <SwipeableTaskRow
-                                        task={task}
-                                        onPress={() => { }}
-                                        onStatusChange={(taskId, status) => {
-                                            console.log(`Status changed for ${taskId} to ${status}`);
-                                        }}
-                                        variant="board"
-                                    />
-                                    {index < tasks.length - 1 && (
-                                        <View className="h-[1px] bg-border mx-4" />
-                                    )}
-                                </View>
+                            {tasks.map((task) => (
+                                <SwipeableTaskRow
+                                    key={task.id}
+                                    task={task}
+                                    onToggleDone={handleToggleDone}
+                                    variant="list"
+                                    hideCardName={true}
+                                />
                             ))}
                         </View>
                     )}

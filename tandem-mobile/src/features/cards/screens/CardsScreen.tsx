@@ -7,16 +7,19 @@ import { DoneButton } from '@shared/components/ui/HeaderButtons';
 import Swiper from 'react-native-deck-swiper';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
-import { fakeData, type Card } from '@shared/data/FakeDataStore';
+import { fakeData, type Card, type Task } from '@shared/data/FakeDataStore';
 
 import { useNavigation } from '@react-navigation/native';
 import { CardsStackParamList } from '@app/navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { TaskRow } from '@shared/components/SwipeableTaskRow';
 
 interface CardsScreenProps {
   onClose?: () => void;
 }
 
+type CardsFilter = 'all' | 'me';
+type TaskTimeFilter = 'none' | 'week' | 'month' | 'year' | 'all';
 type NavigationProp = NativeStackNavigationProp<CardsStackParamList>;
 
 export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
@@ -29,11 +32,16 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
   const [isSelecting, setIsSelecting] = React.useState(false);
   const [selectedCardNames, setSelectedCardNames] = React.useState<string[]>([]);
   const [cards, setCards] = React.useState<Card[]>(fakeData.cards);
+  const [tasks, setTasks] = React.useState<Task[]>(fakeData.tasks);
+  const [filter, setFilter] = React.useState<CardsFilter>('all');
+  const [taskTimeFilter, setTaskTimeFilter] = React.useState<TaskTimeFilter>('week');
   const swiperRef = React.useRef<Swiper<{ name: string, owner: string }>>(null);
+
+  const selectedPerson = 'Savannah';
 
   const handleSwipeLeft = (cardIndex: number) => {
     const updatedCards = [...shuffledCards];
-    updatedCards[cardIndex] = { ...updatedCards[cardIndex], owner: 'Savannah' };
+    updatedCards[cardIndex] = { ...updatedCards[cardIndex], owner: selectedPerson };
     setShuffledCards(updatedCards);
     setCurrentCardIndex(cardIndex + 1);
   };
@@ -69,6 +77,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
     fakeData.tasks = newTasks;
     // Update local state to trigger re-render
     setCards(newCards);
+    setTasks(newTasks);
 
     setShowSwipeMode(false);
     setCurrentCardIndex(0);
@@ -100,15 +109,20 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
           style: 'destructive',
           onPress: () => {
             const freshCards: Card[] = [
-              { name: 'Daily Tidying', owner: 'Savannah' },
-              { name: 'Laundry', owner: 'Savannah' },
-              { name: 'Meal Planning', owner: 'Savannah' },
+              { name: 'Daily Tidying', owner: selectedPerson },
+              { name: 'Laundry', owner: selectedPerson },
+              { name: 'Meal Planning', owner: selectedPerson },
               { name: 'Dishes', owner: 'Kevin' },
               { name: 'Yard Work', owner: 'Kevin' },
               { name: 'Dinner', owner: 'Kevin' },
             ];
             fakeData.cards = freshCards;
+            fakeData.tasks = [
+              { id: 't1', name: 'Wipe counters', card: 'Daily Tidying', owner: selectedPerson, dueDate: '2026-02-23', isDone: false },
+              { id: 't4', name: 'Wash clothes', card: 'Laundry', owner: selectedPerson, dueDate: '2026-02-23', isDone: true },
+            ];
             setCards(freshCards);
+            setTasks(fakeData.tasks);
             setShowShuffleModal(false);
             Alert.alert('Reset Complete', 'Standard deck restored.');
           }
@@ -126,11 +140,44 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
     startSwipeShuffle(cardsToShuffle);
   };
 
+  const handleToggleDone = (taskId: string, isDone: boolean) => {
+    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, isDone } : t));
+    // Update global store too
+    const task = fakeData.tasks.find(t => t.id === taskId);
+    if (task) task.isDone = isDone;
+  };
+
+  const isTaskInTimeFrame = (task: Task) => {
+    if (taskTimeFilter === 'all') return true;
+    if (taskTimeFilter === 'none') return false;
+
+    const taskDate = new Date(task.dueDate + 'T00:00:00');
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
+    if (taskTimeFilter === 'week') {
+      const nextWeek = new Date(now);
+      nextWeek.setDate(now.getDate() + 7);
+      return taskDate >= now && taskDate <= nextWeek;
+    }
+    if (taskTimeFilter === 'month') {
+      const nextMonth = new Date(now);
+      nextMonth.setMonth(now.getMonth() + 1);
+      return taskDate >= now && taskDate <= nextMonth;
+    }
+    if (taskTimeFilter === 'year') {
+      const nextYear = new Date(now);
+      nextYear.setFullYear(now.getFullYear() + 1);
+      return taskDate >= now && taskDate <= nextYear;
+    }
+    return true;
+  };
+
   return (
     <View className="flex-1 bg-surface-dim">
       <ScrollView className="flex-1 px-5 pt-[60px] pb-5">
         {/* Header */}
-        <View className="flex-row justify-between items-center mb-6">
+        <View className="flex-row justify-between items-center mb-5">
           <View className="flex-1">
             <Text className="text-[32px] font-bold text-text tracking-tight">
               {isSelecting ? 'Select Cards' : 'Cards'}
@@ -148,22 +195,70 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
                 <Text className="text-sm font-semibold text-text-secondary">Cancel</Text>
               </TouchableOpacity>
             ) : (
-              <>
-                <TouchableOpacity
-                  onPress={() => setShowShuffleModal(true)}
-                  className="bg-surface w-10 h-10 rounded-full items-center justify-center border border-border"
-                >
-                  <Ionicons name="shuffle" size={20} color={COLORS.text.secondary} />
-                </TouchableOpacity>
+              <View className="flex-row gap-2">
+                {filter === 'all' && (
+                  <TouchableOpacity
+                    onPress={() => setShowShuffleModal(true)}
+                    className="bg-surface w-10 h-10 rounded-full items-center justify-center border border-border"
+                  >
+                    <Ionicons name="shuffle" size={20} color={COLORS.text.secondary} />
+                  </TouchableOpacity>
+                )}
                 <AddButton onPress={() => setShowAddCard(true)} />
                 {onClose && <DoneButton onPress={onClose} />}
-              </>
+              </View>
             )}
           </View>
         </View>
 
-        {/* Balance Meter */}
+        {/* Filter Pills */}
         {!isSelecting && (
+          <View className="mb-6">
+            <View className="flex-row gap-2 mb-4">
+              <TouchableOpacity
+                onPress={() => setFilter('all')}
+                className={`px-4 py-2 rounded-full border ${filter === 'all' ? 'bg-primary-600 border-primary-600' : 'bg-surface border-border'
+                  }`}
+              >
+                <Text className={`text-sm font-semibold ${filter === 'all' ? 'text-white' : 'text-text-secondary'}`}>
+                  All Hands
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setFilter('me')}
+                className={`px-4 py-2 rounded-full border ${filter === 'me' ? 'bg-primary-600 border-primary-600' : 'bg-surface border-border'
+                  }`}
+              >
+                <Text className={`text-sm font-semibold ${filter === 'me' ? 'text-white' : 'text-text-secondary'}`}>
+                  Just Me
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <View className="flex-row items-center mb-2">
+              <Ionicons name="filter" size={14} color={COLORS.text.muted} />
+              <Text className="text-[11px] font-bold text-text-muted uppercase tracking-wider ml-1">
+                Show Tasks Due:
+              </Text>
+            </View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
+              {(['none', 'week', 'month', 'year', 'all'] as TaskTimeFilter[]).map(f => (
+                <TouchableOpacity
+                  key={f}
+                  onPress={() => setTaskTimeFilter(f)}
+                  className={`px-3 py-1.5 rounded-lg border ${taskTimeFilter === f ? 'bg-surface-dim border-primary-600' : 'bg-surface border-border-light'}`}
+                >
+                  <Text className={`text-xs font-semibold capitalize ${taskTimeFilter === f ? 'text-primary-600' : 'text-text-muted'}`}>
+                    {f === 'none' ? 'Hidden' : f}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
+
+        {/* Balance Meter */}
+        {!isSelecting && filter === 'all' && (
           <View className="bg-surface rounded-xl p-5 mb-6 shadow-sm">
             <View className="flex-row justify-between items-start mb-4">
               <View>
@@ -174,12 +269,6 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
                   {cards.length} cards total
                 </Text>
               </View>
-              <TouchableOpacity
-                onPress={() => startSwipeShuffle()}
-                className="bg-primary-50 px-3 py-1.5 rounded-lg"
-              >
-                <Text className="text-xs font-bold text-primary-600 uppercase">Reshuffle All</Text>
-              </TouchableOpacity>
             </View>
 
             <View className="h-2 bg-border-muted rounded-full flex-row overflow-hidden mb-4">
@@ -219,62 +308,116 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
             return (
               <TouchableOpacity
                 key={i}
-                className={`bg-surface p-4 rounded-xl mb-3 flex-row justify-between items-center border shadow-sm ${isSelecting && isSelected ? 'border-primary-600' : 'border-border-light'
+                className={`bg-surface p-4 rounded-xl mb-3 border-[0.5px] shadow-sm ${isSelecting && isSelected ? 'border-primary-600' : 'border-border-light'
                   }`}
                 onPress={() => isSelecting ? toggleCardSelection(card.name) : navigation.navigate('CardDetail', { cardName: card.name })}
               >
-                <View className="flex-1 flex-row items-center gap-3">
-                  {isSelecting && (
-                    <Ionicons
-                      name={isSelected ? "checkbox" : "square-outline"}
-                      size={20}
-                      color={isSelected ? COLORS.primary[600] : COLORS.text.muted}
-                    />
-                  )}
-                  <Text className="text-[15px] font-semibold text-text">
-                    {card.name}
-                  </Text>
+                <View className="flex-row justify-between items-center">
+                  <View className="flex-1 flex-row items-center gap-3">
+                    {isSelecting && (
+                      <Ionicons
+                        name={isSelected ? "checkbox" : "square-outline"}
+                        size={20}
+                        color={isSelected ? COLORS.primary[600] : COLORS.text.muted}
+                      />
+                    )}
+                    <Text className="text-[17px] font-bold text-text">
+                      {card.name}
+                    </Text>
+                  </View>
+                  {!isSelecting && <Ionicons name="chevron-forward" size={18} color={COLORS.text.muted} />}
                 </View>
-                <Ionicons name="chevron-forward" size={18} color={COLORS.text.muted} />
+
+                {!isSelecting && taskTimeFilter !== 'none' && (
+                  <>
+                    {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t)).length > 0 && (
+                      <View className="pl-0 mt-2">
+                        {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t)).slice(0, 3).map((task: Task) => (
+                          <TaskRow
+                            key={task.id}
+                            task={task}
+                            onToggleDone={handleToggleDone}
+                            variant="list"
+                            hideBackground
+                            hideCardName
+                          />
+                        ))}
+                        {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t)).length > 3 && (
+                          <Text className="text-[11px] text-text-muted italic ml-14">
+                            + {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t)).length - 3} more tasks
+                          </Text>
+                        )}
+                      </View>
+                    )}
+                  </>
+                )}
               </TouchableOpacity>
             );
           })}
         </View>
 
-        <View className="mb-10">
-          <View className="flex-row items-center gap-2 mb-4">
-            <Ionicons name="people" size={20} color={COLORS.secondary[600]} />
-            <Text className="text-xl font-bold text-text">Partner's Hand</Text>
+        {filter === 'all' && (
+          <View className="mb-10">
+            <View className="flex-row items-center gap-2 mb-4">
+              <Ionicons name="people" size={20} color={COLORS.secondary[600]} />
+              <Text className="text-xl font-bold text-text">Partner's Hand</Text>
+            </View>
+
+            {cards.filter((c: Card) => c.owner === 'Kevin').map((card: Card, i: number) => {
+              const isSelected = selectedCardNames.includes(card.name);
+              return (
+                <TouchableOpacity
+                  key={i}
+                  className={`bg-surface p-4 rounded-xl mb-3 border-[0.5px] shadow-sm ${isSelecting && isSelected ? 'border-primary-600' : 'border-border-light'
+                    }`}
+                  onPress={() => isSelecting ? toggleCardSelection(card.name) : navigation.navigate('CardDetail', { cardName: card.name })}
+                >
+                  <View className="flex-row justify-between items-center">
+                    <View className="flex-1 flex-row items-center gap-3">
+                      {isSelecting && (
+                        <Ionicons
+                          name={isSelected ? "checkbox" : "square-outline"}
+                          size={20}
+                          color={isSelected ? COLORS.primary[600] : COLORS.text.muted}
+                        />
+                      )}
+                      <Text className="text-[17px] font-bold text-text">
+                        {card.name}
+                      </Text>
+                    </View>
+                    <View className="bg-secondary-100 px-3 py-1 rounded-full">
+                      <Text className="text-[11px] font-bold text-secondary-700">DROP ZONE</Text>
+                    </View>
+                  </View>
+
+                  {!isSelecting && taskTimeFilter !== 'none' && (
+                    <>
+                      {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t)).length > 0 && (
+                        <View className="pl-0 mt-2">
+                          {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t)).slice(0, 3).map((task: Task) => (
+                            <TaskRow
+                              key={task.id}
+                              task={task}
+                              onToggleDone={handleToggleDone}
+                              variant="list"
+                              hideBackground
+                              hideCardName
+                            />
+                          ))}
+                          {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t)).length > 3 && (
+                            <Text className="text-[11px] text-text-muted italic ml-14">
+                              + {tasks.filter((t: Task) => t.card === card.name && isTaskInTimeFrame(t)).length - 3} more tasks
+                            </Text>
+                          )}
+                        </View>
+                      )}
+                    </>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
           </View>
-
-          {cards.filter((c: Card) => c.owner === 'Kevin').map((card: Card, i: number) => {
-            const isSelected = selectedCardNames.includes(card.name);
-            return (
-              <TouchableOpacity
-                key={i}
-                className={`bg-surface p-4 rounded-xl mb-3 flex-row justify-between items-center border shadow-sm ${isSelecting && isSelected ? 'border-primary-600' : 'border-border-light'
-                  }`}
-                onPress={() => isSelecting ? toggleCardSelection(card.name) : navigation.navigate('CardDetail', { cardName: card.name })}
-              >
-                <View className="flex-1 flex-row items-center gap-3">
-                  {isSelecting && (
-                    <Ionicons
-                      name={isSelected ? "checkbox" : "square-outline"}
-                      size={20}
-                      color={isSelected ? COLORS.primary[600] : COLORS.text.muted}
-                    />
-                  )}
-                  <Text className="text-[15px] font-semibold text-text">
-                    {card.name}
-                  </Text>
-                </View>
-                <View className="bg-secondary-100 px-3 py-1 rounded-full">
-                  <Text className="text-[11px] font-bold text-secondary-700">DROP ZONE</Text>
-                </View>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+        )}
         <View className="h-20" />
       </ScrollView>
 

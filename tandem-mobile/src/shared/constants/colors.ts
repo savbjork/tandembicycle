@@ -48,5 +48,17 @@ export const COLORS = {
         muted: '#9ca3af',
         light: '#374151',
     },
+    success: {
+        50: '#f0fdf4',
+        100: '#dcfce7',
+        600: '#16a34a',
+        700: '#15803d',
+    },
+    warning: {
+        50: '#fffbeb',
+        100: '#fef3c7',
+        500: '#f59e0b',
+        600: '#d97706',
+    },
     white: '#ffffff',
 } as const;

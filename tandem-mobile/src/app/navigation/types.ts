@@ -11,6 +11,7 @@ export type RootStackParamList = {
   Main: NavigatorScreenParams<MainTabParamList>;
   CreateHousehold: undefined;
   JoinHousehold: { inviteCode?: string };
+  TaskDetail: { taskId: string };
 };
 
 // Auth Stack Navigator

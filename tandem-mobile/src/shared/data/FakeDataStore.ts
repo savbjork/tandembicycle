@@ -1,7 +1,6 @@
 // ─── Domain Types ────────────────────────────────────────────
 
 export type Person = 'Savannah' | 'Kevin';
-export type TaskStatus = 'To Do' | 'In Progress' | 'Done';
 export type HandoffStatus = 'Pending' | 'Accepted' | 'Declined' | 'Canceled';
 
 export interface Card {
@@ -15,7 +14,7 @@ export interface Task {
     card: string;
     owner: Person;
     dueDate: string;
-    status: TaskStatus;
+    isDone: boolean;
     note?: string;
 }
 
@@ -53,48 +52,48 @@ class FakeDataStore {
 
     // ── Tasks ──────────────────────────────────────────────
     tasks: Task[] = [
-        { id: 't1', name: 'Wipe counters', card: 'Daily Tidying', owner: 'Savannah', dueDate: '2026-02-23', status: 'In Progress' },
-        { id: 't2', name: 'Put away items', card: 'Daily Tidying', owner: 'Savannah', dueDate: '2026-02-23', status: 'To Do' },
-        { id: 't3', name: 'Quick vacuum', card: 'Daily Tidying', owner: 'Savannah', dueDate: '2026-02-24', status: 'To Do' },
-        { id: 't4', name: 'Wash clothes', card: 'Laundry', owner: 'Savannah', dueDate: '2026-02-23', status: 'Done' },
-        { id: 't5', name: 'Dry clothes', card: 'Laundry', owner: 'Savannah', dueDate: '2026-02-23', status: 'In Progress' },
-        { id: 't6', name: 'Fold and put away', card: 'Laundry', owner: 'Savannah', dueDate: '2026-02-24', status: 'To Do' },
-        { id: 't7', name: 'Plan weekly menu', card: 'Meal Planning', owner: 'Savannah', dueDate: '2026-02-25', status: 'To Do' },
-        { id: 't8', name: 'Make grocery list', card: 'Meal Planning', owner: 'Savannah', dueDate: '2026-02-25', status: 'To Do' },
-        { id: 't9', name: 'Check pantry', card: 'Meal Planning', owner: 'Savannah', dueDate: '2026-02-25', status: 'Done' },
-        { id: 't10', name: 'Review list', card: 'Grocery Shopping', owner: 'Savannah', dueDate: '2026-02-23', status: 'To Do' },
-        { id: 't11', name: 'Shop for groceries', card: 'Grocery Shopping', owner: 'Savannah', dueDate: '2026-02-23', status: 'To Do' },
-        { id: 't12', name: 'Put away groceries', card: 'Grocery Shopping', owner: 'Savannah', dueDate: '2026-02-23', status: 'To Do' },
-        { id: 't13', name: 'Wake kids', card: 'Morning Routine', owner: 'Savannah', dueDate: '2026-02-23', status: 'Done' },
-        { id: 't14', name: 'Make breakfast', card: 'Morning Routine', owner: 'Savannah', dueDate: '2026-02-23', status: 'Done' },
-        { id: 't15', name: 'Pack lunches', card: 'Morning Routine', owner: 'Savannah', dueDate: '2026-02-23', status: 'In Progress' },
-        { id: 't16', name: 'Check emails', card: 'School Communication', owner: 'Savannah', dueDate: '2026-02-23', status: 'Done' },
-        { id: 't17', name: 'Sign forms', card: 'School Communication', owner: 'Savannah', dueDate: '2026-02-24', status: 'To Do' },
-        { id: 't18', name: 'Update calendar', card: 'School Communication', owner: 'Savannah', dueDate: '2026-02-24', status: 'To Do' },
-        { id: 't19', name: 'Load dishwasher', card: 'Dishes & Kitchen Cleanup', owner: 'Kevin', dueDate: '2026-02-23', status: 'To Do' },
-        { id: 't20', name: 'Wipe counters', card: 'Dishes & Kitchen Cleanup', owner: 'Kevin', dueDate: '2026-02-23', status: 'To Do' },
-        { id: 't21', name: 'Take out trash', card: 'Dishes & Kitchen Cleanup', owner: 'Kevin', dueDate: '2026-02-23', status: 'Done' },
-        { id: 't22', name: 'Vacuum all rooms', card: 'Deep Cleaning', owner: 'Kevin', dueDate: '2026-02-24', status: 'To Do' },
-        { id: 't23', name: 'Mop floors', card: 'Deep Cleaning', owner: 'Kevin', dueDate: '2026-02-24', status: 'To Do' },
-        { id: 't24', name: 'Clean bathrooms', card: 'Deep Cleaning', owner: 'Kevin', dueDate: '2026-02-24', status: 'To Do' },
-        { id: 't25', name: 'Take out trash', card: 'Trash & Recycling', owner: 'Kevin', dueDate: '2026-02-23', status: 'In Progress' },
-        { id: 't26', name: 'Sort recycling', card: 'Trash & Recycling', owner: 'Kevin', dueDate: '2026-02-23', status: 'To Do' },
-        { id: 't27', name: 'Clean bins', card: 'Trash & Recycling', owner: 'Kevin', dueDate: '2026-02-24', status: 'To Do' },
-        { id: 't28', name: 'Mow lawn', card: 'Yard Work', owner: 'Kevin', dueDate: '2026-02-25', status: 'To Do' },
-        { id: 't29', name: 'Trim hedges', card: 'Yard Work', owner: 'Kevin', dueDate: '2026-02-25', status: 'To Do' },
-        { id: 't30', name: 'Water plants', card: 'Yard Work', owner: 'Kevin', dueDate: '2026-02-23', status: 'Done' },
-        { id: 't31', name: 'Wash car', card: 'Car Care', owner: 'Kevin', dueDate: '2026-03-01', status: 'To Do' },
-        { id: 't32', name: 'Check oil', card: 'Car Care', owner: 'Kevin', dueDate: '2026-03-01', status: 'To Do' },
-        { id: 't33', name: 'Vacuum interior', card: 'Car Care', owner: 'Kevin', dueDate: '2026-03-01', status: 'To Do' },
-        { id: 't34', name: 'Cook dinner', card: 'Dinner', owner: 'Kevin', dueDate: '2026-02-23', status: 'To Do' },
-        { id: 't35', name: 'Set table', card: 'Dinner', owner: 'Kevin', dueDate: '2026-02-23', status: 'To Do' },
-        { id: 't36', name: 'Clean up', card: 'Dinner', owner: 'Kevin', dueDate: '2026-02-23', status: 'To Do' },
-        { id: 't37', name: 'Bath time', card: 'Bedtime Routine', owner: 'Kevin', dueDate: '2026-02-23', status: 'To Do' },
-        { id: 't38', name: 'Read stories', card: 'Bedtime Routine', owner: 'Kevin', dueDate: '2026-02-23', status: 'In Progress' },
-        { id: 't39', name: 'Tuck in kids', card: 'Bedtime Routine', owner: 'Kevin', dueDate: '2026-02-23', status: 'To Do' },
-        { id: 't40', name: 'Drive to activities', card: 'Kid Activities', owner: 'Kevin', dueDate: '2026-02-24', status: 'To Do' },
-        { id: 't41', name: 'Watch practice', card: 'Kid Activities', owner: 'Kevin', dueDate: '2026-02-24', status: 'To Do' },
-        { id: 't42', name: 'Pick up kids', card: 'Kid Activities', owner: 'Kevin', dueDate: '2026-02-24', status: 'To Do' },
+        { id: 't1', name: 'Wipe counters', card: 'Daily Tidying', owner: 'Savannah', dueDate: '2026-02-23', isDone: false },
+        { id: 't2', name: 'Put away items', card: 'Daily Tidying', owner: 'Savannah', dueDate: '2026-02-23', isDone: false },
+        { id: 't3', name: 'Quick vacuum', card: 'Daily Tidying', owner: 'Savannah', dueDate: '2026-02-24', isDone: false },
+        { id: 't4', name: 'Wash clothes', card: 'Laundry', owner: 'Savannah', dueDate: '2026-02-23', isDone: true },
+        { id: 't5', name: 'Dry clothes', card: 'Laundry', owner: 'Savannah', dueDate: '2026-02-23', isDone: false },
+        { id: 't6', name: 'Fold and put away', card: 'Laundry', owner: 'Savannah', dueDate: '2026-02-24', isDone: false },
+        { id: 't7', name: 'Plan weekly menu', card: 'Meal Planning', owner: 'Savannah', dueDate: '2026-02-25', isDone: false },
+        { id: 't8', name: 'Make grocery list', card: 'Meal Planning', owner: 'Savannah', dueDate: '2026-02-25', isDone: false },
+        { id: 't9', name: 'Check pantry', card: 'Meal Planning', owner: 'Savannah', dueDate: '2026-02-25', isDone: true },
+        { id: 't10', name: 'Review list', card: 'Grocery Shopping', owner: 'Savannah', dueDate: '2026-02-23', isDone: false },
+        { id: 't11', name: 'Shop for groceries', card: 'Grocery Shopping', owner: 'Savannah', dueDate: '2026-02-23', isDone: false },
+        { id: 't12', name: 'Put away groceries', card: 'Grocery Shopping', owner: 'Savannah', dueDate: '2026-02-23', isDone: false },
+        { id: 't13', name: 'Wake kids', card: 'Morning Routine', owner: 'Savannah', dueDate: '2026-02-23', isDone: true },
+        { id: 't14', name: 'Make breakfast', card: 'Morning Routine', owner: 'Savannah', dueDate: '2026-02-23', isDone: true },
+        { id: 't15', name: 'Pack lunches', card: 'Morning Routine', owner: 'Savannah', dueDate: '2026-02-23', isDone: false },
+        { id: 't16', name: 'Check emails', card: 'School Communication', owner: 'Savannah', dueDate: '2026-02-23', isDone: true },
+        { id: 't17', name: 'Sign forms', card: 'School Communication', owner: 'Savannah', dueDate: '2026-02-24', isDone: false },
+        { id: 't18', name: 'Update calendar', card: 'School Communication', owner: 'Savannah', dueDate: '2026-02-24', isDone: false },
+        { id: 't19', name: 'Load dishwasher', card: 'Dishes & Kitchen Cleanup', owner: 'Kevin', dueDate: '2026-02-23', isDone: false },
+        { id: 't20', name: 'Wipe counters', card: 'Dishes & Kitchen Cleanup', owner: 'Kevin', dueDate: '2026-02-23', isDone: false },
+        { id: 't21', name: 'Take out trash', card: 'Dishes & Kitchen Cleanup', owner: 'Kevin', dueDate: '2026-02-23', isDone: true },
+        { id: 't22', name: 'Vacuum all rooms', card: 'Deep Cleaning', owner: 'Kevin', dueDate: '2026-02-24', isDone: false },
+        { id: 't23', name: 'Mop floors', card: 'Deep Cleaning', owner: 'Kevin', dueDate: '2026-02-24', isDone: false },
+        { id: 't24', name: 'Clean bathrooms', card: 'Deep Cleaning', owner: 'Kevin', dueDate: '2026-02-24', isDone: false },
+        { id: 't25', name: 'Take out trash', card: 'Trash & Recycling', owner: 'Kevin', dueDate: '2026-02-23', isDone: false },
+        { id: 't26', name: 'Sort recycling', card: 'Trash & Recycling', owner: 'Kevin', dueDate: '2026-02-23', isDone: false },
+        { id: 't27', name: 'Clean bins', card: 'Trash & Recycling', owner: 'Kevin', dueDate: '2026-02-24', isDone: false },
+        { id: 't28', name: 'Mow lawn', card: 'Yard Work', owner: 'Kevin', dueDate: '2026-02-25', isDone: false },
+        { id: 't29', name: 'Trim hedges', card: 'Yard Work', owner: 'Kevin', dueDate: '2026-02-25', isDone: false },
+        { id: 't30', name: 'Water plants', card: 'Yard Work', owner: 'Kevin', dueDate: '2026-02-23', isDone: true },
+        { id: 't31', name: 'Wash car', card: 'Car Care', owner: 'Kevin', dueDate: '2026-03-01', isDone: false },
+        { id: 't32', name: 'Check oil', card: 'Car Care', owner: 'Kevin', dueDate: '2026-03-01', isDone: false },
+        { id: 't33', name: 'Vacuum interior', card: 'Car Care', owner: 'Kevin', dueDate: '2026-03-01', isDone: false },
+        { id: 't34', name: 'Cook dinner', card: 'Dinner', owner: 'Kevin', dueDate: '2026-02-23', isDone: false },
+        { id: 't35', name: 'Set table', card: 'Dinner', owner: 'Kevin', dueDate: '2026-02-23', isDone: false },
+        { id: 't36', name: 'Clean up', card: 'Dinner', owner: 'Kevin', dueDate: '2026-02-23', isDone: false },
+        { id: 't37', name: 'Bath time', card: 'Bedtime Routine', owner: 'Kevin', dueDate: '2026-02-23', isDone: false },
+        { id: 't38', name: 'Read stories', card: 'Bedtime Routine', owner: 'Kevin', dueDate: '2026-02-23', isDone: false },
+        { id: 't39', name: 'Tuck in kids', card: 'Bedtime Routine', owner: 'Kevin', dueDate: '2026-02-23', isDone: false },
+        { id: 't40', name: 'Drive to activities', card: 'Kid Activities', owner: 'Kevin', dueDate: '2026-02-24', isDone: false },
+        { id: 't41', name: 'Watch practice', card: 'Kid Activities', owner: 'Kevin', dueDate: '2026-02-24', isDone: false },
+        { id: 't42', name: 'Pick up kids', card: 'Kid Activities', owner: 'Kevin', dueDate: '2026-02-24', isDone: false },
     ];
 
     // ── Handoffs ───────────────────────────────────────────
