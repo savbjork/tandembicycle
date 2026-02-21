@@ -12,7 +12,7 @@ export const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
       <View className="flex-1 px-6 justify-center">
         <View className="items-center mb-12">
           <Text className="text-4xl font-bold text-text mb-4">
-            Fair Play
+            Tandem
           </Text>
           <Text className="text-lg text-text-secondary text-center leading-[26px]">
             Achieve equitable division of household responsibilities
@@ -38,10 +38,6 @@ export const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
             </Text>
           </TouchableOpacity>
         </View>
-
-        <Text className="text-sm text-text-muted text-center mt-8 leading-5">
-          Fair Play helps couples visualize and distribute household labor equitably
-        </Text>
       </View>
     </View>
   );

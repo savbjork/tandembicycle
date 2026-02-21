@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { MainTabParamList } from './types';
 import { CardsStackNavigator } from './stacks/CardsStackNavigator';
 import { InboxScreen } from '@features/home/screens/InboxScreen';
+import { HomeOverviewScreen } from '@features/home-hub/screens/HomeOverviewScreen';
 import { COLORS } from '@shared/constants/colors';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -47,6 +48,16 @@ export const MainNavigator: React.FC = () => {
           tabBarLabel: 'Inbox',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="mail" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="HomeTab"
+        component={HomeOverviewScreen}
+        options={{
+          tabBarLabel: 'Home',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home" size={size} color={color} />
           ),
         }}
       />

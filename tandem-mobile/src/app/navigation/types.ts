@@ -33,6 +33,7 @@ export type CardsStackParamList = {
 export type MainTabParamList = {
   RosterTab: NavigatorScreenParams<CardsStackParamList>;
   InboxTab: undefined;
+  HomeTab: undefined;
 };
 
 // Home Stack (repurposed from Profile)
