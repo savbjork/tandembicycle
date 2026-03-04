@@ -140,14 +140,11 @@ export const TasksScreen: React.FC = () => {
                 visible={showAddTask}
                 onClose={() => setShowAddTask(false)}
             >
-                <Text className="text-xl font-bold text-text mb-4">New Task</Text>
-
                 <TextInput
                     className="text-lg font-medium text-text mb-4 py-3 px-4 rounded-xl bg-surface-dim border border-border"
-                    placeholder="What needs to be done?"
+                    placeholder="New Task"
                     value={newTaskName}
                     onChangeText={setNewTaskName}
-                    autoFocus
                     placeholderTextColor={COLORS.text.muted}
                 />
 

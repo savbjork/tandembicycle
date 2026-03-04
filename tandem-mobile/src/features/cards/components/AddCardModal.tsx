@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, TextInput, TouchableOpacity, Modal, Alert } from 'react-native';
-import { Text, FieldLabel, ChipGroup, ChipOption } from '@shared/components/ui';
+import { View, TouchableOpacity, Modal, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { Text, FieldLabel, ChipGroup, ChipOption, TextInput } from '@shared/components/ui';
 import { COLORS } from '@shared/constants/colors';
 import { useCurrentUser } from '@shared/hooks/useCurrentUser';
 import { useDataStore } from '@store';
@@ -47,6 +47,10 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
             transparent={true}
             onRequestClose={() => handleAddCard(true)}
         >
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            >
             <TouchableOpacity
                 activeOpacity={1}
                 onPress={() => handleAddCard(true)}
@@ -59,14 +63,12 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
                 >
                     <View className="w-10 h-1.5 bg-border rounded-full self-center mb-6 opacity-30" />
 
-                    <Text className="text-xl font-bold text-text mb-6">New Card</Text>
-
                     <TextInput
                         className="text-lg font-medium text-text mb-6 py-3.5 px-4 rounded-xl bg-surface-dim border border-border"
-                        placeholder="Card Name (e.g. Groceries, Rent)"
                         value={cardName}
                         onChangeText={setCardName}
-                        autoFocus
+                        multiline
+                        placeholder="New Card"
                     />
 
                     <View className="mb-8">
@@ -86,6 +88,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
                     </TouchableOpacity>
                 </TouchableOpacity>
             </TouchableOpacity>
+            </KeyboardAvoidingView>
         </Modal>
     );
 };

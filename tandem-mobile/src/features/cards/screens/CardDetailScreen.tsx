@@ -247,7 +247,6 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                     placeholder="Task name"
                     value={newTaskName}
                     onChangeText={setNewTaskName}
-                    autoFocus
                     placeholderTextColor={COLORS.text.muted}
                 />
 

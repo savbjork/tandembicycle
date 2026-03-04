@@ -17,8 +17,8 @@ interface DatePickerSheetProps {
 /**
  * A reusable date picker presented in a centered modal overlay.
  *
- * On iOS it shows an inline calendar with a "Done" button.
- * On Android it uses the native date picker and auto-closes on selection.
+ * Auto-closes on both platforms when a date is selected.
+ * Tapping the backdrop also dismisses it.
  *
  * Replaces the duplicated date-picker-in-a-modal pattern that was
  * copy-pasted across TasksScreen and TaskDetailScreen.
@@ -51,19 +51,13 @@ export const DatePickerSheet: React.FC<DatePickerSheetProps> = ({
                         mode="date"
                         display={Platform.OS === 'ios' ? 'inline' : 'default'}
                         onChange={(_, date) => {
-                            if (date) onChange(date);
-                            if (Platform.OS !== 'ios') onClose();
+                            if (date) {
+                                onChange(date);
+                                onClose();
+                            }
                         }}
                         style={{ width: '100%' }}
                     />
-                    {Platform.OS === 'ios' && (
-                        <TouchableOpacity
-                            className="bg-primary-600 py-3 rounded-xl items-center mt-3"
-                            onPress={onClose}
-                        >
-                            <Text className="text-white font-bold">Done</Text>
-                        </TouchableOpacity>
-                    )}
                 </View>
             </TouchableOpacity>
         </Modal>
