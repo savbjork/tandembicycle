@@ -185,7 +185,7 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                         <FieldLabel>Notes</FieldLabel>
                         {isOwner ? (
                             <TextInput
-                                className="text-base text-text py-2 min-h-[80px]"
+                                className="text-base text-text py-2 min-h-[120px]"
                                 value={editNote}
                                 onChangeText={setEditNote}
                                 placeholder="Add notes..."
