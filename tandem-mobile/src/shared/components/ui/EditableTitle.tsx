@@ -25,7 +25,7 @@ export const EditableTitle: React.FC<EditableTitleProps> = ({
     placeholder = 'Enter title...',
 }) => {
     return (
-        <View className={`mb-6 pt-6 ${className}`}>
+        <View className={`mb-6 pt-2 ${className}`}>
             {isEditing ? (
                 <TextInput
                     className="text-[32px] font-bold text-text tracking-tight mb-1 p-0"
