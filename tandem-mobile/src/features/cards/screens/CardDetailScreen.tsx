@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { Text, BottomSheet, ScreenHeader, FieldLabel, Badge, EmptyState, TextInput, CheckButton } from '@shared/components/ui';
+import { Text, BottomSheet, ScreenHeader, FieldLabel, Badge, EmptyState, TextInput } from '@shared/components/ui';
 import { AddButton } from '@shared/components/ui/AddButton';
 import { EditableTitle } from '@shared/components/ui/EditableTitle';
 import { Ionicons } from '@expo/vector-icons';
@@ -33,7 +33,6 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     const [newTaskName, setNewTaskName] = useState('');
     const [editCardName, setEditCardName] = useState(card?.name || '');
     const [isEditingName, setIsEditingName] = useState(false);
-    const [isEditingNote, setIsEditingNote] = useState(false);
     const [editNote, setEditNote] = useState(card?.note || '');
 
     if (!card) {
@@ -96,11 +95,6 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         );
     };
 
-    const handleSaveNote = () => {
-        updateCard(card.name, { note: editNote });
-        setIsEditingNote(false);
-    };
-
     const pendingTasks = cardTasks.filter(t => !t.isDone);
     const completedTasks = cardTasks.filter(t => t.isDone);
 
@@ -110,11 +104,10 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                 title=""
                 showBack={false}
                 onBack={() => navigation.goBack()}
+                compact
                 rightAction={
                     isOwner ? (
-                        <View className="flex-row gap-2">
-                            <AddButton onPress={() => setShowAddTask(true)} />
-                        </View>
+                        <AddButton onPress={() => setShowAddTask(true)} />
                     ) : undefined
                 }
             />
@@ -123,119 +116,104 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                 className="flex-1"
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             >
-            <ScrollView className="flex-1 px-5 pb-5" keyboardShouldPersistTaps="handled">
-                {/* Card Header */}
-                <EditableTitle
-                    value={editCardName}
-                    isEditing={isEditingName}
-                    setIsEditing={(v) => { setIsEditingName(v); if (v) setEditCardName(card.name); }}
-                    onChangeText={setEditCardName}
-                    onSave={handleRename}
-                    subtitle={`Owned by ${card.owner}`}
-                />
+                <ScrollView className="flex-1 px-5 pb-5" keyboardShouldPersistTaps="handled">
+                    {/* Card Header */}
+                    <EditableTitle
+                        value={editCardName}
+                        isEditing={isEditingName}
+                        setIsEditing={(v) => { setIsEditingName(v); if (v) setEditCardName(card.name); }}
+                        onChangeText={setEditCardName}
+                        onSave={handleRename}
+                    />
 
-                {/* Not Owner Banner */}
-                {!isOwner && (
-                    <View className="bg-yellow-50 rounded-xl p-4 mb-4 flex-row items-center gap-3 border border-yellow-100">
-                        <Ionicons name="lock-closed" size={18} color="#ca8a04" />
-                        <Text className="text-sm text-yellow-800 flex-1">
-                            This card belongs to {card.owner}. You can view but not edit.
-                        </Text>
-                    </View>
-                )}
-
-                {/* Pending Tasks */}
-                <View className="mb-4">
-                    <View className="flex-row items-center gap-2 mb-3">
-                        <FieldLabel className="mb-0">To Do</FieldLabel>
-                        <Badge variant="primary" size="sm" label={pendingTasks.length.toString()} />
-                    </View>
-
-                    {pendingTasks.length === 0 ? (
-                        <View className="bg-surface rounded-2xl p-6 items-center border border-border-light">
-                            <Text className="text-sm text-text-secondary">No pending tasks</Text>
+                    {/* Not Owner Banner */}
+                    {!isOwner && (
+                        <View className="bg-yellow-50 rounded-xl p-4 mb-4 flex-row items-center gap-3 border border-yellow-100">
+                            <Ionicons name="lock-closed" size={18} color="#ca8a04" />
+                            <Text className="text-sm text-yellow-800 flex-1">
+                                This card belongs to {card.owner}. You can view but not edit.
+                            </Text>
                         </View>
-                    ) : (
-                        pendingTasks.map((task: Task) => (
-                            <View key={task.id} className="bg-surface rounded-xl border border-border-light shadow-sm mb-2">
-                                <TaskRow
-                                    task={task}
-                                    onToggleDone={handleToggleDone}
-                                    variant="list"
-                                    hideBackground
-                                    hideCardName
-                                />
-                            </View>
-                        ))
                     )}
-                </View>
 
-                {/* Completed Tasks */}
-                {completedTasks.length > 0 && (
+                    {/* Pending Tasks */}
                     <View className="mb-4">
                         <View className="flex-row items-center gap-2 mb-3">
-                            <FieldLabel className="mb-0">Done</FieldLabel>
-                            <Badge variant="secondary" size="sm" label={completedTasks.length.toString()} />
+                            <FieldLabel className="mb-0">To Do</FieldLabel>
+                            <Badge variant="primary" size="sm" label={pendingTasks.length.toString()} />
                         </View>
-                        {completedTasks.map((task: Task) => (
-                            <View key={task.id} className="bg-surface rounded-xl border border-border-light shadow-sm mb-2 opacity-60">
-                                <TaskRow
-                                    task={task}
-                                    onToggleDone={handleToggleDone}
-                                    variant="list"
-                                    hideBackground
-                                    hideCardName
-                                />
-                            </View>
-                        ))}
-                    </View>
-                )}
 
-                {/* Notes */}
-                <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
-                    <View className="flex-row justify-between items-center mb-2">
-                        <FieldLabel className="mb-0">Notes</FieldLabel>
-                        {isOwner && !isEditingNote && (
-                            <TouchableOpacity onPress={() => setIsEditingNote(true)}>
-                                <Ionicons name="pencil-outline" size={16} color={COLORS.text.muted} />
-                            </TouchableOpacity>
+                        {pendingTasks.length === 0 ? (
+                            <View className="bg-surface rounded-2xl p-6 items-center border border-border-light">
+                                <Text className="text-sm text-text-secondary">No pending tasks</Text>
+                            </View>
+                        ) : (
+                            pendingTasks.map((task: Task) => (
+                                <View key={task.id} className="bg-surface rounded-xl border border-border-light shadow-sm mb-2">
+                                    <TaskRow
+                                        task={task}
+                                        onToggleDone={handleToggleDone}
+                                        variant="list"
+                                        hideBackground
+                                        hideCardName
+                                    />
+                                </View>
+                            ))
                         )}
                     </View>
-                    {isEditingNote ? (
-                        <View>
+
+                    {/* Completed Tasks */}
+                    {completedTasks.length > 0 && (
+                        <View className="mb-4">
+                            <View className="flex-row items-center gap-2 mb-3">
+                                <FieldLabel className="mb-0">Done</FieldLabel>
+                                <Badge variant="secondary" size="sm" label={completedTasks.length.toString()} />
+                            </View>
+                            {completedTasks.map((task: Task) => (
+                                <View key={task.id} className="bg-surface rounded-xl border border-border-light shadow-sm mb-2 opacity-60">
+                                    <TaskRow
+                                        task={task}
+                                        onToggleDone={handleToggleDone}
+                                        variant="list"
+                                        hideBackground
+                                        hideCardName
+                                    />
+                                </View>
+                            ))}
+                        </View>
+                    )}
+
+                    {/* Notes */}
+                    <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
+                        <FieldLabel>Notes</FieldLabel>
+                        {isOwner ? (
                             <TextInput
-                                className="text-base text-text min-h-[80px] py-2"
+                                className="text-base text-text py-2 min-h-[120px]"
                                 value={editNote}
                                 onChangeText={setEditNote}
+                                onBlur={() => updateCard(card.name, { note: editNote })}
                                 placeholder="Add notes about this card..."
                                 placeholderTextColor={COLORS.text.muted}
                                 multiline
                                 textAlignVertical="top"
-                                autoFocus
                             />
-                            <View className="items-end mt-2">
-                                <CheckButton onPress={handleSaveNote} />
-                            </View>
-                        </View>
-                    ) : (
-                        <Text className="text-base text-text-secondary py-2">
-                            {card.note || ''}
-                        </Text>
-                    )}
-                </View>
+                        ) : (
+                            <Text className="text-base text-text-secondary py-2">{card.note || 'No notes'}</Text>
+                        )}
+                    </View>
 
-                {/* Archive Card */}
-                {isOwner && (
-                    <TouchableOpacity
-                        onPress={handleArchive}
-                        className="flex-row items-center justify-center gap-2 py-4 mt-2 mb-10 bg-red-50 rounded-xl border border-red-100"
-                    >
-                        <Ionicons name="archive-outline" size={18} color="#dc2626" />
-                        <Text className="text-sm font-bold text-red-600">Archive</Text>
-                    </TouchableOpacity>
-                )}
-                <View className="h-10" />
-            </ScrollView>
+                    {/* Archive Card */}
+                    {isOwner && (
+                        <TouchableOpacity
+                            onPress={handleArchive}
+                            className="flex-row items-center justify-center gap-2 py-4 mt-2 mb-10 bg-red-50 rounded-xl border border-red-100"
+                        >
+                            <Ionicons name="archive-outline" size={18} color="#dc2626" />
+                            <Text className="text-sm font-bold text-red-600">Archive</Text>
+                        </TouchableOpacity>
+                    )}
+                    <View className="h-10" />
+                </ScrollView>
             </KeyboardAvoidingView>
 
             {/* Add Task Bottom Sheet */}
