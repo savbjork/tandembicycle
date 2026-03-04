@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { Text, ScreenHeader, FieldLabel, ChipGroup, DatePickerSheet, EmptyState, EditableTitle, TextInput, CheckButton } from '@shared/components/ui';
+import { Text, ScreenHeader, FieldLabel, ChipGroup, DatePickerSheet, EmptyState, EditableTitle, TextInput } from '@shared/components/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
 import { useDataStore } from '@store';
@@ -98,119 +98,126 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                 title=""
                 showBack={false}
                 onBack={handleSave}
-                rightAction={isOwner ? <CheckButton onPress={handleSave} /> : undefined}
+                compact
             />
 
             <KeyboardAvoidingView
                 className="flex-1"
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             >
-            <ScrollView className="flex-1 px-5 pb-5" keyboardShouldPersistTaps="handled">
-                {/* Header */}
-                <EditableTitle
-                    value={editName}
-                    isEditing={isEditingName}
-                    setIsEditing={setIsEditingName}
-                    onChangeText={setEditName}
-                    onSave={handleRename}
-                    subtitle={`Part of ${task.card} card`}
-                    placeholder="Task name"
-                />
+                <ScrollView className="flex-1 px-5 pb-5" keyboardShouldPersistTaps="handled">
+                    {/* Header */}
+                    <EditableTitle
+                        value={editName}
+                        isEditing={isEditingName}
+                        setIsEditing={setIsEditingName}
+                        onChangeText={setEditName}
+                        onSave={handleRename}
+                        placeholder="Task name"
+                    />
 
-                {!isOwner && (
-                    <View className="bg-yellow-50 rounded-xl p-4 mb-4 flex-row items-center gap-3 border border-yellow-100">
-                        <Ionicons name="lock-closed" size={18} color="#ca8a04" />
-                        <Text className="text-sm text-yellow-800 flex-1">
-                            This task belongs to {task.owner}. You can view but not edit.
-                        </Text>
-                    </View>
-                )}
-
-
-                {/* Card Assignment */}
-                <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
-                    <FieldLabel>Card</FieldLabel>
-                    {isOwner ? (
-                        <ChipGroup
-                            options={cardOptions}
-                            value={editCard}
-                            onChange={setEditCard}
-                            scrollable
-                        />
-                    ) : (
-                        <Text className="text-base text-text py-2">{task.card}</Text>
+                    {!isOwner && (
+                        <View className="bg-yellow-50 rounded-xl p-4 mb-4 flex-row items-center gap-3 border border-yellow-100">
+                            <Ionicons name="lock-closed" size={18} color="#ca8a04" />
+                            <Text className="text-sm text-yellow-800 flex-1">
+                                This task belongs to {task.owner}. You can view but not edit.
+                            </Text>
+                        </View>
                     )}
-                </View>
 
-                {/* Due Date */}
-                <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
-                    <FieldLabel>Due Date</FieldLabel>
-                    {isOwner ? (
+
+                    {/* Card Assignment */}
+                    <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
+                        <FieldLabel>Card</FieldLabel>
+                        {isOwner ? (
+                            <ChipGroup
+                                options={cardOptions}
+                                value={editCard}
+                                onChange={setEditCard}
+                                scrollable
+                            />
+                        ) : (
+                            <Text className="text-base text-text py-2">{task.card}</Text>
+                        )}
+                    </View>
+
+                    {/* Due Date */}
+                    <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
+                        <FieldLabel>Due Date</FieldLabel>
+                        {isOwner ? (
+                            <TouchableOpacity
+                                onPress={() => setShowDatePicker(true)}
+                                className="py-2 flex-row items-center gap-3"
+                            >
+                                <Ionicons name="calendar-outline" size={18} color={COLORS.text.secondary} />
+                                <Text className="text-base text-text">
+                                    {editDueDate ? editDueDate.toLocaleDateString() : 'No due date'}
+                                </Text>
+                            </TouchableOpacity>
+                        ) : (
+                            <Text className="text-base text-text py-2">
+                                {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No due date'}
+                            </Text>
+                        )}
+                    </View>
+
+                    {/* Status */}
+                    <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
+                        <FieldLabel>Status</FieldLabel>
                         <TouchableOpacity
-                            onPress={() => setShowDatePicker(true)}
-                            className="py-2 flex-row items-center gap-3"
+                            onPress={isOwner ? handleToggleDone : undefined}
+                            className="flex-row items-center gap-3 py-2"
+                            disabled={!isOwner}
                         >
-                            <Ionicons name="calendar-outline" size={18} color={COLORS.text.secondary} />
-                            <Text className="text-base text-text">
-                                {editDueDate ? editDueDate.toLocaleDateString() : 'No due date'}
+                            <Ionicons
+                                name={task.isDone ? 'checkbox' : 'square-outline'}
+                                size={22}
+                                color={task.isDone ? COLORS.primary[600] : COLORS.text.muted}
+                            />
+                            <Text className={`text-base ${task.isDone ? 'text-primary-600 font-semibold' : 'text-text'}`}>
+                                {task.isDone ? 'Completed' : 'Pending'}
                             </Text>
                         </TouchableOpacity>
-                    ) : (
-                        <Text className="text-base text-text py-2">
-                            {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No due date'}
-                        </Text>
+                    </View>
+
+                    {/* Notes */}
+                    <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
+                        <FieldLabel>Notes</FieldLabel>
+                        {isOwner ? (
+                            <TextInput
+                                className="text-base text-text py-2 min-h-[80px]"
+                                value={editNote}
+                                onChangeText={setEditNote}
+                                placeholder="Add notes..."
+                                placeholderTextColor={COLORS.text.muted}
+                                multiline
+                                textAlignVertical="top"
+                            />
+                        ) : (
+                            <Text className="text-base text-text py-2">{task.note || 'No notes'}</Text>
+                        )}
+                    </View>
+
+                    {isOwner && (
+                        <View className="flex-row gap-3 mt-2 mb-6">
+                            <TouchableOpacity
+                                onPress={handleDelete}
+                                className="flex-1 flex-row items-center justify-center gap-2 py-4 bg-red-50 rounded-xl border border-red-100"
+                            >
+                                <Ionicons name="trash-outline" size={18} color="#dc2626" />
+                                <Text className="text-sm font-bold text-red-600">Delete</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={handleSave}
+                                className="flex-1 flex-row items-center justify-center gap-2 py-4 bg-primary-600 rounded-xl"
+                            >
+                                <Ionicons name="checkmark" size={18} color="white" />
+                                <Text className="text-sm font-bold text-white">Save</Text>
+                            </TouchableOpacity>
+                        </View>
                     )}
-                </View>
-
-                {/* Status */}
-                <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
-                    <FieldLabel>Status</FieldLabel>
-                    <TouchableOpacity
-                        onPress={isOwner ? handleToggleDone : undefined}
-                        className="flex-row items-center gap-3 py-2"
-                        disabled={!isOwner}
-                    >
-                        <Ionicons
-                            name={task.isDone ? 'checkbox' : 'square-outline'}
-                            size={22}
-                            color={task.isDone ? COLORS.primary[600] : COLORS.text.muted}
-                        />
-                        <Text className={`text-base ${task.isDone ? 'text-primary-600 font-semibold' : 'text-text'}`}>
-                            {task.isDone ? 'Completed' : 'Pending'}
-                        </Text>
-                    </TouchableOpacity>
-                </View>
-
-                {/* Notes */}
-                <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
-                    <FieldLabel>Notes</FieldLabel>
-                    {isOwner ? (
-                        <TextInput
-                            className="text-base text-text py-2 min-h-[80px]"
-                            value={editNote}
-                            onChangeText={setEditNote}
-                            placeholder="Add notes..."
-                            placeholderTextColor={COLORS.text.muted}
-                            multiline
-                            textAlignVertical="top"
-                        />
-                    ) : (
-                        <Text className="text-base text-text py-2">{task.note || 'No notes'}</Text>
-                    )}
-                </View>
-
-                {/* Delete Button */}
-                {isOwner && (
-                    <TouchableOpacity
-                        onPress={handleDelete}
-                        className="flex-row items-center justify-center gap-2 py-4 mt-2 mb-10 bg-red-50 rounded-xl border border-red-100"
-                    >
-                        <Ionicons name="trash-outline" size={18} color="#dc2626" />
-                        <Text className="text-sm font-bold text-red-600">Delete Task</Text>
-                    </TouchableOpacity>
-                )}
-                <View className="h-10" />
-            </ScrollView>
+                    <View className="h-6" />
+                </ScrollView>
             </KeyboardAvoidingView>
 
             <DatePickerSheet
