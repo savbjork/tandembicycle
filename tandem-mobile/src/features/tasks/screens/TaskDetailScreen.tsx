@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { View, ScrollView, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { Text, ScreenHeader, FieldLabel, ChipGroup, DatePickerSheet, EmptyState, EditableTitle } from '@shared/components/ui';
-import { SaveButton } from '@shared/components/ui/HeaderButtons';
+import { View, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { Text, ScreenHeader, FieldLabel, ChipGroup, DatePickerSheet, EmptyState, EditableTitle, TextInput, CheckButton } from '@shared/components/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
 import { useDataStore } from '@store';
@@ -99,10 +98,14 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                 title=""
                 showBack={false}
                 onBack={handleSave}
-                rightAction={isOwner ? <SaveButton onPress={handleSave} /> : undefined}
+                rightAction={isOwner ? <CheckButton onPress={handleSave} /> : undefined}
             />
 
-            <ScrollView className="flex-1 px-5 pb-5">
+            <KeyboardAvoidingView
+                className="flex-1"
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            >
+            <ScrollView className="flex-1 px-5 pb-5" keyboardShouldPersistTaps="handled">
                 {/* Header */}
                 <EditableTitle
                     value={editName}
@@ -206,8 +209,9 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                         <Text className="text-sm font-bold text-red-600">Delete Task</Text>
                     </TouchableOpacity>
                 )}
-                <View className="h-20" />
+                <View className="h-10" />
             </ScrollView>
+            </KeyboardAvoidingView>
 
             <DatePickerSheet
                 visible={showDatePicker}
