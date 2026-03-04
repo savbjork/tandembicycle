@@ -38,13 +38,6 @@ export const ShuffleModal: React.FC<ShuffleModalProps> = ({
                 >
                     <View className="w-10 h-1.5 bg-border rounded-full self-center mb-6 opacity-30" />
 
-                    <Text className="text-[22px] font-bold text-text mb-2">
-                        Rebalance Household
-                    </Text>
-                    <Text className="text-sm text-text-secondary mb-6 leading-5">
-                        Periodically reassigning cards ensures a more balanced and fair distribution of domestic labor.
-                    </Text>
-
                     <TouchableOpacity
                         className="bg-surface rounded-xl p-4 mb-3 border border-border flex-row items-center gap-4 shadow-sm"
                         onPress={onStartSwipeShuffle}
@@ -53,8 +46,7 @@ export const ShuffleModal: React.FC<ShuffleModalProps> = ({
                             <Ionicons name="refresh" size={20} color={COLORS.primary[600]} />
                         </View>
                         <View className="flex-1">
-                            <Text className="text-base font-bold text-text">Reassign Entire Deck</Text>
-                            <Text className="text-xs text-text-secondary mt-0.5">Swipe through all current cards</Text>
+                            <Text className="text-base font-bold text-text">Reassign entire existing deck</Text>
                         </View>
                     </TouchableOpacity>
 
@@ -66,8 +58,7 @@ export const ShuffleModal: React.FC<ShuffleModalProps> = ({
                             <Ionicons name="checkmark-circle" size={20} color={COLORS.secondary[600]} />
                         </View>
                         <View className="flex-1">
-                            <Text className="text-base font-bold text-text">Selective Reassignment</Text>
-                            <Text className="text-xs text-text-secondary mt-0.5">Choose specific cards to trade</Text>
+                            <Text className="text-base font-bold text-text">Choose specific cards to assign</Text>
                         </View>
                     </TouchableOpacity>
 
@@ -79,8 +70,7 @@ export const ShuffleModal: React.FC<ShuffleModalProps> = ({
                             <Ionicons name="trash" size={20} color="#dc2626" />
                         </View>
                         <View className="flex-1">
-                            <Text className="text-base font-bold text-red-600">Fresh Start</Text>
-                            <Text className="text-xs text-red-500 mt-0.5">Delete all and start with defaults</Text>
+                            <Text className="text-base font-bold text-red-600">Restart with defaults</Text>
                         </View>
                     </TouchableOpacity>
 

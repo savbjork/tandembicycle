@@ -47,12 +47,6 @@ export const SwipeModeScreen: React.FC<SwipeModeScreenProps> = ({
             <View className="flex-1 bg-surface-dim pt-16 pb-12 px-6">
                 <View className="flex-row justify-between items-center mb-10">
                     <View>
-                        <Text className="text-3xl font-bold text-text tracking-tight">
-                            Assign Cards
-                        </Text>
-                        <Text className="text-text-secondary mt-1">
-                            Balanced ownership, simplified.
-                        </Text>
                     </View>
                     <TouchableOpacity
                         onPress={onClose}
@@ -65,18 +59,9 @@ export const SwipeModeScreen: React.FC<SwipeModeScreenProps> = ({
                 <View className="flex-1 justify-center">
                     <View className="mb-12">
                         <View className="bg-surface rounded-3xl p-10 items-center justify-center shadow-xl border border-border-light min-h-[300px]">
-                            <Text className="text-[11px] font-bold text-primary-600 uppercase tracking-[2px] mb-4">
-                                Currently Assigning
-                            </Text>
                             <Text className="text-4xl font-bold text-text text-center leading-[48px]">
                                 {currentCard?.name}
                             </Text>
-
-                            <View className="mt-8 bg-surface-dim px-4 py-2 rounded-full border border-border">
-                                <Text className="text-sm font-semibold text-text-secondary">
-                                    Card {currentCardIndex + 1} of {shuffledCards.length}
-                                </Text>
-                            </View>
                         </View>
                     </View>
 
@@ -91,22 +76,8 @@ export const SwipeModeScreen: React.FC<SwipeModeScreenProps> = ({
                                 onPress={() => handleAssign(member)}
                                 className={`${index % 2 === 0 ? 'bg-primary-600' : 'bg-secondary-600'} py-6 rounded-2xl flex-row items-center justify-center shadow-md active:opacity-90`}
                             >
-                                <View className="w-8 h-8 rounded-full bg-white/20 items-center justify-center mr-3">
-                                    <Text className="text-white font-bold">{member.charAt(0)}</Text>
-                                </View>
                                 <Text className="text-white text-xl font-bold">{member}</Text>
                             </TouchableOpacity>
-                        ))}
-                    </View>
-                </View>
-
-                <View className="mt-10 items-center">
-                    <View className="flex-row gap-1">
-                        {shuffledCards.map((_, i) => (
-                            <View
-                                key={i}
-                                className={`h-1.5 rounded-full ${i === currentCardIndex ? 'w-8 bg-primary-600' : 'w-2 bg-border-strong'}`}
-                            />
                         ))}
                     </View>
                 </View>
