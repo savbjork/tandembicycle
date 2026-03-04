@@ -124,6 +124,7 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                         setIsEditing={(v) => { setIsEditingName(v); if (v) setEditCardName(card.name); }}
                         onChangeText={setEditCardName}
                         onSave={handleRename}
+                        subtitle={`Owned by ${card.owner}`}
                     />
 
                     {/* Not Owner Banner */}
