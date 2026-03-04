@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { View, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { Text, ScreenHeader, FieldLabel, DatePickerSheet, EmptyState, EditableTitle, TextInput, BottomSheet } from '@shared/components/ui';
+import { Text, ScreenHeader, FieldLabel, DatePickerSheet, EmptyState, EditableTitle, TextInput, ChipGroup } from '@shared/components/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
 import { useDataStore } from '@store';
@@ -32,7 +32,6 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         task?.dueDate ? new Date(task.dueDate) : undefined,
     );
     const [showDatePicker, setShowDatePicker] = useState(false);
-    const [showCardPicker, setShowCardPicker] = useState(false);
 
     if (!task) {
         return (
@@ -134,17 +133,33 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                     )}
 
 
+                    {/* Status - compact inline toggle */}
+                    <TouchableOpacity
+                        onPress={isOwner ? handleToggleDone : undefined}
+                        disabled={!isOwner}
+                        className="flex-row items-center gap-2 mb-4 py-1"
+                    >
+                        <Ionicons
+                            name={task.isDone ? 'checkmark-circle' : 'ellipse-outline'}
+                            size={20}
+                            color={task.isDone ? COLORS.primary[600] : COLORS.text.muted}
+                        />
+                        <Text className={`text-sm font-semibold ${task.isDone ? 'text-primary-600' : 'text-text-secondary'}`}>
+                            {task.isDone ? 'Completed' : 'Pending'}
+                        </Text>
+                    </TouchableOpacity>
+
                     {/* Card Assignment */}
                     <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
                         <FieldLabel>Card</FieldLabel>
                         {isOwner ? (
-                            <TouchableOpacity
-                                onPress={() => setShowCardPicker(true)}
-                                className="flex-row items-center justify-between py-2"
-                            >
-                                <Text className="text-base text-text">{editCard || 'Select a card'}</Text>
-                                <Ionicons name="chevron-forward" size={18} color={COLORS.text.muted} />
-                            </TouchableOpacity>
+                            <ChipGroup
+                                options={cardOptions}
+                                value={editCard}
+                                onChange={setEditCard}
+                                scrollable
+                                className="mt-1"
+                            />
                         ) : (
                             <Text className="text-base text-text py-2">{task.card}</Text>
                         )}
@@ -168,25 +183,6 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                                 {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No due date'}
                             </Text>
                         )}
-                    </View>
-
-                    {/* Status */}
-                    <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
-                        <FieldLabel>Status</FieldLabel>
-                        <TouchableOpacity
-                            onPress={isOwner ? handleToggleDone : undefined}
-                            className="flex-row items-center gap-3 py-2"
-                            disabled={!isOwner}
-                        >
-                            <Ionicons
-                                name={task.isDone ? 'checkbox' : 'square-outline'}
-                                size={22}
-                                color={task.isDone ? COLORS.primary[600] : COLORS.text.muted}
-                            />
-                            <Text className={`text-base ${task.isDone ? 'text-primary-600 font-semibold' : 'text-text'}`}>
-                                {task.isDone ? 'Completed' : 'Pending'}
-                            </Text>
-                        </TouchableOpacity>
                     </View>
 
                     {/* Notes */}
@@ -236,28 +232,6 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                 value={editDueDate}
                 onChange={setEditDueDate}
             />
-            <BottomSheet
-                visible={showCardPicker}
-                onClose={() => setShowCardPicker(false)}
-            >
-                <Text className="text-xl font-bold text-text mb-4">Select Card</Text>
-                {cardOptions.map((option, index) => (
-                    <TouchableOpacity
-                        key={option.key}
-                        onPress={() => { setEditCard(option.key); setShowCardPicker(false); }}
-                        className={`flex-row items-center justify-between py-3.5 ${index < cardOptions.length - 1 ? 'border-b border-border-light' : ''}`}
-                    >
-                        <Text className={`text-base ${editCard === option.key ? 'text-primary-600 font-semibold' : 'text-text'}`}>
-                            {option.label}
-                        </Text>
-                        <Ionicons
-                            name={editCard === option.key ? 'radio-button-on' : 'radio-button-off'}
-                            size={20}
-                            color={editCard === option.key ? COLORS.primary[600] : COLORS.text.muted}
-                        />
-                    </TouchableOpacity>
-                ))}
-            </BottomSheet>
         </View>
     );
 };
