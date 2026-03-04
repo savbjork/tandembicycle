@@ -19,7 +19,7 @@ export const Card: React.FC<CardProps> = ({
   ...props
 }) => {
   const cardClasses = `
-    bg-white rounded-2xl shadow-sm border border-gray-100 p-4
+    bg-surface rounded-2xl shadow-sm border border-border-light p-4
     ${className || ''}
   `;
 
@@ -55,8 +55,8 @@ export const CardHeader: React.FC<CardHeaderProps> = ({
 }) => (
   <View className="flex-row items-center justify-between mb-3">
     <View className="flex-1">
-      <Text className="text-lg font-semibold text-gray-900">{title}</Text>
-      {subtitle && <Text className="text-sm text-gray-500 mt-1">{subtitle}</Text>}
+      <Text className="text-lg font-semibold text-text">{title}</Text>
+      {subtitle && <Text className="text-sm text-text-secondary mt-1">{subtitle}</Text>}
     </View>
     {rightElement && <View className="ml-3">{rightElement}</View>}
   </View>
@@ -75,6 +75,7 @@ interface CardFooterProps {
 }
 
 export const CardFooter: React.FC<CardFooterProps> = ({ children }) => (
-  <View className="mt-3 pt-3 border-t border-gray-100">{children}</View>
+  <View className="mt-3 pt-3 border-t border-border-light">{children}</View>
 );
+
 

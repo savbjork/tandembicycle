@@ -5,6 +5,7 @@ export type Person = 'Savannah' | 'Kevin';
 export interface Card {
     name: string;
     owner: Person;
+    note?: string;
 }
 
 export interface Task {

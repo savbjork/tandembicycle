@@ -86,7 +86,6 @@ export const TasksScreen: React.FC = () => {
                 {/* Pending Tasks */}
                 <View className="mb-6">
                     <View className="flex-row items-center gap-2 mb-3">
-                        <Ionicons name="list-outline" size={14} color={COLORS.text.muted} />
                         <Text className="text-[11px] font-bold text-text-muted uppercase tracking-widest">
                             To Do
                         </Text>
@@ -117,7 +116,6 @@ export const TasksScreen: React.FC = () => {
                 {completedTasks.length > 0 && (
                     <View className="mb-6">
                         <View className="flex-row items-center gap-2 mb-3">
-                            <Ionicons name="checkmark-circle-outline" size={14} color={COLORS.text.muted} />
                             <Text className="text-[11px] font-bold text-text-muted uppercase tracking-widest">
                                 Done
                             </Text>

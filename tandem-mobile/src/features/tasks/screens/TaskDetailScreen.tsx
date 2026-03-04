@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { Text, ScreenHeader, FieldLabel, ChipGroup, DatePickerSheet, EmptyState, EditableTitle, TextInput } from '@shared/components/ui';
+import { Text, ScreenHeader, FieldLabel, DatePickerSheet, EmptyState, EditableTitle, TextInput } from '@shared/components/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
 import { useDataStore } from '@store';
@@ -130,12 +130,28 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                     <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
                         <FieldLabel>Card</FieldLabel>
                         {isOwner ? (
-                            <ChipGroup
-                                options={cardOptions}
-                                value={editCard}
-                                onChange={setEditCard}
-                                scrollable
-                            />
+                            <ScrollView
+                                style={{ maxHeight: 200 }}
+                                showsVerticalScrollIndicator={false}
+                                nestedScrollEnabled
+                            >
+                                {cardOptions.map((option, index) => (
+                                    <TouchableOpacity
+                                        key={option.key}
+                                        onPress={() => setEditCard(option.key)}
+                                        className={`flex-row items-center justify-between py-3 ${index < cardOptions.length - 1 ? 'border-b border-border-light' : ''}`}
+                                    >
+                                        <Text className={`text-base ${editCard === option.key ? 'text-primary-600 font-semibold' : 'text-text'}`}>
+                                            {option.label}
+                                        </Text>
+                                        <Ionicons
+                                            name={editCard === option.key ? 'radio-button-on' : 'radio-button-off'}
+                                            size={20}
+                                            color={editCard === option.key ? COLORS.primary[600] : COLORS.text.muted}
+                                        />
+                                    </TouchableOpacity>
+                                ))}
+                            </ScrollView>
                         ) : (
                             <Text className="text-base text-text py-2">{task.card}</Text>
                         )}
