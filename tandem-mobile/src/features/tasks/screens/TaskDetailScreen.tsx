@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { View, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { Text, ScreenHeader, FieldLabel, DatePickerSheet, EmptyState, EditableTitle, TextInput } from '@shared/components/ui';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,6 +20,9 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         () => tasks.find(t => t.id === taskId),
         [tasks, taskId],
     );
+
+    const scrollViewRef = useRef<ScrollView>(null);
+    const noteInputY = useRef<number>(0);
 
     const [isEditingName, setIsEditingName] = useState(false);
     const [editName, setEditName] = useState(task?.name || '');
@@ -105,7 +108,11 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                 className="flex-1"
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             >
-                <ScrollView className="flex-1 px-5 pb-5" keyboardShouldPersistTaps="handled">
+                <ScrollView
+                    ref={scrollViewRef}
+                    className="flex-1 px-5 pb-5"
+                    keyboardShouldPersistTaps="handled"
+                >
                     {/* Header */}
                     <EditableTitle
                         value={editName}
@@ -197,7 +204,10 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                     </View>
 
                     {/* Notes */}
-                    <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
+                    <View
+                        className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm"
+                        onLayout={(e) => { noteInputY.current = e.nativeEvent.layout.y; }}
+                    >
                         <FieldLabel>Notes</FieldLabel>
                         {isOwner ? (
                             <TextInput
@@ -208,6 +218,11 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                                 placeholderTextColor={COLORS.text.muted}
                                 multiline
                                 textAlignVertical="top"
+                                onFocus={() => {
+                                    setTimeout(() => {
+                                        scrollViewRef.current?.scrollTo({ y: noteInputY.current, animated: true });
+                                    }, 100);
+                                }}
                             />
                         ) : (
                             <Text className="text-base text-text py-2">{task.note || 'No notes'}</Text>
@@ -222,13 +237,6 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                             >
                                 <Ionicons name="trash-outline" size={18} color="#dc2626" />
                                 <Text className="text-sm font-bold text-red-600">Delete</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={handleSave}
-                                className="flex-1 flex-row items-center justify-center gap-2 py-4 bg-primary-600 rounded-xl"
-                            >
-                                <Ionicons name="checkmark" size={18} color="white" />
-                                <Text className="text-sm font-bold text-white">Save</Text>
                             </TouchableOpacity>
                         </View>
                     )}
