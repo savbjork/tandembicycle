@@ -77,7 +77,6 @@ export const InboxScreen: React.FC = () => {
                 <View className="mb-6">
                     <View className="flex-row items-center gap-2 mb-3">
                         <FieldLabel className="mb-0">Received</FieldLabel>
-                        <Badge variant="primary" size="sm" label={receivedItems.length.toString()} />
                     </View>
 
                     {receivedItems.length === 0 ? (
@@ -101,7 +100,6 @@ export const InboxScreen: React.FC = () => {
                     <View className="mb-6">
                         <View className="flex-row items-center gap-2 mb-3">
                             <FieldLabel className="mb-0">Sent</FieldLabel>
-                            <Badge variant="secondary" size="sm" label={sentItems.length.toString()} />
                         </View>
                         {sentItems.map((item: DropZoneItem) => (
                             <DropItemCard
