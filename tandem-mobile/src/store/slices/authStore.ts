@@ -28,20 +28,14 @@ export const useAuthStore = create<AuthState>((set) => ({
   error: null,
 
   setUser: (user) => {
-    console.log('🟢 AuthStore - setUser called with:', user ? `${user.name} (${user.email})` : 'null');
     set({
       user,
       isAuthenticated: !!user,
       error: null,
     });
-    console.log('🟢 AuthStore - Auth state updated:', { 
-      isAuthenticated: !!user, 
-      hasUser: !!user 
-    });
   },
 
   setLoading: (isLoading) => {
-    console.log('🟡 AuthStore - setLoading called with:', isLoading);
     set({
       isLoading,
     });
@@ -53,14 +47,12 @@ export const useAuthStore = create<AuthState>((set) => ({
     }),
 
   clearAuth: () => {
-    console.log('🔴 AuthStore - clearAuth called');
     set({
       user: null,
       isAuthenticated: false,
       isLoading: false,
       error: null,
     });
-    console.log('🔴 AuthStore - Auth cleared');
   },
 }));
 
