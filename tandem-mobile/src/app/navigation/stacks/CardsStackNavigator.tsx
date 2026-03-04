@@ -5,7 +5,7 @@ import { CardsScreen } from '@features/cards/screens/CardsScreen';
 import { CardDetailScreen } from '@features/cards/screens/CardDetailScreen';
 import { TasksScreen } from '@features/tasks/screens/TasksScreen';
 import { InboxScreen } from '@features/inbox/screens/InboxScreen';
-import { HomeOverviewScreen } from '@features/home-hub/screens/HomeOverviewScreen';
+import { ProfileScreen } from '@features/profile/screens/ProfileScreen';
 
 const Stack = createNativeStackNavigator<CardsStackParamList>();
 
@@ -35,7 +35,7 @@ export const CardsStackNavigator: React.FC = () => {
             />
             <Stack.Screen
                 name="Home"
-                component={HomeOverviewScreen}
+                component={ProfileScreen}
             />
         </Stack.Navigator>
     );

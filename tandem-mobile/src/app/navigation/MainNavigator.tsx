@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { MainTabParamList } from './types';
 import { CardsStackNavigator } from './stacks/CardsStackNavigator';
 import { InboxScreen } from '@features/inbox/screens/InboxScreen';
-import { HomeOverviewScreen } from '@features/home-hub/screens/HomeOverviewScreen';
+import { ProfileScreen } from '@features/profile/screens/ProfileScreen';
 import { COLORS } from '@shared/constants/colors';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -48,7 +48,7 @@ export const MainNavigator: React.FC = () => {
       />
       <Tab.Screen
         name="HomeTab"
-        component={HomeOverviewScreen}
+        component={ProfileScreen}
         options={{
           tabBarLabel: 'Home',
           tabBarIcon: ({ color, size }) => (

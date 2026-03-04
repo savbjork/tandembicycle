@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { View, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { Text, Button, Input, BottomSheet, ScreenHeader } from '@shared/components/ui';
+import { Text, Button, Input, BottomSheet, ScreenHeader, FieldLabel, Badge, OwnerBadge } from '@shared/components/ui';
 import { useAuthStore } from '@store';
 import { useMockAuth } from '@shared/hooks/useMockAuth';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
 import { useNavigation } from '@react-navigation/native';
 
-export const HomeOverviewScreen: React.FC = () => {
+export const ProfileScreen: React.FC = () => {
   const { user, setUser } = useAuthStore();
   const { signOut } = useMockAuth();
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -57,7 +57,7 @@ export const HomeOverviewScreen: React.FC = () => {
   };
 
   const navigation = useNavigation();
-  const initials = user?.name?.split(' ').map((n: string) => n[0]).join('') || 'U';
+
 
   return (
     <View className="flex-1 bg-surface-dim">
@@ -72,9 +72,7 @@ export const HomeOverviewScreen: React.FC = () => {
         {/* 1. Profile Section */}
         <View className="bg-surface rounded-3xl p-6 mb-6 shadow-sm border border-border-muted">
           <View className="flex-row items-center mb-6">
-            <View className="w-16 h-16 rounded-full bg-primary-600 items-center justify-center shadow-sm">
-              <Text className="text-white text-2xl font-bold">{initials}</Text>
-            </View>
+            <OwnerBadge name={user?.name || 'User'} size={64} fontSize={24} className="shadow-sm" />
             <View className="ml-4 flex-1">
               <Text className="text-xl font-bold text-text">{user?.name || 'User'}</Text>
               <Text className="text-sm text-text-secondary">Owner • Savannah@tandem.app</Text>
@@ -106,7 +104,7 @@ export const HomeOverviewScreen: React.FC = () => {
         <View className="bg-surface rounded-3xl p-6 mb-6 shadow-sm border border-border-muted">
           <View className="flex-row justify-between items-center mb-6">
             <View>
-              <Text className="text-xs font-bold text-text-muted uppercase tracking-widest mb-1">Household</Text>
+              <FieldLabel className="mb-1">Household</FieldLabel>
               <Text className="text-xl font-bold text-text">{householdName}</Text>
             </View>
             <TouchableOpacity
@@ -120,16 +118,12 @@ export const HomeOverviewScreen: React.FC = () => {
           {/* Members List */}
           <View className="mb-6">
             <View className="flex-row items-center mb-4">
-              <View className="w-10 h-10 rounded-full bg-secondary-600 items-center justify-center">
-                <Text className="text-white text-sm font-bold">{partner.initials}</Text>
-              </View>
+              <OwnerBadge name={partner.name} size={40} />
               <View className="ml-3 flex-1">
                 <Text className="text-base font-semibold text-text">{partner.name}</Text>
                 <Text className="text-xs text-text-secondary">Partner • 8 cards</Text>
               </View>
-              <View className="bg-green-100 px-2 py-1 rounded-md">
-                <Text className="text-[10px] font-bold text-green-700 uppercase">Active</Text>
-              </View>
+              <Badge variant="success" size="sm" label="ACTIVE" />
             </View>
 
             <TouchableOpacity
@@ -159,7 +153,7 @@ export const HomeOverviewScreen: React.FC = () => {
             onPress={signOut}
             className="flex-row items-center p-4 bg-surface-muted"
           >
-            <Ionicons name="log-out" size={20} color={COLORS.text.secondary} className="mr-4" />
+            <Ionicons name="log-out" size={20} color={COLORS.text.secondary} />
             <Text className="text-base text-text flex-1 ml-3 font-semibold">Sign Out</Text>
             <Ionicons name="chevron-forward" size={18} color={COLORS.text.muted} />
           </TouchableOpacity>
@@ -180,7 +174,7 @@ export const HomeOverviewScreen: React.FC = () => {
         <Text className="text-2xl font-bold text-text mb-8">Edit Details</Text>
 
         <View className="mb-8">
-          <Text className="text-[11px] font-bold text-text-muted uppercase tracking-widest mb-4">Personal Identity</Text>
+          <FieldLabel className="mb-4">Personal Identity</FieldLabel>
           <Input
             label="Display Name"
             value={newName}
@@ -208,7 +202,7 @@ export const HomeOverviewScreen: React.FC = () => {
         </View>
 
         <View className="mb-10">
-          <Text className="text-[11px] font-bold text-text-muted uppercase tracking-widest mb-4">Household Identity</Text>
+          <FieldLabel className="mb-4">Household Identity</FieldLabel>
           <Input
             label="Household Name"
             value={householdName}
