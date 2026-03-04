@@ -15,7 +15,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'TaskDetail'>;
 export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     const { taskId } = route.params;
     const { currentUser } = useCurrentUser();
-    const { tasks, cards, updateTask, removeTask } = useDataStore();
+    const { tasks, cards, updateTask, removeTask, toggleTaskDone } = useDataStore();
 
     const task = useMemo(
         () => tasks.find(t => t.id === taskId),
@@ -83,7 +83,7 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     };
 
     const handleToggleDone = () => {
-        useDataStore.getState().toggleTaskDone(taskId);
+        toggleTaskDone(taskId);
     };
 
     const cardOptions = useMemo(() =>
