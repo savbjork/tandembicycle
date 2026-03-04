@@ -23,6 +23,7 @@ export const TasksScreen: React.FC = () => {
     const [newTaskCard, setNewTaskCard] = useState('');
     const [newTaskDueDate, setNewTaskDueDate] = useState<Date | undefined>(undefined);
     const [showDatePicker, setShowDatePicker] = useState(false);
+    const [newTaskNote, setNewTaskNote] = useState('');
 
     const myTasks = useMemo(
         () => tasks.filter((t: Task) => t.owner === currentUser),
@@ -49,12 +50,14 @@ export const TasksScreen: React.FC = () => {
             owner: currentUser,
             dueDate: newTaskDueDate ? toDateStringLocal(newTaskDueDate) : '',
             isDone: false,
+            note: newTaskNote.trim() || undefined,
         };
 
         addTask(task);
         setNewTaskName('');
         setNewTaskCard('');
         setNewTaskDueDate(undefined);
+        setNewTaskNote('');
         setShowAddTask(false);
     };
 
@@ -89,9 +92,6 @@ export const TasksScreen: React.FC = () => {
                         <Text className="text-[11px] font-bold text-text-muted uppercase tracking-widest">
                             To Do
                         </Text>
-                        <View className="bg-primary-100 px-2 py-0.5 rounded-full ml-1">
-                            <Text className="text-[10px] font-bold text-primary-600">{pendingTasks.length}</Text>
-                        </View>
                     </View>
 
                     {pendingTasks.length === 0 ? (
@@ -119,9 +119,6 @@ export const TasksScreen: React.FC = () => {
                             <Text className="text-[11px] font-bold text-text-muted uppercase tracking-widest">
                                 Done
                             </Text>
-                            <View className="bg-border px-2 py-0.5 rounded-full ml-1">
-                                <Text className="text-[10px] font-bold text-text-muted">{completedTasks.length}</Text>
-                            </View>
                         </View>
                         {completedTasks.map((task: Task) => (
                             <View key={task.id} className="bg-surface rounded-xl border border-border-light shadow-sm mb-2 opacity-60">
@@ -168,13 +165,25 @@ export const TasksScreen: React.FC = () => {
                 <FieldLabel>Due Date</FieldLabel>
                 <TouchableOpacity
                     onPress={() => setShowDatePicker(true)}
-                    className="py-3 px-4 rounded-xl bg-surface-dim border border-border flex-row items-center gap-3 mb-6"
+                    className="py-3 px-4 rounded-xl bg-surface-dim border border-border flex-row items-center gap-3 mb-4"
                 >
                     <Ionicons name="calendar-outline" size={18} color={COLORS.text.secondary} />
                     <Text className="text-base text-text">
                         {newTaskDueDate ? newTaskDueDate.toLocaleDateString() : 'No due date'}
                     </Text>
                 </TouchableOpacity>
+
+                {/* Notes */}
+                <FieldLabel>Notes</FieldLabel>
+                <TextInput
+                    className="text-base text-text mb-6 py-3 px-4 rounded-xl bg-surface-dim border border-border min-h-[80px]"
+                    placeholder="Add notes..."
+                    value={newTaskNote}
+                    onChangeText={setNewTaskNote}
+                    multiline
+                    textAlignVertical="top"
+                    placeholderTextColor={COLORS.text.muted}
+                />
 
                 <TouchableOpacity
                     className="bg-primary-600 py-4 rounded-2xl items-center shadow-sm"
