@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { View, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { Text, BottomSheet, ScreenHeader, FieldLabel, Badge, EmptyState, TextInput } from '@shared/components/ui';
 import { AddButton } from '@shared/components/ui/AddButton';
@@ -34,6 +34,9 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     const [editCardName, setEditCardName] = useState(card?.name || '');
     const [isEditingName, setIsEditingName] = useState(false);
     const [editNote, setEditNote] = useState(card?.note || '');
+
+    const scrollViewRef = useRef<ScrollView>(null);
+    const noteInputY = useRef<number>(0);
 
     if (!card) {
         return (
@@ -116,7 +119,7 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                 className="flex-1"
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             >
-                <ScrollView className="flex-1 px-5 pb-5" keyboardShouldPersistTaps="handled">
+                <ScrollView ref={scrollViewRef} className="flex-1 px-5 pb-5" keyboardShouldPersistTaps="handled">
                     {/* Card Header */}
                     <EditableTitle
                         value={editCardName}
@@ -124,7 +127,6 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                         setIsEditing={(v) => { setIsEditingName(v); if (v) setEditCardName(card.name); }}
                         onChangeText={setEditCardName}
                         onSave={handleRename}
-                        subtitle={`Owned by ${card.owner}`}
                     />
 
                     {/* Not Owner Banner */}
@@ -141,7 +143,6 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                     <View className="mb-4">
                         <View className="flex-row items-center gap-2 mb-3">
                             <FieldLabel className="mb-0">To Do</FieldLabel>
-                            <Badge variant="primary" size="sm" label={pendingTasks.length.toString()} />
                         </View>
 
                         {pendingTasks.length === 0 ? (
@@ -168,7 +169,6 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                         <View className="mb-4">
                             <View className="flex-row items-center gap-2 mb-3">
                                 <FieldLabel className="mb-0">Done</FieldLabel>
-                                <Badge variant="secondary" size="sm" label={completedTasks.length.toString()} />
                             </View>
                             {completedTasks.map((task: Task) => (
                                 <View key={task.id} className="bg-surface rounded-xl border border-border-light shadow-sm mb-2 opacity-60">
@@ -185,21 +185,28 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                     )}
 
                     {/* Notes */}
-                    <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
+                    <View
+                        className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm"
+                        onLayout={(e) => { noteInputY.current = e.nativeEvent.layout.y; }}
+                    >
                         <FieldLabel>Notes</FieldLabel>
                         {isOwner ? (
                             <TextInput
                                 className="text-base text-text py-2 min-h-[120px]"
                                 value={editNote}
                                 onChangeText={setEditNote}
-                                onBlur={() => updateCard(card.name, { note: editNote })}
-                                placeholder="Add notes about this card..."
+                                placeholder="Add notes..."
                                 placeholderTextColor={COLORS.text.muted}
                                 multiline
                                 textAlignVertical="top"
+                                onFocus={() => {
+                                    setTimeout(() => {
+                                        scrollViewRef.current?.scrollTo({ y: noteInputY.current, animated: true });
+                                    }, 100);
+                                }}
                             />
                         ) : (
-                            <Text className="text-base text-text-secondary py-2">{card.note || 'No notes'}</Text>
+                            <Text className="text-base text-text py-2">{card.note || 'No notes'}</Text>
                         )}
                     </View>
 
