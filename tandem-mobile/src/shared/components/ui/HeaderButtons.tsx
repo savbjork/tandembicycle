@@ -81,3 +81,15 @@ export const CloseButton: React.FC<TouchableOpacityProps & { size?: number }> = 
         <Ionicons name="close" size={size} color={COLORS.text.secondary} />
     </TouchableOpacity>
 );
+
+/**
+ * Circular checkmark button — matches AddButton style, used as save/confirm action
+ */
+export const CheckButton: React.FC<TouchableOpacityProps & { size?: number }> = ({ size = 24, className, ...props }) => (
+    <TouchableOpacity
+        className={`bg-primary-600 rounded-full w-11 h-11 items-center justify-center shadow-sm active:opacity-70 ${className ?? ''}`}
+        {...props}
+    >
+        <Ionicons name="checkmark" size={size} color="white" />
+    </TouchableOpacity>
+);
