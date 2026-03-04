@@ -2,7 +2,6 @@ import React, { useState, useMemo, useRef } from 'react';
 import { View, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { Text, BottomSheet, ScreenHeader, FieldLabel, Badge, EmptyState, TextInput, DatePickerSheet } from '@shared/components/ui';
 import { toDateStringLocal } from '@shared/utils/date';
-import { AddButton } from '@shared/components/ui/AddButton';
 import { EditableTitle } from '@shared/components/ui/EditableTitle';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
@@ -115,11 +114,6 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                 showBack={false}
                 onBack={() => navigation.goBack()}
                 compact
-                rightAction={
-                    isOwner ? (
-                        <AddButton onPress={() => setShowAddTask(true)} />
-                    ) : undefined
-                }
             />
 
             <KeyboardAvoidingView
@@ -220,13 +214,22 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
                     {/* Archive Card */}
                     {isOwner && (
-                        <TouchableOpacity
-                            onPress={handleArchive}
-                            className="flex-row items-center justify-center gap-2 py-4 mt-2 mb-10 bg-red-50 rounded-xl border border-red-100"
-                        >
-                            <Ionicons name="archive-outline" size={18} color="#dc2626" />
-                            <Text className="text-sm font-bold text-red-600">Archive</Text>
-                        </TouchableOpacity>
+                        <View className="flex-row gap-3 mt-2 mb-10">
+                            <TouchableOpacity
+                                onPress={() => setShowAddTask(true)}
+                                className="flex-1 flex-row items-center justify-center gap-2 py-4 bg-primary-50 rounded-xl border border-primary-200"
+                            >
+                                <Ionicons name="add" size={18} color={COLORS.primary[600]} />
+                                <Text className="text-sm font-bold text-primary-600">Add Task</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={handleArchive}
+                                className="flex-1 flex-row items-center justify-center gap-2 py-4 bg-red-50 rounded-xl border border-red-100"
+                            >
+                                <Ionicons name="archive-outline" size={18} color="#dc2626" />
+                                <Text className="text-sm font-bold text-red-600">Archive</Text>
+                            </TouchableOpacity>
+                        </View>
                     )}
                     <View className="h-10" />
                 </ScrollView>
