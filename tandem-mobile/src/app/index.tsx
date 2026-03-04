@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { RootNavigator } from './navigation/RootNavigator';
 import { AppProviders } from './providers/AppProviders';
-import { initializeFirebase, isUsingFirebase } from '@infrastructure/firebase/config';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
 import '../../global.css';
@@ -26,16 +25,6 @@ export const App: React.FC = () => {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
-
-  useEffect(() => {
-    initializeFirebase();
-
-    if (!isUsingFirebase()) {
-      console.log('DEMO MODE ACTIVE');
-      console.log('Using mock data for all features');
-      console.log('To enable Firebase, configure .env file');
-    }
-  }, []);
 
   if (!fontsLoaded) {
     return null;

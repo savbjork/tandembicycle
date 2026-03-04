@@ -1,5 +1,15 @@
 import { create } from 'zustand';
-import { User } from '@core/models/User';
+
+/**
+ * Minimal user shape used by auth state.
+ * Full domain model lives in shared/types once Task 2 migrates it.
+ */
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  avatar?: string;
+}
 
 /**
  * Authentication state interface

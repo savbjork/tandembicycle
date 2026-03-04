@@ -1,10 +1,16 @@
-import { useAuthStore } from '@store';
-import { getMockCurrentUser } from '@shared/constants/mockData';
+import { useAuthStore, type User } from '@store';
+
+/** Baseline mock user for development / demo mode. */
+const BASE_MOCK_USER: User = {
+  id: 'user-1',
+  email: 'savannah@tandem.app',
+  name: 'Savannah',
+};
 
 /**
  * Mock authentication hook for front-end development
  * Simulates authentication without Firebase
- * 
+ *
  * In production, this would:
  * 1. Check for stored JWT tokens on app startup
  * 2. Validate tokens with backend API
@@ -12,21 +18,13 @@ import { getMockCurrentUser } from '@shared/constants/mockData';
  * 4. Set user state if valid tokens exist
  */
 export const useMockAuth = () => {
-  const { setUser, setLoading, user, isAuthenticated } = useAuthStore();
+  const { setUser, setLoading, user } = useAuthStore();
 
-  console.log('🔍 useMockAuth - Hook called:', { 
-    isAuthenticated, 
-    user: user ? `${user.name} (${user.email})` : null 
-  });
-
-  const mockSignIn = async (email: string, _password: string) => {
-    console.log('🔍 useMockAuth - mockSignIn called with:', email);
+  const mockSignIn = async (_email: string, _password: string) => {
     setLoading(true);
     // Simulate network delay
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    const mockUser = getMockCurrentUser();
-    console.log('🔍 useMockAuth - Setting user after sign in:', mockUser);
-    setUser(mockUser);
+    setUser(BASE_MOCK_USER);
     setLoading(false);
   };
 
@@ -34,18 +32,15 @@ export const useMockAuth = () => {
     setLoading(true);
     // Simulate network delay
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    const mockUser = { ...getMockCurrentUser(), name, email };
-    setUser(mockUser);
+    setUser({ ...BASE_MOCK_USER, name, email });
     setLoading(false);
   };
 
   const mockSignOut = async () => {
-    console.log('🔴 useMockAuth - mockSignOut called');
     setLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 500));
     setUser(null);
     setLoading(false);
-    console.log('🔴 useMockAuth - Sign out complete - user should be null');
   };
 
   return {
