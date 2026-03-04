@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { MainTabParamList } from './types';
 import { CardsStackNavigator } from './stacks/CardsStackNavigator';
-import { InboxScreen } from '@features/home/screens/InboxScreen';
+import { InboxScreen } from '@features/inbox/screens/InboxScreen';
 import { HomeOverviewScreen } from '@features/home-hub/screens/HomeOverviewScreen';
 import { COLORS } from '@shared/constants/colors';
 

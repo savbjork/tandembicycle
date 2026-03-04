@@ -3,8 +3,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { CardsStackParamList } from '../types';
 import { CardsScreen } from '@features/cards/screens/CardsScreen';
 import { CardDetailScreen } from '@features/cards/screens/CardDetailScreen';
-import { TasksScreen } from '@features/home/screens/TasksScreen';
-import { InboxScreen } from '@features/home/screens/InboxScreen';
+import { TasksScreen } from '@features/tasks/screens/TasksScreen';
+import { InboxScreen } from '@features/inbox/screens/InboxScreen';
 import { HomeOverviewScreen } from '@features/home-hub/screens/HomeOverviewScreen';
 
 const Stack = createNativeStackNavigator<CardsStackParamList>();
