@@ -31,33 +31,36 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
             transparent={transparent}
             onRequestClose={onClose}
         >
-            <TouchableOpacity
-                activeOpacity={1}
-                onPress={onClose}
-                style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' }}
+            <KeyboardAvoidingView
+                style={{ flex: 1 }}
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             >
                 <TouchableOpacity
                     activeOpacity={1}
-                    onPress={(e) => e.stopPropagation()}
-                    style={[
-                        {
-                            backgroundColor: COLORS.surface.DEFAULT,
-                            borderTopLeftRadius: 30,
-                            borderTopRightRadius: 30,
-                            padding: 24,
-                            paddingBottom: 50,
-                        },
-                        containerStyle,
-                    ]}
+                    onPress={onClose}
+                    style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' }}
                 >
-                    <KeyboardAvoidingView
-                        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    <TouchableOpacity
+                        activeOpacity={1}
+                        onPress={() => { }}
+                        style={[
+                            {
+                                backgroundColor: COLORS.surface.DEFAULT,
+                                borderTopLeftRadius: 32,
+                                borderTopRightRadius: 32,
+                                padding: 24,
+                                paddingTop: 32,
+                                paddingBottom: Platform.OS === 'ios' ? 48 : 32,
+                                minHeight: Platform.OS === 'ios' ? '60%' : '55%',
+                            },
+                            containerStyle,
+                        ]}
                     >
-                        <View className="w-10 h-1.5 bg-border rounded-full self-center mb-6 opacity-30" />
+                        <View className="w-12 h-1.5 bg-border rounded-full self-center mb-10 opacity-40" />
                         {children}
-                    </KeyboardAvoidingView>
+                    </TouchableOpacity>
                 </TouchableOpacity>
-            </TouchableOpacity>
+            </KeyboardAvoidingView>
         </Modal>
     );
 };
