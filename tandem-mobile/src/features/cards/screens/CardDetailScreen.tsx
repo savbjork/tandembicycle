@@ -204,6 +204,7 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                                         scrollViewRef.current?.scrollTo({ y: noteInputY.current, animated: true });
                                     }, 100);
                                 }}
+                                onBlur={() => updateCard(card.name, { note: editNote })}
                             />
                         ) : (
                             <Text className="text-base text-text py-2">{card.note || 'No notes'}</Text>
