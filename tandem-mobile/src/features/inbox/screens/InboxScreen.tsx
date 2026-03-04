@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { View, ScrollView, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { Text, BottomSheet, ScreenHeader, FieldLabel, Badge } from '@shared/components/ui';
+import { View, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { Text, BottomSheet, ScreenHeader, FieldLabel, Badge, TextInput } from '@shared/components/ui';
 import { AddButton } from '@shared/components/ui/AddButton';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
@@ -112,7 +112,7 @@ export const InboxScreen: React.FC = () => {
                         ))}
                     </View>
                 )}
-                <View className="h-20" />
+                <View className="h-10" />
             </ScrollView>
 
             <BottomSheet

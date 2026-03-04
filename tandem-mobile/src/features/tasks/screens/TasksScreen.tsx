@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { View, ScrollView, TextInput, TouchableOpacity } from 'react-native';
-import { Text, BottomSheet, ScreenHeader, FieldLabel, ChipGroup, DatePickerSheet } from '@shared/components/ui';
+import { View, ScrollView, TouchableOpacity } from 'react-native';
+import { Text, BottomSheet, ScreenHeader, FieldLabel, ChipGroup, DatePickerSheet, TextInput } from '@shared/components/ui';
 import { AddButton } from '@shared/components/ui/AddButton';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
@@ -137,7 +137,7 @@ export const TasksScreen: React.FC = () => {
                         ))}
                     </View>
                 )}
-                <View className="h-20" />
+                <View className="h-10" />
             </ScrollView>
 
             {/* Add Task Bottom Sheet */}
