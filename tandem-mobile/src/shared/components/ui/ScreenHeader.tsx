@@ -11,6 +11,7 @@ interface ScreenHeaderProps {
     rightAction?: React.ReactNode;
     className?: string;
     titleClassName?: string;
+    compact?: boolean;
 }
 
 /**
@@ -24,9 +25,10 @@ export const ScreenHeader: React.FC<ScreenHeaderProps> = ({
     rightAction,
     className = '',
     titleClassName = '',
+    compact = false,
 }) => {
     return (
-        <View className={`px-6 pt-[60px] pb-5 flex-row justify-between items-end ${className}`}>
+        <View className={`px-6 pt-[60px] ${compact ? 'pb-1' : 'pb-5'} flex-row justify-between items-end ${className}`}>
             <View className="flex-row items-center gap-1 flex-1">
                 {showBack && (
                     <TouchableOpacity onPress={onBack} className="-ml-2">
