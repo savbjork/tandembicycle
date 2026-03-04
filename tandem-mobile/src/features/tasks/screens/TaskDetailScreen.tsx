@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { View, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { Text, ScreenHeader, FieldLabel, DatePickerSheet, EmptyState, EditableTitle, TextInput } from '@shared/components/ui';
+import { Text, ScreenHeader, FieldLabel, DatePickerSheet, EmptyState, EditableTitle, TextInput, BottomSheet } from '@shared/components/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
 import { useDataStore } from '@store';
@@ -32,6 +32,7 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         task?.dueDate ? new Date(task.dueDate) : undefined,
     );
     const [showDatePicker, setShowDatePicker] = useState(false);
+    const [showCardPicker, setShowCardPicker] = useState(false);
 
     if (!task) {
         return (
@@ -137,28 +138,13 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                     <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
                         <FieldLabel>Card</FieldLabel>
                         {isOwner ? (
-                            <ScrollView
-                                style={{ maxHeight: 200 }}
-                                showsVerticalScrollIndicator={false}
-                                nestedScrollEnabled
+                            <TouchableOpacity
+                                onPress={() => setShowCardPicker(true)}
+                                className="flex-row items-center justify-between py-2"
                             >
-                                {cardOptions.map((option, index) => (
-                                    <TouchableOpacity
-                                        key={option.key}
-                                        onPress={() => setEditCard(option.key)}
-                                        className={`flex-row items-center justify-between py-3 ${index < cardOptions.length - 1 ? 'border-b border-border-light' : ''}`}
-                                    >
-                                        <Text className={`text-base ${editCard === option.key ? 'text-primary-600 font-semibold' : 'text-text'}`}>
-                                            {option.label}
-                                        </Text>
-                                        <Ionicons
-                                            name={editCard === option.key ? 'radio-button-on' : 'radio-button-off'}
-                                            size={20}
-                                            color={editCard === option.key ? COLORS.primary[600] : COLORS.text.muted}
-                                        />
-                                    </TouchableOpacity>
-                                ))}
-                            </ScrollView>
+                                <Text className="text-base text-text">{editCard || 'Select a card'}</Text>
+                                <Ionicons name="chevron-forward" size={18} color={COLORS.text.muted} />
+                            </TouchableOpacity>
                         ) : (
                             <Text className="text-base text-text py-2">{task.card}</Text>
                         )}
@@ -250,6 +236,28 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                 value={editDueDate}
                 onChange={setEditDueDate}
             />
+            <BottomSheet
+                visible={showCardPicker}
+                onClose={() => setShowCardPicker(false)}
+            >
+                <Text className="text-xl font-bold text-text mb-4">Select Card</Text>
+                {cardOptions.map((option, index) => (
+                    <TouchableOpacity
+                        key={option.key}
+                        onPress={() => { setEditCard(option.key); setShowCardPicker(false); }}
+                        className={`flex-row items-center justify-between py-3.5 ${index < cardOptions.length - 1 ? 'border-b border-border-light' : ''}`}
+                    >
+                        <Text className={`text-base ${editCard === option.key ? 'text-primary-600 font-semibold' : 'text-text'}`}>
+                            {option.label}
+                        </Text>
+                        <Ionicons
+                            name={editCard === option.key ? 'radio-button-on' : 'radio-button-off'}
+                            size={20}
+                            color={editCard === option.key ? COLORS.primary[600] : COLORS.text.muted}
+                        />
+                    </TouchableOpacity>
+                ))}
+            </BottomSheet>
         </View>
     );
 };
