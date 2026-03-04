@@ -12,8 +12,6 @@ const Stack = createNativeStackNavigator<AuthStackParamList>();
  * Authentication flow navigator
  */
 export const AuthNavigator: React.FC = () => {
-  console.log('🟠 AuthNavigator - Rendering with initialRouteName: SignIn');
-
   return (
     <Stack.Navigator
       initialRouteName="Welcome"

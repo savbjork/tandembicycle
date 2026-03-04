@@ -1,15 +1,15 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { CardsStackParamList } from '../types';
+import { MainStackParamList } from '../types';
 import { CardsScreen } from '@features/cards/screens/CardsScreen';
 import { CardDetailScreen } from '@features/cards/screens/CardDetailScreen';
 import { TasksScreen } from '@features/tasks/screens/TasksScreen';
 import { InboxScreen } from '@features/inbox/screens/InboxScreen';
 import { ProfileScreen } from '@features/profile/screens/ProfileScreen';
 
-const Stack = createNativeStackNavigator<CardsStackParamList>();
+const Stack = createNativeStackNavigator<MainStackParamList>();
 
-export const CardsStackNavigator: React.FC = () => {
+export const MainStackNavigator: React.FC = () => {
     return (
         <Stack.Navigator
             screenOptions={{
@@ -26,7 +26,7 @@ export const CardsStackNavigator: React.FC = () => {
                 options={{ presentation: 'modal' }}
             />
             <Stack.Screen
-                name="MyBoard"
+                name="Tasks"
                 component={TasksScreen}
             />
             <Stack.Screen
@@ -34,7 +34,7 @@ export const CardsStackNavigator: React.FC = () => {
                 component={InboxScreen}
             />
             <Stack.Screen
-                name="Home"
+                name="Profile"
                 component={ProfileScreen}
             />
         </Stack.Navigator>

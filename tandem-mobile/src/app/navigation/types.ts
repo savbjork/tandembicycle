@@ -22,18 +22,18 @@ export type AuthStackParamList = {
   ForgotPassword: undefined;
 };
 
-// Cards Stack Navigator
-export type CardsStackParamList = {
+// Main Stack Navigator (primary app stack, accessed from RosterTab)
+export type MainStackParamList = {
   CardsList: undefined;
   CardDetail: { cardName: string };
-  MyBoard: undefined;
+  Tasks: undefined;
   Inbox: undefined;
-  Home: undefined;
+  Profile: undefined;
 };
 
 // Main Bottom Tab Navigator
 export type MainTabParamList = {
-  RosterTab: NavigatorScreenParams<CardsStackParamList>;
+  RosterTab: NavigatorScreenParams<MainStackParamList>;
   InboxTab: undefined;
   HomeTab: undefined;
 };

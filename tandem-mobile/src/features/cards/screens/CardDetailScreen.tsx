@@ -10,9 +10,9 @@ import { useDataStore } from '@store';
 import { useCurrentUser } from '@shared/hooks/useCurrentUser';
 import type { Task } from '@shared/data/FakeDataStore';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { CardsStackParamList } from '@app/navigation/types';
+import type { MainStackParamList } from '@app/navigation/types';
 
-type Props = NativeStackScreenProps<CardsStackParamList, 'CardDetail'>;
+type Props = NativeStackScreenProps<MainStackParamList, 'CardDetail'>;
 
 export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     const { cardName } = route.params;

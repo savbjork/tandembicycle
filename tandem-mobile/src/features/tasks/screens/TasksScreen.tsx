@@ -11,10 +11,10 @@ import { toDateStringLocal } from '@shared/utils/date';
 import type { Task } from '@shared/data/FakeDataStore';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { CardsStackParamList } from '@app/navigation/types';
+import type { MainStackParamList } from '@app/navigation/types';
 
 export const TasksScreen: React.FC = () => {
-    const navigation = useNavigation<NativeStackNavigationProp<CardsStackParamList>>();
+    const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
     const { currentUser } = useCurrentUser();
     const { cards, tasks, addTask, toggleTaskDone } = useDataStore();
 
