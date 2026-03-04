@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { View, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { Text, BottomSheet, ScreenHeader, FieldLabel, Badge, EmptyState, TextInput } from '@shared/components/ui';
+import { Text, BottomSheet, ScreenHeader, FieldLabel, Badge, EmptyState, TextInput, DatePickerSheet } from '@shared/components/ui';
+import { toDateStringLocal } from '@shared/utils/date';
 import { AddButton } from '@shared/components/ui/AddButton';
 import { EditableTitle } from '@shared/components/ui/EditableTitle';
 import { Ionicons } from '@expo/vector-icons';
@@ -31,6 +32,9 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
     const [showAddTask, setShowAddTask] = useState(false);
     const [newTaskName, setNewTaskName] = useState('');
+    const [newTaskDueDate, setNewTaskDueDate] = useState<Date | undefined>(undefined);
+    const [newTaskNote, setNewTaskNote] = useState('');
+    const [showDatePicker, setShowDatePicker] = useState(false);
     const [editCardName, setEditCardName] = useState(card?.name || '');
     const [isEditingName, setIsEditingName] = useState(false);
     const [editNote, setEditNote] = useState(card?.note || '');
@@ -68,11 +72,14 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             name: newTaskName.trim(),
             card: card.name,
             owner: card.owner,
-            dueDate: '',
+            dueDate: newTaskDueDate ? toDateStringLocal(newTaskDueDate) : '',
             isDone: false,
+            note: newTaskNote.trim() || undefined,
         };
         addTask(task);
         setNewTaskName('');
+        setNewTaskDueDate(undefined);
+        setNewTaskNote('');
         setShowAddTask(false);
     };
 
@@ -233,11 +240,35 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                 <Text className="text-xl font-bold text-text mb-4">Add Task to {card.name}</Text>
 
                 <TextInput
-                    className="text-lg font-medium text-text mb-6 py-3.5 px-4 rounded-xl bg-surface-dim border border-border"
+                    className="text-lg font-medium text-text mb-4 py-3.5 px-4 rounded-xl bg-surface-dim border border-border"
                     placeholder="Task name"
                     value={newTaskName}
                     onChangeText={setNewTaskName}
                     autoFocus
+                    placeholderTextColor={COLORS.text.muted}
+                />
+
+                {/* Due Date */}
+                <FieldLabel>Due Date</FieldLabel>
+                <TouchableOpacity
+                    onPress={() => setShowDatePicker(true)}
+                    className="py-3 px-4 rounded-xl bg-surface-dim border border-border flex-row items-center gap-3 mb-4"
+                >
+                    <Ionicons name="calendar-outline" size={18} color={COLORS.text.secondary} />
+                    <Text className="text-base text-text">
+                        {newTaskDueDate ? newTaskDueDate.toLocaleDateString() : 'No due date'}
+                    </Text>
+                </TouchableOpacity>
+
+                {/* Notes */}
+                <FieldLabel>Notes</FieldLabel>
+                <TextInput
+                    className="text-base text-text mb-6 py-3 px-4 rounded-xl bg-surface-dim border border-border min-h-[80px]"
+                    placeholder="Add notes..."
+                    value={newTaskNote}
+                    onChangeText={setNewTaskNote}
+                    multiline
+                    textAlignVertical="top"
                     placeholderTextColor={COLORS.text.muted}
                 />
 
@@ -248,6 +279,13 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                     <Text className="text-white font-bold text-base">Add Task</Text>
                 </TouchableOpacity>
             </BottomSheet>
+
+            <DatePickerSheet
+                visible={showDatePicker}
+                onClose={() => setShowDatePicker(false)}
+                value={newTaskDueDate}
+                onChange={setNewTaskDueDate}
+            />
         </View>
     );
 };
