@@ -1,9 +1,6 @@
 import { create } from 'zustand';
 
-/**
- * Minimal user shape used by auth state.
- * Full domain model lives in shared/types once Task 2 migrates it.
- */
+/** User shape used by auth state. */
 export interface User {
   id: string;
   email: string;
