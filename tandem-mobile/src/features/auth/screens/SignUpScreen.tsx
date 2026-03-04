@@ -5,6 +5,7 @@ import { AuthStackParamList } from '@app/navigation/types';
 import { useMockAuth } from '@shared/hooks/useMockAuth';
 import { Text } from '@shared/components/ui/Text';
 import { TextInput } from '@shared/components/ui/TextInput';
+import { Ionicons } from '@expo/vector-icons';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'SignUp'>;
 
@@ -27,20 +28,26 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
         className="flex-1 flex-grow px-6 pt-[60px] pb-10"
         keyboardShouldPersistTaps="handled"
       >
-        <View className="mb-10">
-          <Text className="text-[32px] font-bold text-text mb-2">
-            Create Account
-          </Text>
-          <Text className="text-base text-text-secondary leading-6">
-            Join Fair Play to start balancing household responsibilities
-          </Text>
+        <View className="mb-8">
+            <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                className="flex-row items-center gap-1 mb-8 -ml-1"
+            >
+                <Ionicons name="chevron-back" size={28} color="#374151" />
+            </TouchableOpacity>
+            <Text className="text-[32px] font-bold text-text tracking-tight mb-1">
+                Create Account
+            </Text>
+            <Text className="text-base text-text-secondary">
+                Join Tandem to start balancing household responsibilities
+            </Text>
         </View>
 
         <View className="mb-6">
           <View className="mb-5">
             <Text className="text-sm font-semibold text-text mb-2">Name</Text>
             <TextInput
-              className="bg-surface border border-border rounded-lg px-4 py-3 text-base text-text"
+              className="bg-surface border border-border rounded-xl px-4 py-3 text-base text-text"
               placeholder="Enter your full name"
               value={name}
               onChangeText={setName}
@@ -51,7 +58,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
           <View className="mb-5">
             <Text className="text-sm font-semibold text-text mb-2">Email</Text>
             <TextInput
-              className="bg-surface border border-border rounded-lg px-4 py-3 text-base text-text"
+              className="bg-surface border border-border rounded-xl px-4 py-3 text-base text-text"
               placeholder="Enter your email"
               value={email}
               onChangeText={setEmail}
@@ -64,7 +71,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
           <View className="mb-5">
             <Text className="text-sm font-semibold text-text mb-2">Password</Text>
             <TextInput
-              className="bg-surface border border-border rounded-lg px-4 py-3 text-base text-text"
+              className="bg-surface border border-border rounded-xl px-4 py-3 text-base text-text"
               placeholder="Create a password"
               value={password}
               onChangeText={setPassword}
@@ -77,7 +84,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
           </View>
 
           <TouchableOpacity
-            className={`bg-primary-600 rounded-lg py-3.5 items-center mt-2 ${isLoading ? 'opacity-60' : ''}`}
+            className={`bg-primary-600 rounded-xl py-3.5 items-center mt-2 ${isLoading ? 'opacity-60' : ''}`}
             onPress={handleSignUp}
             disabled={isLoading}
           >
