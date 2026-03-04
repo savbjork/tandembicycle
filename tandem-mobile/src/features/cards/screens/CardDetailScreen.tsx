@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { View, ScrollView, TextInput, TouchableOpacity, Alert } from 'react-native';
-import { Text, BottomSheet, ScreenHeader, FieldLabel, Badge, EmptyState } from '@shared/components/ui';
+import { View, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { Text, BottomSheet, ScreenHeader, FieldLabel, Badge, EmptyState, TextInput, CheckButton } from '@shared/components/ui';
 import { AddButton } from '@shared/components/ui/AddButton';
 import { EditableTitle } from '@shared/components/ui/EditableTitle';
 import { Ionicons } from '@expo/vector-icons';
@@ -119,18 +119,20 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                 }
             />
 
-            <ScrollView className="flex-1 px-5 pb-5">
+            <KeyboardAvoidingView
+                className="flex-1"
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            >
+            <ScrollView className="flex-1 px-5 pb-5" keyboardShouldPersistTaps="handled">
                 {/* Card Header */}
-                <View className="mb-6">
-                    <EditableTitle
-                        value={editCardName}
-                        isEditing={isEditingName}
-                        setIsEditing={(v) => { setIsEditingName(v); if (v) setEditCardName(card.name); }}
-                        onChangeText={setEditCardName}
-                        onSave={handleRename}
-                        subtitle={`Owned by ${card.owner}`}
-                    />
-                </View>
+                <EditableTitle
+                    value={editCardName}
+                    isEditing={isEditingName}
+                    setIsEditing={(v) => { setIsEditingName(v); if (v) setEditCardName(card.name); }}
+                    onChangeText={setEditCardName}
+                    onSave={handleRename}
+                    subtitle={`Owned by ${card.owner}`}
+                />
 
                 {/* Not Owner Banner */}
                 {!isOwner && (
@@ -143,7 +145,7 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                 )}
 
                 {/* Pending Tasks */}
-                <View className="mb-6">
+                <View className="mb-4">
                     <View className="flex-row items-center gap-2 mb-3">
                         <FieldLabel className="mb-0">To Do</FieldLabel>
                         <Badge variant="primary" size="sm" label={pendingTasks.length.toString()} />
@@ -170,7 +172,7 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
                 {/* Completed Tasks */}
                 {completedTasks.length > 0 && (
-                    <View className="mb-6">
+                    <View className="mb-4">
                         <View className="flex-row items-center gap-2 mb-3">
                             <FieldLabel className="mb-0">Done</FieldLabel>
                             <Badge variant="secondary" size="sm" label={completedTasks.length.toString()} />
@@ -211,12 +213,9 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                                 textAlignVertical="top"
                                 autoFocus
                             />
-                            <TouchableOpacity
-                                onPress={handleSaveNote}
-                                className="bg-primary-600 py-2.5 rounded-xl items-center mt-2"
-                            >
-                                <Text className="text-white font-bold text-sm">Save</Text>
-                            </TouchableOpacity>
+                            <View className="items-end mt-2">
+                                <CheckButton onPress={handleSaveNote} />
+                            </View>
                         </View>
                     ) : (
                         <Text className="text-base text-text-secondary py-2">
@@ -235,8 +234,9 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                         <Text className="text-sm font-bold text-red-600">Archive</Text>
                     </TouchableOpacity>
                 )}
-                <View className="h-20" />
+                <View className="h-10" />
             </ScrollView>
+            </KeyboardAvoidingView>
 
             {/* Add Task Bottom Sheet */}
             <BottomSheet
