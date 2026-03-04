@@ -116,7 +116,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
 
     return (
         <TouchableOpacity
-            className={`${hideBackground ? '' : 'bg-surface shadow-sm ' + (overdue ? 'border border-red-200' : '')} ${hideCardName ? 'mb-1.5 py-1.5' : 'mb-3 py-3.5'} rounded-xl px-4`}
+            className={`${hideBackground ? '' : 'bg-surface shadow-sm ' + (overdue ? 'border border-red-200' : '')} ${hideBackground ? '' : hideCardName ? 'mb-1.5' : 'mb-3'} ${hideCardName ? 'py-1.5' : 'py-3.5'} rounded-xl px-4`}
             onPress={handlePress}
             activeOpacity={0.7}
         >
