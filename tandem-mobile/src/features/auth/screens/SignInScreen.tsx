@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '@app/navigation/types';
 import { useMockAuth } from '@shared/hooks/useMockAuth';
@@ -26,22 +27,26 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
         className="flex-1 flex-grow px-6 pt-[60px] pb-10"
         keyboardShouldPersistTaps="handled"
       >
-        <View className="mb-10">
-          <View className="items-center mb-12">
-            <Text className="text-4xl font-bold text-text mb-4">
-              Tandem
+        <View className="mb-8">
+            <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                className="flex-row items-center gap-1 mb-8 -ml-1"
+            >
+                <Ionicons name="chevron-back" size={28} color="#374151" />
+            </TouchableOpacity>
+            <Text className="text-[32px] font-bold text-text tracking-tight mb-1">
+                Welcome back
             </Text>
-            <Text className="text-lg text-text-secondary text-center leading-[26px]">
-              Achieve equitable division of household responsibilities
+            <Text className="text-base text-text-secondary">
+                Sign in to continue
             </Text>
-          </View>
         </View>
 
         <View className="mb-8">
           <View className="mb-5">
             <Text className="text-sm font-semibold text-text mb-2">Email</Text>
             <TextInput
-              className="bg-surface border border-border rounded-lg px-4 py-3 text-base text-text"
+              className="bg-surface border border-border rounded-xl px-4 py-3 text-base text-text"
               placeholder="Enter your email"
               value={email}
               onChangeText={setEmail}
@@ -54,7 +59,7 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
           <View className="mb-5">
             <Text className="text-sm font-semibold text-text mb-2">Password</Text>
             <TextInput
-              className="bg-surface border border-border rounded-lg px-4 py-3 text-base text-text"
+              className="bg-surface border border-border rounded-xl px-4 py-3 text-base text-text"
               placeholder="Enter your password"
               value={password}
               onChangeText={setPassword}
@@ -70,7 +75,7 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            className={`bg-primary-600 rounded-lg py-3.5 items-center ${isLoading ? 'opacity-60' : ''}`}
+            className={`bg-primary-600 rounded-xl py-3.5 items-center ${isLoading ? 'opacity-60' : ''}`}
             onPress={handleSignIn}
             disabled={isLoading}
           >
