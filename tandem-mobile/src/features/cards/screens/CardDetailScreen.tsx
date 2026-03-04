@@ -1,163 +1,266 @@
-import React from 'react';
-import { View, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { Text, TextInput, AddButton, EditableTitle, SectionHeader } from '@shared/components/ui';
+import React, { useState, useMemo } from 'react';
+import { View, ScrollView, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { Text, BottomSheet, ScreenHeader, FieldLabel, Badge, EmptyState } from '@shared/components/ui';
+import { AddButton } from '@shared/components/ui/AddButton';
+import { EditableTitle } from '@shared/components/ui/EditableTitle';
 import { Ionicons } from '@expo/vector-icons';
-import { useRoute, RouteProp } from '@react-navigation/native';
-import { CardsStackParamList } from '@app/navigation/types';
-import { fakeData } from '@shared/data/FakeDataStore';
-import { TaskRow } from '@shared/components/SwipeableTaskRow';
 import { COLORS } from '@shared/constants/colors';
+import { TaskRow } from '@shared/components/ui/SwipeableTaskRow';
+import { useDataStore } from '@store';
+import { useCurrentUser } from '@shared/hooks/useCurrentUser';
+import type { Task } from '@shared/data/FakeDataStore';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { CardsStackParamList } from '@app/navigation/types';
 
-type CardDetailRouteProp = RouteProp<CardsStackParamList, 'CardDetail'>;
+type Props = NativeStackScreenProps<CardsStackParamList, 'CardDetail'>;
 
-export const CardDetailScreen: React.FC = () => {
-    const route = useRoute<CardDetailRouteProp>();
+export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     const { cardName } = route.params;
+    const { currentUser } = useCurrentUser();
+    const { cards, tasks, addTask, toggleTaskDone, updateCard, renameCard, removeCard } = useDataStore();
 
-    // Find the current card to get its initial state
-    const currentCard = fakeData.cards.find(c => c.name === cardName);
-    const [name, setName] = React.useState(cardName);
-    const [isEditingName, setIsEditingName] = React.useState(false);
-    const [notes, setNotes] = React.useState('');
-    const [tasks, setTasks] = React.useState(fakeData.tasks.filter(t => t.card === cardName && t.owner === 'Savannah'));
+    const card = useMemo(
+        () => cards.find(c => c.name === cardName),
+        [cards, cardName],
+    );
 
-    const handleSaveName = () => {
-        if (!name.trim() || name === cardName) {
-            setName(cardName);
-            setIsEditingName(false);
-            return;
-        }
+    const cardTasks = useMemo(
+        () => tasks.filter((t: Task) => t.card === cardName),
+        [tasks, cardName],
+    );
 
-        // Check if new name already exists (simulated)
-        if (fakeData.cards.some(c => c.name === name.trim() && c.name !== cardName)) {
-            Alert.alert('Name Taken', 'A card with this name already exists.');
-            setName(cardName);
-            setIsEditingName(false);
-            return;
-        }
+    const [showAddTask, setShowAddTask] = useState(false);
+    const [newTaskName, setNewTaskName] = useState('');
+    const [editCardName, setEditCardName] = useState(card?.name || '');
+    const [isEditingName, setIsEditingName] = useState(false);
+    const [isEditingNote, setIsEditingNote] = useState(false);
+    const [editNote, setEditNote] = useState(card?.note || '');
 
-        const newName = name.trim();
-
-        // Update global store
-        const cardIndex = fakeData.cards.findIndex(c => c.name === cardName);
-        if (cardIndex !== -1) {
-            fakeData.cards[cardIndex].name = newName;
-        }
-
-        // Update all associated tasks
-        fakeData.tasks.forEach(t => {
-            if (t.card === cardName) {
-                t.card = newName;
-            }
-        });
-
-        setIsEditingName(false);
-    };
-
-    const handleToggleDone = (taskId: string, isDone: boolean) => {
-        setTasks(prev => prev.map(t => t.id === taskId ? { ...t, isDone } : t));
-        // Update global store
-        const globalTask = fakeData.tasks.find(t => t.id === taskId);
-        if (globalTask) globalTask.isDone = isDone;
-    };
-
-    const isOwner = currentCard?.owner === 'Savannah';
-
-    if (!isOwner) {
+    if (!card) {
         return (
             <View className="flex-1 bg-surface-dim">
-                <View className="items-center pt-3 pb-2">
-                    <View className="w-10 h-1.5 bg-border-strong rounded-full opacity-20" />
-                </View>
-                <ScrollView className="flex-1 px-5">
-                    <View className="p-8 bg-surface mt-10 rounded-3xl border border-border shadow-sm items-center">
-                        <View className="w-20 h-20 bg-secondary-100 rounded-full items-center justify-center mb-6">
-                            <Ionicons name="people" size={40} color={COLORS.secondary[600]} />
-                        </View>
-                        <Text className="text-2xl font-bold text-text text-center mb-2">
-                            {name}
-                        </Text>
-                        <Text className="text-base text-text-secondary text-center mb-4">
-                            Domain of {currentCard?.owner}
-                        </Text>
-                        <View className="h-[0.5px] w-full bg-border my-4" />
-                        <Text className="text-[15px] text-text-muted text-center leading-relaxed">
-                            This card is currently assigned to {currentCard?.owner}.
-                            You can't see their private tasks or manage this workbench directly.
-                        </Text>
-                        <Text className="text-[13px] text-primary-600 font-semibold mt-10 text-center">
-                            Requests are managed in the Inbox
-                        </Text>
-                    </View>
-                </ScrollView>
+                <ScreenHeader title="Card Details" showBack onBack={() => navigation.goBack()} />
+                <EmptyState
+                    title="Card not found"
+                    description="The card you're looking for might have been deleted."
+                    actionLabel="Go Back"
+                    onAction={() => navigation.goBack()}
+                />
             </View>
         );
     }
 
+    const isOwner = card.owner === currentUser;
+
+    const handleRename = () => {
+        if (editCardName.trim() && editCardName !== card.name) {
+            renameCard(card.name, editCardName.trim());
+        }
+        setIsEditingName(false);
+    };
+
+    const handleAddTask = () => {
+        if (!newTaskName.trim()) return;
+        const task: Task = {
+            id: `t${Date.now()}`,
+            name: newTaskName.trim(),
+            card: card.name,
+            owner: card.owner,
+            dueDate: '',
+            isDone: false,
+        };
+        addTask(task);
+        setNewTaskName('');
+        setShowAddTask(false);
+    };
+
+    const handleToggleDone = (taskId: string, _isDone: boolean) => {
+        toggleTaskDone(taskId);
+    };
+
+    const handleArchive = () => {
+        Alert.alert(
+            'Archive Card?',
+            `This will remove "${card.name}" from your roster.`,
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Archive',
+                    style: 'destructive',
+                    onPress: () => {
+                        removeCard(card.name);
+                        navigation.goBack();
+                    },
+                },
+            ],
+        );
+    };
+
+    const handleSaveNote = () => {
+        updateCard(card.name, { note: editNote });
+        setIsEditingNote(false);
+    };
+
+    const pendingTasks = cardTasks.filter(t => !t.isDone);
+    const completedTasks = cardTasks.filter(t => t.isDone);
+
     return (
         <View className="flex-1 bg-surface-dim">
-            {/* Visual Cushion / Grabber */}
-            <View className="items-center pt-3 pb-2">
-                <View className="w-10 h-1.5 bg-border-strong rounded-full opacity-20" />
-            </View>
-            <ScrollView className="flex-1 px-5" contentContainerStyle={{ paddingBottom: 40 }}>
-                {/* Private Workbench UI */}
-                <EditableTitle
-                    value={name}
-                    isEditing={isEditingName}
-                    setIsEditing={setIsEditingName}
-                    onChangeText={setName}
-                    onSave={handleSaveName}
-                    className="pt-4"
-                />
+            <ScreenHeader
+                title=""
+                showBack={false}
+                onBack={() => navigation.goBack()}
+                rightAction={
+                    isOwner ? (
+                        <View className="flex-row gap-2">
+                            <AddButton onPress={() => setShowAddTask(true)} />
+                        </View>
+                    ) : undefined
+                }
+            />
 
-                <Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
-                    Card Notes
-                </Text>
-                <TextInput
-                    className="bg-surface rounded-xl px-4 py-3.5 text-base text-text mb-5 border border-border"
-                    value={notes}
-                    onChangeText={setNotes}
-                />
+            <ScrollView className="flex-1 px-5 pb-5">
+                {/* Card Header */}
+                <View className="mb-6">
+                    <EditableTitle
+                        value={editCardName}
+                        isEditing={isEditingName}
+                        setIsEditing={(v) => { setIsEditingName(v); if (v) setEditCardName(card.name); }}
+                        onChangeText={setEditCardName}
+                        onSave={handleRename}
+                        subtitle={`Owned by ${card.owner}`}
+                    />
+                </View>
 
-                <SectionHeader
-                    title="Private Tasks"
-                    action={<AddButton onPress={() => { }} />}
-                />
+                {/* Not Owner Banner */}
+                {!isOwner && (
+                    <View className="bg-yellow-50 rounded-xl p-4 mb-4 flex-row items-center gap-3 border border-yellow-100">
+                        <Ionicons name="lock-closed" size={18} color="#ca8a04" />
+                        <Text className="text-sm text-yellow-800 flex-1">
+                            This card belongs to {card.owner}. You can view but not edit.
+                        </Text>
+                    </View>
+                )}
 
-                <View>
-                    {tasks.length === 0 ? (
-                        <View className="bg-surface rounded-2xl border border-border py-12 items-center justify-center shadow-sm">
-                            <Ionicons name="clipboard-outline" size={32} color={COLORS.text.muted} />
-                            <Text className="text-sm text-text-muted mt-2 italic">No tasks created for this card</Text>
+                {/* Pending Tasks */}
+                <View className="mb-6">
+                    <View className="flex-row items-center gap-2 mb-3">
+                        <FieldLabel className="mb-0">To Do</FieldLabel>
+                        <Badge variant="primary" size="sm" label={pendingTasks.length.toString()} />
+                    </View>
+
+                    {pendingTasks.length === 0 ? (
+                        <View className="bg-surface rounded-2xl p-6 items-center border border-border-light">
+                            <Text className="text-sm text-text-secondary">No pending tasks</Text>
                         </View>
                     ) : (
-                        <View>
-                            {tasks.map((task) => (
+                        pendingTasks.map((task: Task) => (
+                            <View key={task.id} className="bg-surface rounded-xl border border-border-light shadow-sm mb-2">
                                 <TaskRow
-                                    key={task.id}
                                     task={task}
                                     onToggleDone={handleToggleDone}
                                     variant="list"
-                                    hideCardName={true}
+                                    hideBackground
+                                    hideCardName
                                 />
-                            ))}
-                        </View>
+                            </View>
+                        ))
                     )}
                 </View>
 
-                <View className="mt-10 mb-10">
-                    <TouchableOpacity
-                        className="bg-border py-4 rounded-xl items-center flex-row justify-center gap-2"
-                        onPress={() => {
-                            Alert.alert('Archive Card', 'Move this project to the archive?');
-                        }}
-                    >
-                        <Ionicons name="archive-outline" size={20} color={COLORS.text.secondary} />
-                        <Text className="text-base font-semibold text-text-secondary">Archive Card</Text>
-                    </TouchableOpacity>
+                {/* Completed Tasks */}
+                {completedTasks.length > 0 && (
+                    <View className="mb-6">
+                        <View className="flex-row items-center gap-2 mb-3">
+                            <FieldLabel className="mb-0">Done</FieldLabel>
+                            <Badge variant="secondary" size="sm" label={completedTasks.length.toString()} />
+                        </View>
+                        {completedTasks.map((task: Task) => (
+                            <View key={task.id} className="bg-surface rounded-xl border border-border-light shadow-sm mb-2 opacity-60">
+                                <TaskRow
+                                    task={task}
+                                    onToggleDone={handleToggleDone}
+                                    variant="list"
+                                    hideBackground
+                                    hideCardName
+                                />
+                            </View>
+                        ))}
+                    </View>
+                )}
+
+                {/* Notes */}
+                <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
+                    <View className="flex-row justify-between items-center mb-2">
+                        <FieldLabel className="mb-0">Notes</FieldLabel>
+                        {isOwner && !isEditingNote && (
+                            <TouchableOpacity onPress={() => setIsEditingNote(true)}>
+                                <Ionicons name="pencil-outline" size={16} color={COLORS.text.muted} />
+                            </TouchableOpacity>
+                        )}
+                    </View>
+                    {isEditingNote ? (
+                        <View>
+                            <TextInput
+                                className="text-base text-text min-h-[80px] py-2"
+                                value={editNote}
+                                onChangeText={setEditNote}
+                                placeholder="Add notes about this card..."
+                                placeholderTextColor={COLORS.text.muted}
+                                multiline
+                                textAlignVertical="top"
+                                autoFocus
+                            />
+                            <TouchableOpacity
+                                onPress={handleSaveNote}
+                                className="bg-primary-600 py-2.5 rounded-xl items-center mt-2"
+                            >
+                                <Text className="text-white font-bold text-sm">Save</Text>
+                            </TouchableOpacity>
+                        </View>
+                    ) : (
+                        <Text className="text-base text-text-secondary py-2">
+                            {card.note || ''}
+                        </Text>
+                    )}
                 </View>
+
+                {/* Archive Card */}
+                {isOwner && (
+                    <TouchableOpacity
+                        onPress={handleArchive}
+                        className="flex-row items-center justify-center gap-2 py-4 mt-2 mb-10 bg-red-50 rounded-xl border border-red-100"
+                    >
+                        <Ionicons name="archive-outline" size={18} color="#dc2626" />
+                        <Text className="text-sm font-bold text-red-600">Archive</Text>
+                    </TouchableOpacity>
+                )}
+                <View className="h-20" />
             </ScrollView>
+
+            {/* Add Task Bottom Sheet */}
+            <BottomSheet
+                visible={showAddTask}
+                onClose={() => setShowAddTask(false)}
+            >
+                <Text className="text-xl font-bold text-text mb-4">Add Task to {card.name}</Text>
+
+                <TextInput
+                    className="text-lg font-medium text-text mb-6 py-3.5 px-4 rounded-xl bg-surface-dim border border-border"
+                    placeholder="Task name"
+                    value={newTaskName}
+                    onChangeText={setNewTaskName}
+                    autoFocus
+                    placeholderTextColor={COLORS.text.muted}
+                />
+
+                <TouchableOpacity
+                    className="bg-primary-600 py-4 rounded-2xl items-center shadow-sm"
+                    onPress={handleAddTask}
+                >
+                    <Text className="text-white font-bold text-base">Add Task</Text>
+                </TouchableOpacity>
+            </BottomSheet>
         </View>
     );
 };
