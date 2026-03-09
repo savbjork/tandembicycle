@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { View, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { Text, ScreenHeader, FieldLabel, DatePickerSheet, EmptyState, EditableTitle, TextInput, ChipGroup } from '@shared/components/ui';
+import { Text, ScreenHeader, FieldLabel, DatePickerSheet, EmptyState, EditableTitle, TextInput } from '@shared/components/ui';
+import { CardPickerField } from '@shared/components/ui/CardPickerField';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
 import { useDataStore } from '@store';
@@ -153,12 +154,10 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                     <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
                         <FieldLabel>Card</FieldLabel>
                         {isOwner ? (
-                            <ChipGroup
+                            <CardPickerField
                                 options={cardOptions}
                                 value={editCard}
                                 onChange={setEditCard}
-                                scrollable
-                                className="mt-1"
                             />
                         ) : (
                             <Text className="text-base text-text py-2">{task.card}</Text>

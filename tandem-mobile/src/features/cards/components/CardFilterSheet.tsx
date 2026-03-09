@@ -8,16 +8,18 @@ type CardsFilter = 'all' | 'me';
 interface CardFilterSheetProps {
     visible: boolean;
     onClose: () => void;
-    filter: CardsFilter;
-    onFilterChange: (v: CardsFilter) => void;
     taskTimeFilter: TaskTimeFilter;
     onTaskTimeFilterChange: (v: TaskTimeFilter) => void;
     hideCompleted: boolean;
     onHideCompletedChange: (v: boolean) => void;
     hideUndated: boolean;
     onHideUndatedChange: (v: boolean) => void;
-    hideEmptyCards: boolean;
-    onHideEmptyCardsChange: (v: boolean) => void;
+    // Cards-only options
+    filter?: CardsFilter;
+    onFilterChange?: (v: CardsFilter) => void;
+    hideEmptyCards?: boolean;
+    onHideEmptyCardsChange?: (v: boolean) => void;
+    showHiddenTimeOption?: boolean;
 }
 
 export const CardFilterSheet: React.FC<CardFilterSheetProps> = ({
@@ -33,13 +35,14 @@ export const CardFilterSheet: React.FC<CardFilterSheetProps> = ({
     onHideUndatedChange,
     hideEmptyCards,
     onHideEmptyCardsChange,
+    showHiddenTimeOption = true,
 }) => {
     const ownershipOptions: ChipOption<CardsFilter>[] = [
         { key: 'all', label: 'Everyone' },
         { key: 'me', label: 'Just Me' },
     ];
 
-    const timeFilterOptions: ChipOption<TaskTimeFilter>[] = [
+    const allTimeFilterOptions: ChipOption<TaskTimeFilter>[] = [
         { key: 'hidden', label: 'None' },
         { key: 'thisWeek', label: 'This Week' },
         { key: 'next7', label: 'Next 7 Days' },
@@ -48,26 +51,34 @@ export const CardFilterSheet: React.FC<CardFilterSheetProps> = ({
         { key: 'all', label: 'All' },
     ];
 
+    const timeFilterOptions = showHiddenTimeOption
+        ? allTimeFilterOptions
+        : allTimeFilterOptions.filter(o => o.key !== 'hidden');
+
     return (
         <BottomSheet
             visible={visible}
             onClose={onClose}
         >
-            <Text className="text-xl font-bold text-text mb-6">Filters</Text>
 
-            <FieldLabel>Ownership</FieldLabel>
-            <ChipGroup
-                options={ownershipOptions}
-                value={filter}
-                onChange={onFilterChange}
-                className="mb-8"
-            />
+            {filter !== undefined && onFilterChange && (
+                <>
+                    <FieldLabel>Ownership</FieldLabel>
+                    <ChipGroup
+                        options={ownershipOptions}
+                        value={filter}
+                        onChange={onFilterChange}
+                        className="mb-8"
+                    />
+                </>
+            )}
 
-            <FieldLabel>Task Visibility</FieldLabel>
+            <FieldLabel>Due Date</FieldLabel>
             <ChipGroup
                 options={timeFilterOptions}
                 value={taskTimeFilter}
                 onChange={(v) => onTaskTimeFilterChange(v as TaskTimeFilter)}
+                scrollable
                 className="mb-8"
             />
 
@@ -83,14 +94,16 @@ export const CardFilterSheet: React.FC<CardFilterSheetProps> = ({
                     label="Hide tasks without a due date"
                     checked={hideUndated}
                     onPress={() => onHideUndatedChange(!hideUndated)}
-                    className="mb-4"
+                    className={hideEmptyCards !== undefined ? 'mb-4' : ''}
                 />
 
-                <Checkbox
-                    label="Hide cards without tasks"
-                    checked={hideEmptyCards}
-                    onPress={() => onHideEmptyCardsChange(!hideEmptyCards)}
-                />
+                {hideEmptyCards !== undefined && onHideEmptyCardsChange && (
+                    <Checkbox
+                        label="Hide cards without tasks"
+                        checked={hideEmptyCards}
+                        onPress={() => onHideEmptyCardsChange(!hideEmptyCards)}
+                    />
+                )}
             </View>
 
             <Button

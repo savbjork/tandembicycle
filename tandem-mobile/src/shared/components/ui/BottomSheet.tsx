@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
     Modal,
     View,
@@ -6,6 +6,7 @@ import {
     KeyboardAvoidingView,
     Platform,
     ViewStyle,
+    PanResponder,
 } from 'react-native';
 import { COLORS } from '@shared/constants/colors';
 
@@ -24,6 +25,18 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
     transparent = true,
     containerStyle,
 }) => {
+    const panResponder = useRef(
+        PanResponder.create({
+            onMoveShouldSetPanResponder: (_, gestureState) =>
+                gestureState.dy > 10 && Math.abs(gestureState.dy) > Math.abs(gestureState.dx),
+            onPanResponderRelease: (_, gestureState) => {
+                if (gestureState.dy > 80 || gestureState.vy > 0.5) {
+                    onClose();
+                }
+            },
+        }),
+    ).current;
+
     return (
         <Modal
             visible={visible}
@@ -56,7 +69,12 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
                             containerStyle,
                         ]}
                     >
-                        <View className="w-12 h-1.5 bg-border rounded-full self-center mb-10 opacity-40" />
+                        <View
+                            style={{ paddingVertical: 16, alignSelf: 'stretch', alignItems: 'center', marginBottom: 24, marginTop: -32, paddingTop: 32 }}
+                            {...panResponder.panHandlers}
+                        >
+                            <View className="w-12 h-1.5 bg-border rounded-full opacity-40" />
+                        </View>
                         {children}
                     </TouchableOpacity>
                 </TouchableOpacity>

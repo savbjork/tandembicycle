@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, TouchableOpacity, Modal, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useRef } from 'react';
+import { View, TouchableOpacity, Modal, KeyboardAvoidingView, Platform, PanResponder } from 'react-native';
 import { Text, FieldLabel, ChipGroup, ChipOption, TextInput } from '@shared/components/ui';
 import { COLORS } from '@shared/constants/colors';
 import { useCurrentUser } from '@shared/hooks/useCurrentUser';
@@ -14,25 +14,13 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
     const { currentUser, partner } = useCurrentUser();
     const { addCard } = useDataStore();
     const [cardName, setCardName] = React.useState('');
+    const [cardNote, setCardNote] = React.useState('');
     const [selectedOwner, setSelectedOwner] = React.useState<Person>(currentUser);
 
-    const handleAddCard = (isQuiet = false) => {
-        if (!cardName.trim()) {
-            if (!isQuiet) Alert.alert('Missing Information', 'Please enter a card name.');
-            onClose();
-            return;
-        }
-
-        addCard({ name: cardName.trim(), owner: selectedOwner });
-        if (!isQuiet) {
-            Alert.alert(
-                'Card Added!',
-                `"${cardName}" has been added to ${selectedOwner}'s cards.`,
-                [{ text: 'OK', onPress: onClose }]
-            );
-        } else {
-            onClose();
-        }
+    const handleAddCard = () => {
+        if (!cardName.trim()) return;
+        addCard({ name: cardName.trim(), owner: selectedOwner, note: cardNote.trim() || undefined });
+        onClose();
     };
 
     const ownerOptions: ChipOption<Person>[] = [
@@ -40,12 +28,24 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
         { key: partner, label: partner },
     ];
 
+    const panResponder = useRef(
+        PanResponder.create({
+            onMoveShouldSetPanResponder: (_, gestureState) =>
+                gestureState.dy > 10 && Math.abs(gestureState.dy) > Math.abs(gestureState.dx),
+            onPanResponderRelease: (_, gestureState) => {
+                if (gestureState.dy > 80 || gestureState.vy > 0.5) {
+                    onClose();
+                }
+            },
+        }),
+    ).current;
+
     return (
         <Modal
             visible={true}
             animationType="slide"
             transparent={true}
-            onRequestClose={() => handleAddCard(true)}
+            onRequestClose={onClose}
         >
             <KeyboardAvoidingView
                 style={{ flex: 1 }}
@@ -53,7 +53,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
             >
             <TouchableOpacity
                 activeOpacity={1}
-                onPress={() => handleAddCard(true)}
+                onPress={onClose}
                 style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' }}
             >
                 <TouchableOpacity
@@ -61,7 +61,10 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
                     onPress={e => e.stopPropagation()}
                     style={{ backgroundColor: COLORS.surface.DEFAULT, borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 24, paddingBottom: 50 }}
                 >
-                    <View className="w-10 h-1.5 bg-border rounded-full self-center mb-6 opacity-30" />
+                    <View
+                        className="w-10 h-1.5 bg-border rounded-full self-center mb-6 opacity-30"
+                        {...panResponder.panHandlers}
+                    />
 
                     <TextInput
                         className="text-lg font-medium text-text mb-6 py-3.5 px-4 rounded-xl bg-surface-dim border border-border"
@@ -71,7 +74,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
                         placeholder="New Card"
                     />
 
-                    <View className="mb-8">
+                    <View className="mb-6">
                         <FieldLabel>Owner</FieldLabel>
                         <ChipGroup
                             options={ownerOptions}
@@ -80,9 +83,19 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
                         />
                     </View>
 
+                    <FieldLabel>Notes</FieldLabel>
+                    <TextInput
+                        className="text-base text-text mb-8 py-3 px-4 rounded-xl bg-surface-dim border border-border min-h-[80px]"
+                        placeholder="Add notes..."
+                        value={cardNote}
+                        onChangeText={setCardNote}
+                        multiline
+                        textAlignVertical="top"
+                    />
+
                     <TouchableOpacity
                         className="bg-primary-600 py-4 rounded-2xl items-center shadow-sm"
-                        onPress={() => handleAddCard(false)}
+                        onPress={handleAddCard}
                     >
                         <Text className="text-white font-bold text-base">Add Card</Text>
                     </TouchableOpacity>

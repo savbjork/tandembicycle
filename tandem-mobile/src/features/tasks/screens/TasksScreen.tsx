@@ -1,29 +1,30 @@
 import React, { useState, useMemo } from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
-import { Text, BottomSheet, ScreenHeader, FieldLabel, ChipGroup, DatePickerSheet, TextInput } from '@shared/components/ui';
+import { Text, ScreenHeader } from '@shared/components/ui';
 import { AddButton } from '@shared/components/ui/AddButton';
+import { AddTaskSheet } from '@shared/components/ui/AddTaskSheet';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
 import { TaskRow } from '@shared/components/ui/SwipeableTaskRow';
 import { useDataStore } from '@store';
 import { useCurrentUser } from '@shared/hooks/useCurrentUser';
-import { toDateStringLocal } from '@shared/utils/date';
+import { isDateInTimeFrame, type TaskTimeFilter } from '@shared/utils/date';
 import type { Task } from '@shared/data/FakeDataStore';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { MainStackParamList } from '@app/navigation/types';
+import { CardFilterSheet } from '@features/cards/components/CardFilterSheet';
 
 export const TasksScreen: React.FC = () => {
     const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
     const { currentUser } = useCurrentUser();
-    const { cards, tasks, addTask, toggleTaskDone } = useDataStore();
+    const { tasks, toggleTaskDone } = useDataStore();
 
     const [showAddTask, setShowAddTask] = useState(false);
-    const [newTaskName, setNewTaskName] = useState('');
-    const [newTaskCard, setNewTaskCard] = useState('');
-    const [newTaskDueDate, setNewTaskDueDate] = useState<Date | undefined>(undefined);
-    const [showDatePicker, setShowDatePicker] = useState(false);
-    const [newTaskNote, setNewTaskNote] = useState('');
+    const [showFilterMenu, setShowFilterMenu] = useState(false);
+    const [taskTimeFilter, setTaskTimeFilter] = useState<TaskTimeFilter>('all');
+    const [hideCompleted, setHideCompleted] = useState(false);
+    const [hideUndated, setHideUndated] = useState(false);
 
     const myTasks = useMemo(
         () => tasks.filter((t: Task) => t.owner === currentUser),
@@ -31,46 +32,22 @@ export const TasksScreen: React.FC = () => {
     );
 
     const pendingTasks = useMemo(
-        () => myTasks.filter((t: Task) => !t.isDone),
-        [myTasks],
+        () => myTasks.filter((t: Task) =>
+            !t.isDone && isDateInTimeFrame(t.dueDate, taskTimeFilter, hideUndated)
+        ),
+        [myTasks, taskTimeFilter, hideUndated],
     );
 
     const completedTasks = useMemo(
-        () => myTasks.filter((t: Task) => t.isDone),
-        [myTasks],
+        () => hideCompleted ? [] : myTasks.filter((t: Task) => t.isDone),
+        [myTasks, hideCompleted],
     );
-
-    const handleAddTask = () => {
-        if (!newTaskName.trim()) return;
-
-        const task: Task = {
-            id: `t${Date.now()}`,
-            name: newTaskName.trim(),
-            card: newTaskCard || cards[0]?.name || 'Uncategorized',
-            owner: currentUser,
-            dueDate: newTaskDueDate ? toDateStringLocal(newTaskDueDate) : '',
-            isDone: false,
-            note: newTaskNote.trim() || undefined,
-        };
-
-        addTask(task);
-        setNewTaskName('');
-        setNewTaskCard('');
-        setNewTaskDueDate(undefined);
-        setNewTaskNote('');
-        setShowAddTask(false);
-    };
 
     const handleToggleDone = (taskId: string, _isDone: boolean) => {
         toggleTaskDone(taskId);
     };
 
-    const cardOptions = useMemo(() =>
-        cards
-            .filter(c => c.owner === currentUser)
-            .map(c => ({ key: c.name, label: c.name })),
-        [cards, currentUser]
-    );
+    const hasActiveFilters = taskTimeFilter !== 'all' || hideCompleted || hideUndated;
 
     return (
         <View className="flex-1 bg-surface-dim">
@@ -80,6 +57,15 @@ export const TasksScreen: React.FC = () => {
                 onBack={() => navigation.goBack()}
                 rightAction={
                     <View className="flex-row items-center gap-2">
+                        <TouchableOpacity
+                            onPress={() => setShowFilterMenu(true)}
+                            className="bg-surface w-11 h-11 rounded-full items-center justify-center border border-border"
+                        >
+                            <Ionicons name="options-outline" size={24} color={COLORS.text.secondary} />
+                            {hasActiveFilters && (
+                                <View className="absolute top-0 right-0 w-3.5 h-3.5 rounded-full bg-primary-600 border-2 border-surface" />
+                            )}
+                        </TouchableOpacity>
                         <AddButton onPress={() => setShowAddTask(true)} />
                     </View>
                 }
@@ -135,66 +121,21 @@ export const TasksScreen: React.FC = () => {
                 <View className="h-10" />
             </ScrollView>
 
-            {/* Add Task Bottom Sheet */}
-            <BottomSheet
+            <AddTaskSheet
                 visible={showAddTask}
                 onClose={() => setShowAddTask(false)}
-            >
-                <TextInput
-                    className="text-lg font-medium text-text mb-4 py-3 px-4 rounded-xl bg-surface-dim border border-border"
-                    placeholder="New Task"
-                    value={newTaskName}
-                    onChangeText={setNewTaskName}
-                    placeholderTextColor={COLORS.text.muted}
-                />
+            />
 
-                {/* Card Picker */}
-                <FieldLabel>Card</FieldLabel>
-                <ChipGroup
-                    options={cardOptions}
-                    value={newTaskCard}
-                    onChange={setNewTaskCard}
-                    scrollable
-                    className="mb-4"
-                />
-
-                {/* Due Date Picker */}
-                <FieldLabel>Due Date</FieldLabel>
-                <TouchableOpacity
-                    onPress={() => setShowDatePicker(true)}
-                    className="py-3 px-4 rounded-xl bg-surface-dim border border-border flex-row items-center gap-3 mb-4"
-                >
-                    <Ionicons name="calendar-outline" size={18} color={COLORS.text.secondary} />
-                    <Text className="text-base text-text">
-                        {newTaskDueDate ? newTaskDueDate.toLocaleDateString() : 'No due date'}
-                    </Text>
-                </TouchableOpacity>
-
-                {/* Notes */}
-                <FieldLabel>Notes</FieldLabel>
-                <TextInput
-                    className="text-base text-text mb-6 py-3 px-4 rounded-xl bg-surface-dim border border-border min-h-[80px]"
-                    placeholder="Add notes..."
-                    value={newTaskNote}
-                    onChangeText={setNewTaskNote}
-                    multiline
-                    textAlignVertical="top"
-                    placeholderTextColor={COLORS.text.muted}
-                />
-
-                <TouchableOpacity
-                    className="bg-primary-600 py-4 rounded-2xl items-center shadow-sm"
-                    onPress={handleAddTask}
-                >
-                    <Text className="text-white font-bold text-base">Add Task</Text>
-                </TouchableOpacity>
-            </BottomSheet>
-
-            <DatePickerSheet
-                visible={showDatePicker}
-                onClose={() => setShowDatePicker(false)}
-                value={newTaskDueDate}
-                onChange={setNewTaskDueDate}
+            <CardFilterSheet
+                visible={showFilterMenu}
+                onClose={() => setShowFilterMenu(false)}
+                taskTimeFilter={taskTimeFilter}
+                onTaskTimeFilterChange={setTaskTimeFilter}
+                hideCompleted={hideCompleted}
+                onHideCompletedChange={setHideCompleted}
+                hideUndated={hideUndated}
+                onHideUndatedChange={setHideUndated}
+                showHiddenTimeOption={false}
             />
         </View>
     );
