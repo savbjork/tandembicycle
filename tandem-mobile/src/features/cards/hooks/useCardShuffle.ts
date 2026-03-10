@@ -90,6 +90,11 @@ export const useCardShuffle = ({
         if (onShuffleEnd) onShuffleEnd();
     }, [isDefaultsMode, reassignCards, resetToDefaults, onShuffleEnd]);
 
+    const cancelSwipe = useCallback(() => {
+        setIsDefaultsMode(false);
+        setShowSwipeMode(false);
+    }, []);
+
     const handleFreshStart = useCallback(() => {
         Alert.alert(
             'Fresh Start?',
@@ -117,6 +122,7 @@ export const useCardShuffle = ({
         shuffledCards,
         startSwipeShuffle,
         startWithDefaults,
+        cancelSwipe,
         assignCard,
         finishShuffle,
         handleFreshStart,

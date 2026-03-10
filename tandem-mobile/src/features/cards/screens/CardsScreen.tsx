@@ -72,10 +72,11 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
     showShuffleModal,
     setShowShuffleModal,
     showSwipeMode,
-    setShowSwipeMode,
     currentCardIndex,
     shuffledCards,
     startSwipeShuffle,
+    startWithDefaults,
+    cancelSwipe,
     assignCard,
     finishShuffle,
     handleFreshStart,
@@ -160,20 +161,31 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
         )}
 
         <View className="mb-6">
-          {filteredCards.map((card, i) => (
-            <CardListItem
-              key={`${card.name}-${i}`}
-              card={card}
-              tasks={getCardTasks(card.name)}
-              isSelecting={isSelecting}
-              isSelected={selectedCardNames.includes(card.name)}
-              onPress={() => navigation.navigate('CardDetail', { cardName: card.name })}
-              onToggleSelection={() => toggleCardSelection(card.name)}
-              showOwnerBadge={filter === 'all'}
-              showTasks={taskTimeFilter !== 'hidden'}
-              onToggleTaskDone={(taskId) => handleToggleDone(taskId)}
-            />
-          ))}
+          {cards.length === 0 ? (
+            <View className="flex-1 items-center justify-center pt-20">
+              <TouchableOpacity
+                className="bg-primary-600 px-8 py-4 rounded-2xl shadow-md active:opacity-90"
+                onPress={startWithDefaults}
+              >
+                <Text className="text-white text-lg font-bold">Start with defaults</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            filteredCards.map((card, i) => (
+              <CardListItem
+                key={`${card.name}-${i}`}
+                card={card}
+                tasks={getCardTasks(card.name)}
+                isSelecting={isSelecting}
+                isSelected={selectedCardNames.includes(card.name)}
+                onPress={() => navigation.navigate('CardDetail', { cardName: card.name })}
+                onToggleSelection={() => toggleCardSelection(card.name)}
+                showOwnerBadge={filter === 'all'}
+                showTasks={taskTimeFilter !== 'hidden'}
+                onToggleTaskDone={(taskId) => handleToggleDone(taskId)}
+              />
+            ))
+          )}
         </View>
         <View className="h-20" />
       </ScrollView>
@@ -223,7 +235,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
 
       <SwipeModeScreen
         visible={showSwipeMode}
-        onClose={() => setShowSwipeMode(false)}
+        onClose={cancelSwipe}
         shuffledCards={shuffledCards}
         currentCardIndex={currentCardIndex}
         members={householdMembers}
