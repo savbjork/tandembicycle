@@ -29,10 +29,10 @@ export const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ child
                 const baseUser = toUser(session.user);
                 setUser(baseUser);
 
-                // Fetch display_name from profiles (authoritative source).
-                // For INITIAL_SESSION, delay setLoading(false) until after the
-                // fetch so the app never renders with a stale name from JWT metadata.
-                const profileFetch = supabase
+                // Fetch display_name from profiles (authoritative source) and
+                // resolve loading state once done. .finally() guarantees
+                // setLoading(false) runs even if the fetch fails.
+                supabase
                     .from('profiles')
                     .select('display_name')
                     .eq('user_id', session.user.id)
@@ -41,16 +41,10 @@ export const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ child
                         if (data?.display_name) {
                             setUser({ ...baseUser, name: data.display_name });
                         }
-                    });
-
-                if (event === 'INITIAL_SESSION') {
-                    profileFetch.then(() => setLoading(false));
-                }
+                    })
+                    .finally(() => setLoading(false));
             } else {
                 clearAuth();
-                if (event === 'INITIAL_SESSION') {
-                    setLoading(false);
-                }
             }
         });
 
