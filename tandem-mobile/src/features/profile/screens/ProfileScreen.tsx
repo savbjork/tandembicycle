@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { View, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { Text, Button, Input, BottomSheet, ScreenHeader, FieldLabel, Badge, OwnerBadge } from '@shared/components/ui';
-import { useAuthStore } from '@store';
+import { useAuthStore, useDataStore } from '@store';
 import { useAuth } from '@shared/hooks/useAuth';
+import { supabase } from '@lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
 import { useNavigation } from '@react-navigation/native';
 
 export const ProfileScreen: React.FC = () => {
   const { user, setUser } = useAuthStore();
+  const { renameOwner } = useDataStore();
   const { signOut } = useAuth();
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -24,9 +26,19 @@ export const ProfileScreen: React.FC = () => {
     cards: 8,
   };
 
-  const handleUpdateProfile = () => {
-    if (newName.trim() && user) {
-      setUser({ ...user, name: newName });
+  const handleUpdateProfile = async () => {
+    const trimmed = newName.trim();
+    if (trimmed && user && trimmed !== user.name) {
+      const oldName = user.name;
+
+      // Persist to Supabase profiles table
+      await supabase.from('profiles').update({ display_name: trimmed }).eq('user_id', user.id);
+
+      // Update local auth store
+      setUser({ ...user, name: trimmed });
+
+      // Update all cards/tasks that reference the old name
+      renameOwner(oldName, trimmed);
     }
     setIsEditModalVisible(false);
   };
