@@ -81,10 +81,10 @@ export const useCardShuffle = ({
         if (isDefaultsMode) {
             const freshCards: Card[] = updatedCards.map(c => ({ name: c.name, owner: c.owner }));
             resetToDefaults(freshCards, []);
-            setIsDefaultsMode(false);
         } else {
             reassignCards(updatedCards.map(c => ({ name: c.name, owner: c.owner })));
         }
+        setIsDefaultsMode(false);
         setShowSwipeMode(false);
         setCurrentCardIndex(0);
         if (onShuffleEnd) onShuffleEnd();
@@ -117,7 +117,6 @@ export const useCardShuffle = ({
         showShuffleModal,
         setShowShuffleModal,
         showSwipeMode,
-        setShowSwipeMode,
         currentCardIndex,
         shuffledCards,
         startSwipeShuffle,
