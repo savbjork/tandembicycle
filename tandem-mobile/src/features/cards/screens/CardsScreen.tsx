@@ -38,7 +38,7 @@ type NavigationProp = CompositeNavigationProp<
 export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
   const navigation = useNavigation<NavigationProp>();
   const { currentUser, partner, householdMembers } = useCurrentUser();
-  const { cards, tasks, toggleTaskDone, reassignCards, resetToDefaults } = useDataStore();
+  const { cards, tasks, toggleTaskDone, reassignCards, resetToDefaults, archiveCard } = useDataStore();
 
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [showAddCard, setShowAddCard] = useState(false);
@@ -78,12 +78,14 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
     startWithDefaults,
     cancelSwipe,
     assignCard,
+    markCardArchived,
     finishShuffle,
     handleFreshStart,
   } = useCardShuffle({
     cards,
     reassignCards,
     resetToDefaults,
+    archiveCard,
     onShuffleEnd,
   });
 
@@ -240,6 +242,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
         currentCardIndex={currentCardIndex}
         members={householdMembers}
         onAssign={assignCard}
+        onArchive={markCardArchived}
         onSwipedAll={finishShuffle}
       />
 
