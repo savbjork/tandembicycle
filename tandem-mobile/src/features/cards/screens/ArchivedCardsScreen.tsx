@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, ScrollView, TouchableOpacity } from 'react-native';
 import { Text, ScreenHeader } from '@shared/components/ui';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,16 +20,13 @@ export const ArchivedCardsScreen: React.FC = () => {
   const { cards, removeCard, unarchiveCard } = useDataStore();
   const [selectedNames, setSelectedNames] = useState<string[]>([]);
 
-  const hasRunExpiry = useRef(false);
   // On mount: permanently delete cards archived more than 30 days ago
   useEffect(() => {
-    if (hasRunExpiry.current) return;
-    hasRunExpiry.current = true;
     const expired = cards.filter(
       (c) => c.archived && c.archivedAt && daysRemaining(c.archivedAt) === 0
     );
     expired.forEach((c) => removeCard(c.name));
-  }, [cards, removeCard]);
+  }, []);
 
   const archivedCards = cards
     .filter((c) => c.archived && c.archivedAt)
