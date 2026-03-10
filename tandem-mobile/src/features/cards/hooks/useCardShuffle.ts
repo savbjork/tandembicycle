@@ -4,36 +4,76 @@ import { type Card, type Task, type Person } from '@shared/data/FakeDataStore';
 import { useCurrentUser } from '@shared/hooks/useCurrentUser';
 
 export const DEFAULT_CARDS = [
-    'House maintenance',
-    'Car maintenance',
-    'Bathroom deep clean',
-    'Mop',
-    'Vacuum',
+    // --- Daily/Weekly Cleaning & Chores ---
     'Cook dinner',
-    'Laundry',
-    'Take out trash',
-    'Family events',
-    'Family holiday/birthday gifts',
-    'Grocery shopping',
-    'Cleaning supplies',
-    'Plan dates',
-    'Car insurance',
-    'Rental Insurance',
-    'Internet',
+    'Cook breakfast/lunch',
     'Dishes',
+    'Wipe down counters',
+    'Take out trash',
+    'Recycling & compost',
+    'Mop',
+    'Sweep',
+    'Vacuum',
+    'Laundry',
+    'Wash bedding & linens',
+    'Water plants',
+    'Sort mail & packages',
+
+    // --- Deep Cleaning & Organization ---
+    'Bathroom deep clean',
     'Kitchen deep clean',
-    'Pay credit card bills',
+    'Clean out fridge',
+    'Clean microwave/oven',
+    'Clean windows & mirrors',
+    'Dusting',
+    'Organize closets & drawers',
+    'Decluttering/Donations',
+
+    // --- Food & Supplies ---
+    'Meal planning',
+    'Grocery shopping',
+    'Buy cleaning supplies',
+    'Buy household consumables (TP, soap)',
+
+    // --- Maintenance & Household ---
+    'House maintenance',
+    'Yard work / Lawn care',
+    'Snow removal / Seasonal exterior',
+    'Car maintenance',
+    'Vehicle registration',
+    'Home tech support & wifi',
+
+    // --- Financial & Admin ---
     'Manage budget',
+    'Pay credit card bills',
+    'Pay utility bills',
+    'Manage subscriptions',
+    'Taxes',
     'Retirement',
     'Investing',
-    'Taxes',
-    'Clean out fridge',
+    'Car insurance',
+    'Rental/Homeowners Insurance',
+    'Health insurance admin',
+    'Internet',
+
+    // --- Relational & Social ---
+    'Plan dates',
+    'Plan vacations & travel',
+    'Family events',
+    'Family holiday/birthday gifts',
+    'Write thank you notes/cards',
+    'Host guests/entertaining',
+
+    // --- Health & Personal Admin ---
+    'Schedule medical/dental appointments',
+    'Pick up prescriptions'
 ] as const;
 
 interface UseCardShuffleProps {
     cards: Card[];
     reassignCards: (assignments: Array<{ name: string; owner: Person }>) => void;
     resetToDefaults: (freshCards: Card[], freshTasks: Task[]) => void;
+    archiveCard: (name: string) => void;
     onShuffleEnd?: () => void;
 }
 
@@ -41,6 +81,7 @@ export const useCardShuffle = ({
     cards,
     reassignCards,
     resetToDefaults,
+    archiveCard,
     onShuffleEnd,
 }: UseCardShuffleProps) => {
     const { currentUser } = useCurrentUser();
@@ -49,8 +90,10 @@ export const useCardShuffle = ({
     const [currentCardIndex, setCurrentCardIndex] = useState(0);
     const [shuffledCards, setShuffledCards] = useState<Array<{ name: string, owner: Person }>>([]);
     const [isDefaultsMode, setIsDefaultsMode] = useState(false);
+    const [archivedCardNames, setArchivedCardNames] = useState<string[]>([]);
 
     const startSwipeShuffle = useCallback((cardsToShuffle: Card[] = cards) => {
+        setArchivedCardNames([]);
         setIsDefaultsMode(false);
         setShowShuffleModal(false);
         setShuffledCards([...cardsToShuffle]);
@@ -59,6 +102,7 @@ export const useCardShuffle = ({
     }, [cards]);
 
     const startWithDefaults = useCallback(() => {
+        setArchivedCardNames([]);
         const defaultCardObjects = DEFAULT_CARDS.map(name => ({ name, owner: currentUser }));
         setIsDefaultsMode(true);
         setShuffledCards(defaultCardObjects);
@@ -77,20 +121,34 @@ export const useCardShuffle = ({
         setCurrentCardIndex(cardIndex + 1);
     }, []);
 
+    const markCardArchived = useCallback((cardIndex: number) => {
+        const cardName = shuffledCards[cardIndex]?.name;
+        if (cardName) {
+            setArchivedCardNames(prev => [...prev, cardName]);
+        }
+        setCurrentCardIndex(cardIndex + 1);
+    }, [shuffledCards]);
+
     const finishShuffle = useCallback((updatedCards: typeof shuffledCards) => {
+        const nonArchivedCards = updatedCards.filter(c => !archivedCardNames.includes(c.name));
+
         if (isDefaultsMode) {
-            const freshCards: Card[] = updatedCards.map(c => ({ name: c.name, owner: c.owner }));
+            const freshCards: Card[] = nonArchivedCards.map(c => ({ name: c.name, owner: c.owner }));
             resetToDefaults(freshCards, []);
         } else {
-            reassignCards(updatedCards.map(c => ({ name: c.name, owner: c.owner })));
+            reassignCards(nonArchivedCards.map(c => ({ name: c.name, owner: c.owner })));
+            archivedCardNames.forEach(name => archiveCard(name));
         }
+
+        setArchivedCardNames([]);
         setIsDefaultsMode(false);
         setShowSwipeMode(false);
         setCurrentCardIndex(0);
         if (onShuffleEnd) onShuffleEnd();
-    }, [isDefaultsMode, reassignCards, resetToDefaults, onShuffleEnd]);
+    }, [isDefaultsMode, archivedCardNames, reassignCards, resetToDefaults, archiveCard, onShuffleEnd]);
 
     const cancelSwipe = useCallback(() => {
+        setArchivedCardNames([]);
         setIsDefaultsMode(false);
         setShowSwipeMode(false);
     }, []);
@@ -123,6 +181,7 @@ export const useCardShuffle = ({
         startWithDefaults,
         cancelSwipe,
         assignCard,
+        markCardArchived,
         finishShuffle,
         handleFreshStart,
     };
