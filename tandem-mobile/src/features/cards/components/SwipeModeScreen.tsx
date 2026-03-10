@@ -12,6 +12,7 @@ interface SwipeModeScreenProps {
     currentCardIndex: number;
     members: Person[];
     onAssign: (cardIndex: number, owner: Person) => void;
+    onArchive: (cardIndex: number) => void;
     onSwipedAll: (updatedCards: Array<{ name: string, owner: Person }>) => void;
 }
 
@@ -22,6 +23,7 @@ export const SwipeModeScreen: React.FC<SwipeModeScreenProps> = ({
     currentCardIndex,
     members,
     onAssign,
+    onArchive,
     onSwipedAll,
 }) => {
     const isLastCard = currentCardIndex === shuffledCards.length - 1;
@@ -29,6 +31,16 @@ export const SwipeModeScreen: React.FC<SwipeModeScreenProps> = ({
 
     const handleAssign = (member: Person) => {
         onAssign(currentCardIndex, member);
+
+        if (isLastCard) {
+            setTimeout(() => {
+                onSwipedAll(shuffledCards);
+            }, 100);
+        }
+    };
+
+    const handleArchive = () => {
+        onArchive(currentCardIndex);
 
         if (isLastCard) {
             setTimeout(() => {
@@ -79,6 +91,13 @@ export const SwipeModeScreen: React.FC<SwipeModeScreenProps> = ({
                                 <Text className="text-white text-xl font-bold">{member}</Text>
                             </TouchableOpacity>
                         ))}
+
+                        <TouchableOpacity
+                            onPress={handleArchive}
+                            className="py-4 rounded-2xl flex-row items-center justify-center border border-border bg-surface active:opacity-80"
+                        >
+                            <Text className="text-text-secondary text-base font-semibold">Don't use</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             </View>
