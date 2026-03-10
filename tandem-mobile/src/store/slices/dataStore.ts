@@ -26,6 +26,7 @@ interface DataState {
     updateCard: (name: string, updates: Partial<Card>) => void;
     removeCard: (name: string) => void;
     archiveCard: (name: string) => void;
+    unarchiveCard: (names: string[]) => void;
     setCards: (cards: Card[]) => void;
     renameCard: (oldName: string, newName: string) => void;
 
@@ -51,6 +52,9 @@ interface DataState {
         userIdByName: Record<string, string>,
         nameByUserId: Record<string, string>,
     ) => void;
+
+    // ── Owner Rename ──────────────────────────────────────
+    renameOwner: (oldName: string, newName: string) => void;
 }
 
 // ─── Store ───────────────────────────────────────────────────
@@ -140,14 +144,32 @@ export const useDataStore = create<DataState>((set, get) => ({
     archiveCard: (name) =>
         set((state) => {
             const card = state.cards.find((c) => c.name === name);
+            const archivedAt = new Date().toISOString();
             const newCards = state.cards.map((c) =>
-                c.name === name ? { ...c, archived: true } : c
+                c.name === name ? { ...c, archived: true, archivedAt } : c
             );
             fakeData.cards = newCards;
 
             if (card?.dbId) {
-                supabase.from('cards').update({ is_archived: true }).eq('id', card.dbId);
+                supabase.from('cards').update({ is_archived: true, archived_at: archivedAt }).eq('id', card.dbId);
             }
+
+            return { cards: newCards };
+        }),
+
+    unarchiveCard: (names) =>
+        set((state) => {
+            const newCards = state.cards.map((c) =>
+                names.includes(c.name) ? { ...c, archived: false, archivedAt: undefined } : c
+            );
+            fakeData.cards = newCards;
+
+            names.forEach((name) => {
+                const card = state.cards.find((c) => c.name === name);
+                if (card?.dbId) {
+                    supabase.from('cards').update({ is_archived: false, archived_at: null }).eq('id', card.dbId);
+                }
+            });
 
             return { cards: newCards };
         }),
@@ -323,6 +345,35 @@ export const useDataStore = create<DataState>((set, get) => ({
             fakeData.cards = newCards;
             fakeData.tasks = newTasks;
             return { cards: newCards, tasks: newTasks };
+        }),
+
+    renameOwner: (oldName, newName) =>
+        set((state) => {
+            const newCards = state.cards.map((c) =>
+                c.owner === oldName ? { ...c, owner: newName as Person } : c
+            );
+            const newTasks = state.tasks.map((t) =>
+                t.owner === oldName ? { ...t, owner: newName as Person } : t
+            );
+
+            // Update the name ↔ id maps
+            const userId = state.userIdByName[oldName];
+            const newUserIdByName = { ...state.userIdByName };
+            const newNameByUserId = { ...state.nameByUserId };
+            if (userId) {
+                delete newUserIdByName[oldName];
+                newUserIdByName[newName] = userId;
+                newNameByUserId[userId] = newName;
+            }
+
+            fakeData.cards = newCards;
+            fakeData.tasks = newTasks;
+            return {
+                cards: newCards,
+                tasks: newTasks,
+                userIdByName: newUserIdByName,
+                nameByUserId: newNameByUserId,
+            };
         }),
 
     resetToDefaults: (cards, tasks) => {

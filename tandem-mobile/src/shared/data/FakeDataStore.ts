@@ -8,6 +8,7 @@ export interface Card {
     owner: Person;
     note?: string;
     archived?: boolean;
+    archivedAt?: string; // ISO date string, set when card is archived
 }
 
 export interface Task {
