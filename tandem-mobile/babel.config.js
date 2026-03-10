@@ -17,6 +17,7 @@ module.exports = function (api) {
             "@core": "./src/core",
             "@infrastructure": "./src/infrastructure",
             "@store": "./src/store",
+            "@lib": "./src/lib",
           },
         },
       ],

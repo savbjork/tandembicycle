@@ -50,6 +50,12 @@
       ],
       "@store/*": [
         "./src/store/*"
+      ],
+      "@lib": [
+        "./src/lib"
+      ],
+      "@lib/*": [
+        "./src/lib/*"
       ]
     }
   },

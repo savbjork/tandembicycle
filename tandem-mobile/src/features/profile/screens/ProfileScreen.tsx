@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { View, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { Text, Button, Input, BottomSheet, ScreenHeader, FieldLabel, Badge, OwnerBadge } from '@shared/components/ui';
 import { useAuthStore } from '@store';
-import { useMockAuth } from '@shared/hooks/useMockAuth';
+import { useAuth } from '@shared/hooks/useAuth';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
 import { useNavigation } from '@react-navigation/native';
 
 export const ProfileScreen: React.FC = () => {
   const { user, setUser } = useAuthStore();
-  const { signOut } = useMockAuth();
+  const { signOut } = useAuth();
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [householdName, setHouseholdName] = useState("The Johnson Family");

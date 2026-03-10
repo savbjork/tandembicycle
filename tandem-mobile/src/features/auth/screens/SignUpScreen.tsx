@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '@app/navigation/types';
-import { useMockAuth } from '@shared/hooks/useMockAuth';
+import { useAuth } from '@shared/hooks/useAuth';
 import { Text } from '@shared/components/ui/Text';
 import { TextInput } from '@shared/components/ui/TextInput';
 import { Ionicons } from '@expo/vector-icons';
@@ -13,7 +13,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { signUp, isLoading } = useMockAuth();
+  const { signUp, isLoading, error } = useAuth();
 
   const handleSignUp = async () => {
     await signUp(name, email, password);
@@ -82,6 +82,10 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
               Must be at least 8 characters
             </Text>
           </View>
+
+          {error && (
+            <Text className="text-sm text-red-600 mb-3">{error}</Text>
+          )}
 
           <TouchableOpacity
             className={`bg-primary-600 rounded-xl py-3.5 items-center mt-2 ${isLoading ? 'opacity-60' : ''}`}

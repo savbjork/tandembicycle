@@ -3,7 +3,7 @@ import { View, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } fr
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '@app/navigation/types';
-import { useMockAuth } from '@shared/hooks/useMockAuth';
+import { useAuth } from '@shared/hooks/useAuth';
 import { Text } from '@shared/components/ui/Text';
 import { TextInput } from '@shared/components/ui/TextInput';
 
@@ -12,7 +12,7 @@ type Props = NativeStackScreenProps<AuthStackParamList, 'SignIn'>;
 export const SignInScreen: React.FC<Props> = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { signIn, isLoading } = useMockAuth();
+  const { signIn, isLoading, error } = useAuth();
 
   const handleSignIn = async () => {
     await signIn(email, password);
@@ -67,6 +67,10 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
               autoComplete="password"
             />
           </View>
+
+          {error && (
+            <Text className="text-sm text-red-600 mb-4">{error}</Text>
+          )}
 
           <TouchableOpacity className="items-end mb-6">
             <Text className="text-sm text-primary-600 font-medium">
