@@ -43,7 +43,7 @@ export const useCardShuffle = ({
     resetToDefaults,
     onShuffleEnd,
 }: UseCardShuffleProps) => {
-    const { currentUser, partner } = useCurrentUser();
+    const { currentUser } = useCurrentUser();
     const [showShuffleModal, setShowShuffleModal] = useState(false);
     const [showSwipeMode, setShowSwipeMode] = useState(false);
     const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -100,27 +100,13 @@ export const useCardShuffle = ({
                     text: 'Reset Everything',
                     style: 'destructive',
                     onPress: () => {
-                        const freshCards: Card[] = [
-                            { name: 'Daily Tidying', owner: currentUser },
-                            { name: 'Laundry', owner: currentUser },
-                            { name: 'Meal Planning', owner: currentUser },
-                            { name: 'Dishes', owner: partner },
-                            { name: 'Yard Work', owner: partner },
-                            { name: 'Dinner', owner: partner },
-                            { name: 'Bedtime Routine', owner: partner },
-                        ];
-                        const freshTasks: Task[] = [
-                            { id: 't1', name: 'Wipe counters', card: 'Daily Tidying', owner: currentUser, dueDate: '2026-02-23', isDone: false },
-                            { id: 't4', name: 'Wash clothes', card: 'Laundry', owner: currentUser, dueDate: '2026-02-23', isDone: true },
-                        ];
-                        resetToDefaults(freshCards, freshTasks);
                         setShowShuffleModal(false);
-                        Alert.alert('Reset Complete', 'Standard deck restored.');
-                    }
-                }
-            ]
+                        startWithDefaults();
+                    },
+                },
+            ],
         );
-    }, [currentUser, partner, resetToDefaults]);
+    }, [startWithDefaults]);
 
     return {
         showShuffleModal,
