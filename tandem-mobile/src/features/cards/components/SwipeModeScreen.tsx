@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { View, TouchableOpacity, Modal } from 'react-native';
 import { Text } from '@shared/components/ui';
 import { COLORS } from '@shared/constants/colors';
@@ -29,12 +29,17 @@ export const SwipeModeScreen: React.FC<SwipeModeScreenProps> = ({
     const isLastCard = currentCardIndex === shuffledCards.length - 1;
     const currentCard = shuffledCards[currentCardIndex];
 
+    const onSwipedAllRef = useRef(onSwipedAll);
+    useEffect(() => {
+        onSwipedAllRef.current = onSwipedAll;
+    }, [onSwipedAll]);
+
     const handleAssign = (member: Person) => {
         onAssign(currentCardIndex, member);
 
         if (isLastCard) {
             setTimeout(() => {
-                onSwipedAll(shuffledCards);
+                onSwipedAllRef.current(shuffledCards);
             }, 100);
         }
     };
@@ -44,7 +49,7 @@ export const SwipeModeScreen: React.FC<SwipeModeScreenProps> = ({
 
         if (isLastCard) {
             setTimeout(() => {
-                onSwipedAll(shuffledCards);
+                onSwipedAllRef.current(shuffledCards);
             }, 100);
         }
     };
