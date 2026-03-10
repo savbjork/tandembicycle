@@ -31,7 +31,8 @@ export const ProfileScreen: React.FC = () => {
     if (trimmed && user && trimmed !== user.name) {
       const oldName = user.name;
 
-      // Persist to Supabase profiles table
+      // Persist to Supabase auth metadata (read on every app load) and profiles table
+      await supabase.auth.updateUser({ data: { display_name: trimmed } });
       await supabase.from('profiles').update({ display_name: trimmed }).eq('user_id', user.id);
 
       // Update local auth store
