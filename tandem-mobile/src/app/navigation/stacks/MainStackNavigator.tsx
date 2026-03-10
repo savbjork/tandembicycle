@@ -6,6 +6,7 @@ import { CardDetailScreen } from '@features/cards/screens/CardDetailScreen';
 import { TasksScreen } from '@features/tasks/screens/TasksScreen';
 import { InboxScreen } from '@features/inbox/screens/InboxScreen';
 import { ProfileScreen } from '@features/profile/screens/ProfileScreen';
+import { EditProfileScreen } from '@features/profile/screens/EditProfileScreen';
 import { ArchivedCardsScreen } from '@features/cards/screens/ArchivedCardsScreen';
 
 const Stack = createNativeStackNavigator<MainStackParamList>();
@@ -41,6 +42,10 @@ export const MainStackNavigator: React.FC = () => {
             <Stack.Screen
                 name="Profile"
                 component={ProfileScreen}
+            />
+            <Stack.Screen
+                name="EditProfile"
+                component={EditProfileScreen}
             />
         </Stack.Navigator>
     );

@@ -1,6 +1,7 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthInitializer } from './AuthInitializer';
+import { DataInitializer } from './DataInitializer';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,7 +24,9 @@ export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthInitializer>
-        {children}
+        <DataInitializer>
+          {children}
+        </DataInitializer>
       </AuthInitializer>
     </QueryClientProvider>
   );

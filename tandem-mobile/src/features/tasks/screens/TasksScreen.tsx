@@ -82,7 +82,7 @@ export const TasksScreen: React.FC = () => {
 
                     {pendingTasks.length === 0 ? (
                         <View className="bg-surface rounded-2xl p-6 items-center">
-                            <Text className="text-sm text-text-secondary">All caught up! 🎉</Text>
+                            <Text className="text-sm text-text-secondary">All caught up!</Text>
                         </View>
                     ) : (
                         pendingTasks.map((task: Task) => (

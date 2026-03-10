@@ -30,6 +30,7 @@ export type MainStackParamList = {
   Tasks: undefined;
   Inbox: undefined;
   Profile: undefined;
+  EditProfile: undefined;
 };
 
 // Main Bottom Tab Navigator

@@ -1,34 +1,66 @@
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '@store';
-import type { Person } from '@shared/data/FakeDataStore';
+import { supabase } from '@lib/supabase';
 
 /**
  * Hook to get the current user's display name and partner name.
  *
- * Centralizes the hardcoded 'Savannah' / 'Kevin' strings that were
- * previously scattered across every screen. When real auth is wired up,
- * this hook will read from the auth store / household members — no screen
- * changes required.
+ * Fetches real household members from Supabase so names always reflect
+ * the actual accounts in the household rather than hardcoded demo values.
  */
 export const useCurrentUser = () => {
     const { user } = useAuthStore();
+    const [partnerName, setPartnerName] = useState<string>('Partner');
+    const [householdMembers, setHouseholdMembers] = useState<string[]>([]);
+    const [householdName, setHouseholdName] = useState<string>('');
 
-    // Derive the display name from auth state, falling back to 'Savannah'
-    // for the demo/mock data layer.
-    const currentUser: Person = (user?.name as Person) || 'Savannah';
+    useEffect(() => {
+        if (!user?.id) return;
 
-    // In the real app, partner would come from household members.
-    // For now, derive it from the current user.
-    const partner: Person = currentUser === 'Savannah' ? 'Kevin' : 'Savannah';
+        const fetchMembers = async () => {
+            const { data: membership } = await supabase
+                .from('household_members')
+                .select('household_id, households(name)')
+                .eq('user_id', user.id)
+                .single();
 
-    const householdMembers: Person[] = [currentUser, partner];
+            if (!membership) return;
+
+            const name = (membership.households as { name: string } | null)?.name;
+            if (name) setHouseholdName(name);
+
+            const { data: members } = await supabase
+                .from('household_members')
+                .select('user_id, profiles(display_name)')
+                .eq('household_id', membership.household_id);
+
+            if (!members) return;
+
+            const names = members.map(
+                (m) => (m.profiles as { display_name: string } | null)?.display_name ?? 'Unknown'
+            );
+            setHouseholdMembers(names);
+
+            const partner = members
+                .filter((m) => m.user_id !== user.id)
+                .map((m) => (m.profiles as { display_name: string } | null)?.display_name ?? 'Unknown')[0];
+
+            if (partner) setPartnerName(partner);
+        };
+
+        fetchMembers();
+    }, [user?.id]);
+
+    const currentUser = user?.name ?? 'User';
 
     return {
         currentUser,
-        partner,
-        householdMembers,
+        partner: partnerName,
+        householdName,
+        householdMembers: householdMembers.length > 0 ? householdMembers : [currentUser, partnerName],
         /** First initial of the current user (for avatar badges) */
         initial: currentUser.charAt(0),
         /** First initial of the partner */
-        partnerInitial: partner.charAt(0),
+        partnerInitial: partnerName.charAt(0),
     };
 };

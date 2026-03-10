@@ -3,74 +3,51 @@ import { View, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { Text, Button, Input, BottomSheet, ScreenHeader, FieldLabel, Badge, OwnerBadge } from '@shared/components/ui';
 import { useAuthStore, useDataStore } from '@store';
 import { useAuth } from '@shared/hooks/useAuth';
-import { supabase } from '@lib/supabase';
+import { useCurrentUser } from '@shared/hooks/useCurrentUser';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { MainStackParamList } from '@app/navigation/types';
+
+type NavigationProp = NativeStackNavigationProp<MainStackParamList>;
 
 export const ProfileScreen: React.FC = () => {
-  const { user, setUser } = useAuthStore();
-  const { renameOwner } = useDataStore();
+  const { user } = useAuthStore();
   const { signOut } = useAuth();
-  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const { partner, householdName } = useCurrentUser();
+  const { cards } = useDataStore();
+  const navigation = useNavigation<NavigationProp>();
+
   const [showInviteModal, setShowInviteModal] = useState(false);
-  const [householdName, setHouseholdName] = useState("The Johnson Family");
-  const [newName, setNewName] = useState(user?.name || '');
-  const [newEmail, setNewEmail] = useState('savannah@tandem.app');
-  const [newPassword, setNewPassword] = useState('••••••••');
   const [inviteEmail, setInviteEmail] = useState('');
 
-  const partner = {
-    name: 'Mike Johnson',
-    initials: 'MJ',
-    cards: 8,
-  };
-
-  const handleUpdateProfile = async () => {
-    const trimmed = newName.trim();
-    if (trimmed && user && trimmed !== user.name) {
-      const oldName = user.name;
-
-      // Persist to Supabase auth metadata (read on every app load) and profiles table
-      await supabase.auth.updateUser({ data: { display_name: trimmed } });
-      await supabase.from('profiles').update({ display_name: trimmed }).eq('user_id', user.id);
-
-      // Update local auth store
-      setUser({ ...user, name: trimmed });
-
-      // Update all cards/tasks that reference the old name
-      renameOwner(oldName, trimmed);
-    }
-    setIsEditModalVisible(false);
-  };
+  const partnerCardCount = cards.filter((c) => !c.archived && c.owner === partner).length;
 
   const handleLeaveHousehold = () => {
     Alert.alert(
-      "Leave Household?",
-      "Are you sure you want to leave 'The Johnson Family'? You will lose access to all shared cards and tasks.",
+      'Leave Household?',
+      `Are you sure you want to leave '${householdName}'? You will lose access to all shared cards and tasks.`,
       [
-        { text: "Cancel", style: "cancel" },
+        { text: 'Cancel', style: 'cancel' },
         {
-          text: "Leave",
-          style: "destructive",
-          onPress: () => Alert.alert("Left Household", "You have successfully left the household.")
-        }
+          text: 'Leave',
+          style: 'destructive',
+          onPress: () => Alert.alert('Left Household', 'You have successfully left the household.'),
+        },
       ]
     );
   };
 
   const handleSendInvite = () => {
     if (!inviteEmail.trim()) {
-      Alert.alert("Error", "Please enter an email address.");
+      Alert.alert('Error', 'Please enter an email address.');
       return;
     }
-    Alert.alert("Invite Sent!", `An invitation has been sent to ${inviteEmail}`);
+    Alert.alert('Invite Sent!', `An invitation has been sent to ${inviteEmail}`);
     setInviteEmail('');
     setShowInviteModal(false);
   };
-
-  const navigation = useNavigation();
-
 
   return (
     <View className="flex-1 bg-surface-dim">
@@ -88,26 +65,24 @@ export const ProfileScreen: React.FC = () => {
             <OwnerBadge name={user?.name || 'User'} size={64} fontSize={24} className="shadow-sm" />
             <View className="ml-4 flex-1">
               <Text className="text-xl font-bold text-text">{user?.name || 'User'}</Text>
-              <Text className="text-sm text-text-secondary">Owner • Savannah@tandem.app</Text>
             </View>
-            <TouchableOpacity
-              onPress={() => {
-                setNewName(user?.name || '');
-                setIsEditModalVisible(true);
-              }}
-              className="w-10 h-10 bg-surface-dim rounded-full items-center justify-center border border-border"
-            >
-              <Ionicons name="pencil" size={18} color={COLORS.primary[600]} />
-            </TouchableOpacity>
           </View>
 
           <View className="h-[1px] bg-border-muted mb-6" />
 
-          <View className="space-y-4">
-            <View className="flex-row justify-between items-center">
-              <View className="flex-row items-center gap-3">
-                <Text className="text-base text-text font-medium">Notifications</Text>
-              </View>
+          <View>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('EditProfile')}
+              className="flex-row justify-between items-center py-3"
+            >
+              <Text className="text-base text-text font-medium">Edit Profile</Text>
+              <Ionicons name="chevron-forward" size={18} color={COLORS.text.muted} />
+            </TouchableOpacity>
+
+            <View className="h-[1px] bg-border-muted" />
+
+            <View className="flex-row justify-between items-center py-3">
+              <Text className="text-base text-text font-medium">Notifications</Text>
               <Ionicons name="chevron-forward" size={18} color={COLORS.text.muted} />
             </View>
           </View>
@@ -120,23 +95,15 @@ export const ProfileScreen: React.FC = () => {
               <FieldLabel className="mb-1">Household</FieldLabel>
               <Text className="text-xl font-bold text-text">{householdName}</Text>
             </View>
-            <TouchableOpacity
-              onPress={() => setIsEditModalVisible(true)}
-              className="w-10 h-10 bg-surface-dim rounded-full items-center justify-center border border-border"
-            >
-              <Ionicons name="settings-outline" size={20} color={COLORS.text.secondary} />
-            </TouchableOpacity>
           </View>
 
           {/* Members List */}
           <View className="mb-6">
             <View className="flex-row items-center mb-4">
-              <OwnerBadge name={partner.name} size={40} />
+              <OwnerBadge name={partner} size={40} />
               <View className="ml-3 flex-1">
-                <Text className="text-base font-semibold text-text">{partner.name}</Text>
-                <Text className="text-xs text-text-secondary">Partner • 8 cards</Text>
+                <Text className="text-base font-semibold text-text">{partner}</Text>
               </View>
-              <Badge variant="success" size="sm" label="ACTIVE" />
             </View>
 
             <TouchableOpacity
@@ -180,74 +147,13 @@ export const ProfileScreen: React.FC = () => {
       </ScrollView>
 
       <BottomSheet
-        visible={isEditModalVisible}
-        onClose={() => setIsEditModalVisible(false)}
-        containerStyle={{ padding: 32 }}
-      >
-        <Text className="text-2xl font-bold text-text mb-8">Edit Details</Text>
-
-        <View className="mb-8">
-          <FieldLabel className="mb-4">Personal Identity</FieldLabel>
-          <Input
-            label="Display Name"
-            value={newName}
-            onChangeText={setNewName}
-            placeholder="Enter your name"
-            className="bg-surface border-border-muted"
-          />
-          <Input
-            label="Email Address"
-            value={newEmail}
-            onChangeText={setNewEmail}
-            placeholder="savannah@tandem.app"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            className="bg-surface border-border-muted mt-2"
-          />
-          <Input
-            label="Password"
-            value={newPassword}
-            onChangeText={setNewPassword}
-            placeholder="Enter new password"
-            secureTextEntry
-            className="bg-surface border-border-muted mt-2"
-          />
-        </View>
-
-        <View className="mb-10">
-          <FieldLabel className="mb-4">Household Identity</FieldLabel>
-          <Input
-            label="Household Name"
-            value={householdName}
-            onChangeText={setHouseholdName}
-            placeholder="Enter household name"
-            className="bg-surface border-border-muted"
-          />
-        </View>
-
-        <Button
-          title="Save Changes"
-          onPress={handleUpdateProfile}
-          variant="primary"
-          className="shadow-md"
-        />
-
-        <TouchableOpacity
-          onPress={() => setIsEditModalVisible(false)}
-          className="py-4 mt-2 items-center"
-        >
-          <Text className="text-text-muted font-bold">Discard</Text>
-        </TouchableOpacity>
-      </BottomSheet>
-
-      <BottomSheet
         visible={showInviteModal}
         onClose={() => setShowInviteModal(false)}
         containerStyle={{ padding: 32 }}
       >
-        <View className="w-16 h-16 bg-primary-100 rounded-2xl items-center justify-center mb-6">
+        {/* <View className="w-16 h-16 bg-primary-100 rounded-2xl items-center justify-center mb-6">
           <Ionicons name="person-add" size={32} color={COLORS.primary[600]} />
-        </View>
+        </View> */}
 
         <Text className="text-2xl font-bold text-text mb-2">Invite Member</Text>
         <Text className="text-text-secondary text-base mb-8">
@@ -261,31 +167,15 @@ export const ProfileScreen: React.FC = () => {
           placeholder="partner@example.com"
           keyboardType="email-address"
           autoCapitalize="none"
-          autoFocus
           className="bg-surface border-border-muted"
         />
 
-        <View className="flex-row gap-4 mt-8">
-          <TouchableOpacity
-            onPress={() => setShowInviteModal(false)}
-            className="flex-1 py-4 border border-border-strong rounded-2xl items-center"
-          >
-            <Text className="text-text font-bold text-base">Cancel</Text>
-          </TouchableOpacity>
-
-          <Button
-            title="Send Invite"
-            onPress={handleSendInvite}
-            variant="primary"
-            className="flex-2 shadow-md px-10"
-          />
-        </View>
-
-        <View className="mt-12 p-4 bg-surface rounded-2xl border border-border-muted">
-          <Text className="text-xs text-text-secondary text-center leading-5">
-            The agency rule ensures that members only manage their own personal data, while shared cards and tasks are visible to all household members.
-          </Text>
-        </View>
+        <Button
+          title="Send Invite"
+          onPress={handleSendInvite}
+          variant="primary"
+          className="mt-8 shadow-md"
+        />
       </BottomSheet>
     </View>
   );
