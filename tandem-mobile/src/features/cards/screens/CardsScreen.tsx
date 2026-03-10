@@ -7,7 +7,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
 import { useDataStore } from '@store';
 import { useCurrentUser } from '@shared/hooks/useCurrentUser';
-import { type TaskTimeFilter } from '@shared/utils/date';
 import { useNavigation, CompositeNavigationProp } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { MainStackParamList, MainTabParamList } from '@app/navigation/types';
@@ -25,6 +24,7 @@ import { AddCardModal } from '../components/AddCardModal';
 // Custom Hooks
 import { useCardsFiltering, type CardsFilter } from '../hooks/useCardsFiltering';
 import { useCardShuffle } from '../hooks/useCardShuffle';
+import { useCardsFilterPreferences } from '../hooks/useCardsFilterPreferences';
 
 interface CardsScreenProps {
   onClose?: () => void;
@@ -45,12 +45,9 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedCardNames, setSelectedCardNames] = useState<string[]>([]);
 
-  // Filter states
-  const [filter, setFilter] = useState<CardsFilter>('all');
-  const [taskTimeFilter, setTaskTimeFilter] = useState<TaskTimeFilter>('thisWeek');
-  const [hideCompleted, setHideCompleted] = useState(false);
-  const [hideUndated, setHideUndated] = useState(false);
-  const [hideEmptyCards, setHideEmptyCards] = useState(false);
+  // Filter states (persisted to AsyncStorage)
+  const { prefs, update: updateFilter } = useCardsFilterPreferences();
+  const { filter, taskTimeFilter, hideCompleted, hideUndated, hideEmptyCards } = prefs;
 
   const { filteredCards, getCardTasks } = useCardsFiltering({
     cards,
@@ -222,15 +219,15 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
         visible={showFilterMenu}
         onClose={() => setShowFilterMenu(false)}
         filter={filter}
-        onFilterChange={setFilter}
+        onFilterChange={(v) => updateFilter({ filter: v })}
         taskTimeFilter={taskTimeFilter}
-        onTaskTimeFilterChange={setTaskTimeFilter}
+        onTaskTimeFilterChange={(v) => updateFilter({ taskTimeFilter: v })}
         hideCompleted={hideCompleted}
-        onHideCompletedChange={setHideCompleted}
+        onHideCompletedChange={(v) => updateFilter({ hideCompleted: v })}
         hideUndated={hideUndated}
-        onHideUndatedChange={setHideUndated}
+        onHideUndatedChange={(v) => updateFilter({ hideUndated: v })}
         hideEmptyCards={hideEmptyCards}
-        onHideEmptyCardsChange={setHideEmptyCards}
+        onHideEmptyCardsChange={(v) => updateFilter({ hideEmptyCards: v })}
       />
 
       <ShuffleModal

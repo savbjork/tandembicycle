@@ -59,6 +59,7 @@ export const CardFilterSheet: React.FC<CardFilterSheetProps> = ({
         <BottomSheet
             visible={visible}
             onClose={onClose}
+            containerStyle={{ minHeight: undefined }}
         >
 
             {filter !== undefined && onFilterChange && (

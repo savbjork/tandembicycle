@@ -72,7 +72,7 @@ export function ChipGroup<T extends string = string>({
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 className={className}
-                contentContainerStyle={{ gap: 8 }}
+                contentContainerStyle={{ gap: 8, alignItems: 'center' }}
             >
                 {chips}
             </ScrollView>
