@@ -27,6 +27,7 @@ export const useCardsFiltering = ({
 }: UseCardsFilteringProps) => {
     const filteredCards = useMemo(() => {
         return cards.filter((c: Card) => {
+            if (c.archived) return false;
             const matchesOwnership = filter === 'all' ? true : c.owner === currentUser;
             if (!matchesOwnership) return false;
 
