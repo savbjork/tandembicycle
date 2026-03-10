@@ -3,6 +3,33 @@ import { Alert } from 'react-native';
 import { type Card, type Task, type Person } from '@shared/data/FakeDataStore';
 import { useCurrentUser } from '@shared/hooks/useCurrentUser';
 
+export const DEFAULT_CARDS = [
+    'House maintenance',
+    'Car maintenance',
+    'Bathroom deep clean',
+    'Mop',
+    'Vacuum',
+    'Cook dinner',
+    'Laundry',
+    'Take out trash',
+    'Family events',
+    'Family holiday/birthday gifts',
+    'Grocery shopping',
+    'Cleaning supplies',
+    'Plan dates',
+    'Car insurance',
+    'Rental Insurance',
+    'Internet',
+    'Dishes',
+    'Kitchen deep clean',
+    'Pay credit card bills',
+    'Manage budget',
+    'Retirement',
+    'Investing',
+    'Taxes',
+    'Clean out fridge',
+] as const;
+
 interface UseCardShuffleProps {
     cards: Card[];
     reassignCards: (assignments: Array<{ name: string; owner: Person }>) => void;
@@ -21,6 +48,7 @@ export const useCardShuffle = ({
     const [showSwipeMode, setShowSwipeMode] = useState(false);
     const [currentCardIndex, setCurrentCardIndex] = useState(0);
     const [shuffledCards, setShuffledCards] = useState<Array<{ name: string, owner: Person }>>([]);
+    const [isDefaultsMode, setIsDefaultsMode] = useState(false);
 
     const startSwipeShuffle = useCallback((cardsToShuffle: Card[] = cards) => {
         setShowShuffleModal(false);
@@ -28,6 +56,14 @@ export const useCardShuffle = ({
         setCurrentCardIndex(0);
         setShowSwipeMode(true);
     }, [cards]);
+
+    const startWithDefaults = useCallback(() => {
+        const defaultCardObjects = DEFAULT_CARDS.map(name => ({ name, owner: currentUser }));
+        setIsDefaultsMode(true);
+        setShuffledCards(defaultCardObjects);
+        setCurrentCardIndex(0);
+        setShowSwipeMode(true);
+    }, [currentUser]);
 
     const assignCard = useCallback((cardIndex: number, owner: Person) => {
         setShuffledCards(prev => {
@@ -87,6 +123,7 @@ export const useCardShuffle = ({
         currentCardIndex,
         shuffledCards,
         startSwipeShuffle,
+        startWithDefaults,
         assignCard,
         finishShuffle,
         handleFreshStart,
