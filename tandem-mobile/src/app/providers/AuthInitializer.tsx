@@ -26,14 +26,31 @@ export const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ child
     useEffect(() => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             if (session?.user) {
-                setUser(toUser(session.user));
+                const baseUser = toUser(session.user);
+                setUser(baseUser);
+
+                // Fetch display_name from profiles (authoritative source).
+                // For INITIAL_SESSION, delay setLoading(false) until after the
+                // fetch so the app never renders with a stale name from JWT metadata.
+                const profileFetch = supabase
+                    .from('profiles')
+                    .select('display_name')
+                    .eq('user_id', session.user.id)
+                    .single()
+                    .then(({ data }) => {
+                        if (data?.display_name) {
+                            setUser({ ...baseUser, name: data.display_name });
+                        }
+                    });
+
+                if (event === 'INITIAL_SESSION') {
+                    profileFetch.then(() => setLoading(false));
+                }
             } else {
                 clearAuth();
-            }
-
-            // INITIAL_SESSION is the first event — marks auth check as complete.
-            if (event === 'INITIAL_SESSION') {
-                setLoading(false);
+                if (event === 'INITIAL_SESSION') {
+                    setLoading(false);
+                }
             }
         });
 
