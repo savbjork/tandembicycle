@@ -146,7 +146,7 @@ export const useDataStore = create<DataState>((set, get) => ({
             fakeData.cards = newCards;
 
             if (card?.dbId) {
-                supabase.from('cards').update({ archived: true }).eq('id', card.dbId);
+                supabase.from('cards').update({ is_archived: true }).eq('id', card.dbId);
             }
 
             return { cards: newCards };
