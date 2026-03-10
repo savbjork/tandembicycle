@@ -325,10 +325,51 @@ export const useDataStore = create<DataState>((set, get) => ({
             return { cards: newCards, tasks: newTasks };
         }),
 
-    resetToDefaults: (cards, tasks) =>
+    resetToDefaults: (cards, tasks) => {
+        // Optimistic local update
         set(() => {
             fakeData.cards = [...cards];
             fakeData.tasks = [...tasks];
             return { cards: [...cards], tasks: [...tasks] };
-        }),
+        });
+
+        // Persist to Supabase
+        const { householdId, userIdByName } = get();
+        if (!householdId) return;
+
+        (async () => {
+            // Wipe existing cards and tasks for this household
+            await supabase.from('tasks').delete().eq('household_id', householdId);
+            await supabase.from('cards').delete().eq('household_id', householdId);
+
+            // Insert each new card and capture its DB id
+            for (const card of cards) {
+                const ownerId = userIdByName[card.owner];
+                if (!ownerId) continue;
+
+                const { data } = await supabase
+                    .from('cards')
+                    .insert({
+                        household_id: householdId,
+                        name: card.name,
+                        owner_id: ownerId,
+                        note: card.note ?? null,
+                    })
+                    .select('id')
+                    .single();
+
+                if (data?.id) {
+                    set((state) => {
+                        const newCards = state.cards.map((c) =>
+                            c.name === card.name && c.owner === card.owner && !c.dbId
+                                ? { ...c, dbId: data.id }
+                                : c
+                        );
+                        fakeData.cards = newCards;
+                        return { cards: newCards };
+                    });
+                }
+            }
+        })();
+    },
 }));
