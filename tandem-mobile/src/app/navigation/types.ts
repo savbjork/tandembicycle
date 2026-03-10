@@ -26,6 +26,7 @@ export type AuthStackParamList = {
 export type MainStackParamList = {
   CardsList: undefined;
   CardDetail: { cardName: string };
+  ArchivedCards: undefined;
   Tasks: undefined;
   Inbox: undefined;
   Profile: undefined;
