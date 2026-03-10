@@ -17,7 +17,7 @@ type Props = NativeStackScreenProps<MainStackParamList, 'CardDetail'>;
 export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     const { cardName } = route.params;
     const { currentUser } = useCurrentUser();
-    const { cards, tasks, toggleTaskDone, updateCard, renameCard, removeCard } = useDataStore();
+    const { cards, tasks, toggleTaskDone, updateCard, renameCard, removeCard, archiveCard } = useDataStore();
 
     const card = useMemo(
         () => cards.find(c => c.name === cardName),
@@ -74,7 +74,7 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                     text: 'Archive',
                     style: 'destructive',
                     onPress: () => {
-                        removeCard(card.name);
+                        archiveCard(card.name);
                         navigation.goBack();
                     },
                 },
