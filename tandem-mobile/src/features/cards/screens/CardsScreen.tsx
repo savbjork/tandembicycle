@@ -189,6 +189,15 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
             ))
           )}
         </View>
+        {!isSelecting && (
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ArchivedCards')}
+            className="items-center flex-row justify-center gap-2 py-4 mb-6"
+          >
+            <Ionicons name="archive-outline" size={16} color={COLORS.text.muted} />
+            <Text className="text-sm text-text-muted">Archive</Text>
+          </TouchableOpacity>
+        )}
         <View className="h-20" />
       </ScrollView>
 
