@@ -26,7 +26,7 @@ export const useCardsFiltering = ({
     currentUser,
 }: UseCardsFilteringProps) => {
     const filteredCards = useMemo(() => {
-        return cards.filter((c: Card) => {
+        const filtered = cards.filter((c: Card) => {
             if (c.archived) return false;
             const matchesOwnership = filter === 'all' ? true : c.owner === currentUser;
             if (!matchesOwnership) return false;
@@ -40,6 +40,18 @@ export const useCardsFiltering = ({
                 return hasTasks;
             }
             return true;
+        });
+
+        return filtered.sort((a: Card, b: Card) => {
+            // Primary: current user's cards first
+            const aIsOwner = a.owner === currentUser ? 0 : 1;
+            const bIsOwner = b.owner === currentUser ? 0 : 1;
+            if (aIsOwner !== bIsOwner) return aIsOwner - bIsOwner;
+
+            // Secondary: more of the current user's tasks first (raw count, filter-independent)
+            const aCount = tasks.filter((t: Task) => t.card === a.name && t.owner === currentUser).length;
+            const bCount = tasks.filter((t: Task) => t.card === b.name && t.owner === currentUser).length;
+            return bCount - aCount;
         });
     }, [cards, tasks, filter, taskTimeFilter, hideEmptyCards, hideCompleted, hideUndated, currentUser]);
 
