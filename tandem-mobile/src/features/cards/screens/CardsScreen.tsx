@@ -163,7 +163,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
         )}
 
         <View className="mb-6">
-          {cards.length === 0 ? (
+          {cards.filter(c => !c.archived).length === 0 ? (
             <View className="flex-1 items-center justify-center pt-20">
               <TouchableOpacity
                 className="bg-primary-600 px-8 py-4 rounded-2xl shadow-md active:opacity-90"
