@@ -51,6 +51,7 @@ export const useCardShuffle = ({
     const [isDefaultsMode, setIsDefaultsMode] = useState(false);
 
     const startSwipeShuffle = useCallback((cardsToShuffle: Card[] = cards) => {
+        setIsDefaultsMode(false);
         setShowShuffleModal(false);
         setShuffledCards([...cardsToShuffle]);
         setCurrentCardIndex(0);
@@ -77,11 +78,17 @@ export const useCardShuffle = ({
     }, []);
 
     const finishShuffle = useCallback((updatedCards: typeof shuffledCards) => {
-        reassignCards(updatedCards.map(c => ({ name: c.name, owner: c.owner })));
+        if (isDefaultsMode) {
+            const freshCards: Card[] = updatedCards.map(c => ({ name: c.name, owner: c.owner }));
+            resetToDefaults(freshCards, []);
+            setIsDefaultsMode(false);
+        } else {
+            reassignCards(updatedCards.map(c => ({ name: c.name, owner: c.owner })));
+        }
         setShowSwipeMode(false);
         setCurrentCardIndex(0);
         if (onShuffleEnd) onShuffleEnd();
-    }, [reassignCards, onShuffleEnd]);
+    }, [isDefaultsMode, reassignCards, resetToDefaults, onShuffleEnd]);
 
     const handleFreshStart = useCallback(() => {
         Alert.alert(
