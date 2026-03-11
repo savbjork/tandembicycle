@@ -4,7 +4,13 @@ import { Text, OwnerBadge } from '@shared/components/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
 import { TaskRow } from '@shared/components/ui/SwipeableTaskRow';
-import { type Card, type Task } from '@shared/data/FakeDataStore';
+import { type Card, type Task, type CardFrequency } from '@shared/data/FakeDataStore';
+
+const FREQUENCY_STYLE: Record<CardFrequency, { bg: string; border: string }> = {
+    daily: { bg: 'bg-primary-50', border: 'border-primary-200' },
+    weekly: { bg: 'bg-secondary-50', border: 'border-secondary-200' },
+    'as-needed': { bg: 'bg-surface', border: 'border-border-light' },
+};
 
 interface CardListItemProps {
     card: Card;
@@ -31,8 +37,11 @@ export const CardListItem: React.FC<CardListItemProps> = ({
 }) => {
     return (
         <TouchableOpacity
-            className={`bg-surface p-4 rounded-xl mb-3 border-[0.5px] shadow-sm ${isSelecting && isSelected ? 'border-primary-600' : 'border-border-light'
-                }`}
+            className={`${FREQUENCY_STYLE[card.frequency].bg} p-4 rounded-xl mb-3 border-[0.5px] shadow-sm ${
+                isSelecting && isSelected
+                    ? 'border-primary-600'
+                    : FREQUENCY_STYLE[card.frequency].border
+            }`}
             onPress={isSelecting ? onToggleSelection : onPress}
         >
             <View className="flex-row justify-between items-center">

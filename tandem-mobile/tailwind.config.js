@@ -4,6 +4,12 @@ module.exports = {
     "./App.{js,jsx,ts,tsx}",
     "./src/**/*.{js,jsx,ts,tsx}"
   ],
+  safelist: [
+    'bg-primary-50',
+    'border-primary-200',
+    'bg-secondary-50',
+    'border-secondary-200',
+  ],
   presets: [require("nativewind/preset")],
   theme: {
     extend: {
