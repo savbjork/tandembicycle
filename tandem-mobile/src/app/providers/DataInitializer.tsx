@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useAuthStore, useDataStore } from '@store';
 import { supabase } from '@lib/supabase';
-import type { Card, Task, DropZoneItem } from '@shared/data/FakeDataStore';
+import type { Card, Task, DropZoneItem, CardFrequency } from '@shared/data/FakeDataStore';
 
 /**
  * Loads cards and tasks from Supabase into the data store when the user is authenticated.
@@ -44,7 +44,7 @@ export const DataInitializer: React.FC<{ children: React.ReactNode }> = ({ child
             // 3. Fetch active cards
             const { data: activeCardsData } = await supabase
                 .from('cards')
-                .select('id, name, note, owner_id')
+                .select('id, name, note, owner_id, frequency')
                 .eq('household_id', householdId)
                 .eq('is_archived', false)
                 .order('created_at');
@@ -53,13 +53,14 @@ export const DataInitializer: React.FC<{ children: React.ReactNode }> = ({ child
                 dbId: c.id as string,
                 name: c.name as string,
                 owner: nameByUserId[c.owner_id as string] ?? 'Unknown',
+                frequency: (c.frequency as CardFrequency) ?? 'as-needed',
                 note: (c.note as string | null) ?? undefined,
             }));
 
             // 3b. Fetch archived cards
             const { data: archivedCardsData } = await supabase
                 .from('cards')
-                .select('id, name, note, owner_id, archived_at')
+                .select('id, name, note, owner_id, archived_at, frequency')
                 .eq('household_id', householdId)
                 .eq('is_archived', true)
                 .order('created_at');
@@ -68,6 +69,7 @@ export const DataInitializer: React.FC<{ children: React.ReactNode }> = ({ child
                 dbId: c.id as string,
                 name: c.name as string,
                 owner: nameByUserId[c.owner_id as string] ?? 'Unknown',
+                frequency: (c.frequency as CardFrequency) ?? 'as-needed',
                 note: (c.note as string | null) ?? undefined,
                 archived: true,
                 archivedAt: (c.archived_at as string | null) ?? undefined,
