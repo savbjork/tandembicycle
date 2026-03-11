@@ -37,8 +37,9 @@ export const AddTaskSheet: React.FC<AddTaskSheetProps> = ({
     const [taskDueDate, setTaskDueDate] = useState<Date | undefined>(undefined);
     const [showDatePicker, setShowDatePicker] = useState(false);
 
-    // Reset fields each time the sheet opens
+    // Reset fields each time the sheet opens; always close date picker when visibility changes
     useEffect(() => {
+        setShowDatePicker(false);
         if (visible) {
             setTaskName('');
             setTaskCard(initialCard ?? '');

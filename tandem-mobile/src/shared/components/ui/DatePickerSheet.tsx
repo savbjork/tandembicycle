@@ -34,6 +34,7 @@ export const DatePickerSheet: React.FC<DatePickerSheetProps> = ({
             visible={visible}
             transparent
             animationType="fade"
+            onRequestClose={onClose}
         >
             <TouchableOpacity
                 activeOpacity={1}
