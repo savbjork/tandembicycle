@@ -41,6 +41,7 @@ interface DataState {
     addDropZoneItem: (item: DropZoneItem) => void;
     updateDropZoneItemStatus: (id: string, status: DropZoneItemStatus) => void;
     removeDropZoneItem: (id: string) => void;
+    setDropZoneItems: (items: DropZoneItem[]) => void;
 
     // ── Bulk / Shuffle Actions ────────────────────────────
     reassignCards: (assignments: Array<{ name: string; owner: Person }>) => void;
@@ -300,12 +301,43 @@ export const useDataStore = create<DataState>((set, get) => ({
 
     // ── Drop Zone Actions ─────────────────────────────────────
 
-    addDropZoneItem: (item) =>
+    addDropZoneItem: (item) => {
+        // Optimistic local update
         set((state) => {
             const newItems = [item, ...state.dropZoneItems];
             fakeData.dropZoneItems = newItems;
             return { dropZoneItems: newItems };
-        }),
+        });
+
+        // Persist to Supabase
+        const { householdId, userIdByName } = get();
+        const senderId = userIdByName[item.sender];
+        const receiverId = userIdByName[item.receiver];
+        if (!householdId || !senderId || !receiverId) return;
+
+        supabase
+            .from('messages')
+            .insert({
+                household_id: householdId,
+                sender_id: senderId,
+                receiver_id: receiverId,
+                content: item.content,
+                status: item.status,
+            })
+            .select('id')
+            .single()
+            .then(({ data }) => {
+                if (!data?.id) return;
+                // Replace temp id with real DB id
+                set((state) => {
+                    const newItems = state.dropZoneItems.map((i) =>
+                        i.id === item.id ? { ...i, id: data.id } : i,
+                    );
+                    fakeData.dropZoneItems = newItems;
+                    return { dropZoneItems: newItems };
+                });
+            });
+    },
 
     updateDropZoneItemStatus: (id, status) =>
         set((state) => {
@@ -313,6 +345,9 @@ export const useDataStore = create<DataState>((set, get) => ({
                 item.id === id ? { ...item, status } : item
             );
             fakeData.dropZoneItems = newItems;
+
+            supabase.from('messages').update({ status }).eq('id', id);
+
             return { dropZoneItems: newItems };
         }),
 
@@ -320,7 +355,16 @@ export const useDataStore = create<DataState>((set, get) => ({
         set((state) => {
             const newItems = state.dropZoneItems.filter((item) => item.id !== id);
             fakeData.dropZoneItems = newItems;
+
+            supabase.from('messages').delete().eq('id', id);
+
             return { dropZoneItems: newItems };
+        }),
+
+    setDropZoneItems: (items) =>
+        set(() => {
+            fakeData.dropZoneItems = [...items];
+            return { dropZoneItems: [...items] };
         }),
 
     // ── Bulk / Shuffle Actions ────────────────────────────────

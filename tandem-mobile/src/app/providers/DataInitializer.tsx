@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useAuthStore, useDataStore } from '@store';
 import { supabase } from '@lib/supabase';
-import type { Card, Task } from '@shared/data/FakeDataStore';
+import type { Card, Task, DropZoneItem } from '@shared/data/FakeDataStore';
 
 /**
  * Loads cards and tasks from Supabase into the data store when the user is authenticated.
@@ -9,7 +9,7 @@ import type { Card, Task } from '@shared/data/FakeDataStore';
  */
 export const DataInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { user, isAuthenticated } = useAuthStore();
-    const { setCards, setTasks, setHouseholdContext } = useDataStore();
+    const { setCards, setTasks, setDropZoneItems, setHouseholdContext } = useDataStore();
 
     useEffect(() => {
         if (!isAuthenticated || !user?.id) return;
@@ -100,10 +100,28 @@ export const DataInitializer: React.FC<{ children: React.ReactNode }> = ({ child
             }));
 
             setTasks(tasks);
+
+            // 6. Fetch messages (inbox)
+            const { data: messagesData } = await supabase
+                .from('messages')
+                .select('id, sender_id, receiver_id, content, status, created_at')
+                .eq('household_id', householdId)
+                .order('created_at', { ascending: false });
+
+            const dropZoneItems: DropZoneItem[] = (messagesData ?? []).map((m) => ({
+                id: m.id as string,
+                sender: nameByUserId[m.sender_id as string] ?? 'Unknown',
+                receiver: nameByUserId[m.receiver_id as string] ?? 'Unknown',
+                content: m.content as string,
+                status: m.status as DropZoneItem['status'],
+                createdAt: new Date(m.created_at as string),
+            }));
+
+            setDropZoneItems(dropZoneItems);
         };
 
         loadData();
-    }, [isAuthenticated, user?.id, setCards, setTasks, setHouseholdContext]);
+    }, [isAuthenticated, user?.id, setCards, setTasks, setDropZoneItems, setHouseholdContext]);
 
     return <>{children}</>;
 };
