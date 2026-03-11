@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { View, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import React, { useState, useCallback, useMemo } from 'react';
+import { View, FlatList, TouchableOpacity, TextInput } from 'react-native';
 import { Text, ScreenHeader } from '@shared/components/ui';
 import { AddButton } from '@shared/components/ui/AddButton';
 import { DoneButton } from '@shared/components/ui/HeaderButtons';
@@ -22,7 +22,7 @@ import { SwipeModeScreen } from '../components/SwipeModeScreen';
 import { AddCardModal } from '../components/AddCardModal';
 
 // Custom Hooks
-import { useCardsFiltering, type CardsFilter } from '../hooks/useCardsFiltering';
+import { useCardsFiltering } from '../hooks/useCardsFiltering';
 import { useCardShuffle } from '../hooks/useCardShuffle';
 import { useCardsFilterPreferences } from '../hooks/useCardsFilterPreferences';
 
@@ -112,6 +112,55 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
     toggleTaskDone(taskId);
   };
 
+  const listHeader = useMemo(() => !isSelecting ? (
+    <View>
+      <View className="mb-4 mt-1">
+        <View className="flex-row items-center bg-surface border border-border rounded-xl px-3 py-2 gap-2">
+          <Ionicons name="search" size={18} color={COLORS.text.muted} />
+          <TextInput
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            // placeholder="Search cards..."
+            // placeholderTextColor={COLORS.text.muted}
+            className="flex-1 text-base text-text"
+            autoCorrect={false}
+            autoCapitalize="none"
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity onPress={() => setSearchQuery('')}>
+              <Ionicons name="close-circle" size={18} color={COLORS.text.muted} />
+            </TouchableOpacity>
+          )}
+        </View>
+      </View>
+      <NavigationRow
+        onNavigateTasks={() => navigation.navigate('Tasks')}
+        onNavigateInbox={() => navigation.navigate('Inbox')}
+        onNavigateHome={() => navigation.navigate('Profile')}
+      />
+      {filter === 'all' && (
+        <BalanceMeter
+          cards={cards}
+          currentUser={currentUser}
+          partner={partner}
+        />
+      )}
+    </View>
+  ) : null, [isSelecting, searchQuery, filter, cards, currentUser, partner]);
+
+  const listFooter = useMemo(() => !isSelecting ? (
+    <View>
+      <TouchableOpacity
+        onPress={() => navigation.navigate('ArchivedCards')}
+        className="items-center flex-row justify-center gap-2 py-4 mb-6"
+      >
+        <Ionicons name="archive-outline" size={16} color={COLORS.text.muted} />
+        <Text className="text-sm text-text-muted">Archive</Text>
+      </TouchableOpacity>
+      <View className="h-20" />
+    </View>
+  ) : <View className="h-20" />, [isSelecting]);
+
   return (
     <View className="flex-1 bg-surface-dim">
       <ScreenHeader
@@ -154,46 +203,14 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
         }
       />
 
-      <ScrollView className="flex-1 px-5 pb-5">
-        {!isSelecting && (
-          <View className="mb-4 mt-1">
-            <View className="flex-row items-center bg-surface border border-border rounded-xl px-3 py-2 gap-2">
-              <Ionicons name="search" size={18} color={COLORS.text.muted} />
-              <TextInput
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                placeholder="Search cards..."
-                placeholderTextColor={COLORS.text.muted}
-                className="flex-1 text-base text-text"
-                autoCorrect={false}
-                autoCapitalize="none"
-              />
-              {searchQuery.length > 0 && (
-                <TouchableOpacity onPress={() => setSearchQuery('')}>
-                  <Ionicons name="close-circle" size={18} color={COLORS.text.muted} />
-                </TouchableOpacity>
-              )}
-            </View>
-          </View>
-        )}
-        {!isSelecting && (
-          <NavigationRow
-            onNavigateTasks={() => navigation.navigate('Tasks')}
-            onNavigateInbox={() => navigation.navigate('Inbox')}
-            onNavigateHome={() => navigation.navigate('Profile')}
-          />
-        )}
-
-        {!isSelecting && filter === 'all' && (
-          <BalanceMeter
-            cards={cards}
-            currentUser={currentUser}
-            partner={partner}
-          />
-        )}
-
-        <View className="mb-6">
-          {cards.filter(c => !c.archived).length === 0 ? (
+      <FlatList
+        className="flex-1 px-5"
+        data={filteredCards}
+        keyExtractor={(card, i) => `${card.name}-${i}`}
+        ListHeaderComponent={listHeader}
+        ListFooterComponent={listFooter}
+        ListEmptyComponent={
+          cards.filter(c => !c.archived).length === 0 ? (
             <View className="flex-1 items-center justify-center pt-20">
               <TouchableOpacity
                 className="bg-primary-600 px-8 py-4 rounded-2xl shadow-md active:opacity-90"
@@ -203,33 +220,26 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
               </TouchableOpacity>
             </View>
           ) : (
-            filteredCards.map((card, i) => (
-              <CardListItem
-                key={`${card.name}-${i}`}
-                card={card}
-                tasks={getCardTasks(card.name)}
-                isSelecting={isSelecting}
-                isSelected={selectedCardNames.includes(card.name)}
-                onPress={() => navigation.navigate('CardDetail', { cardName: card.name })}
-                onToggleSelection={() => toggleCardSelection(card.name)}
-                showOwnerBadge={filter === 'all'}
-                showTasks={taskTimeFilter !== 'hidden'}
-                onToggleTaskDone={(taskId) => handleToggleDone(taskId)}
-              />
-            ))
-          )}
-        </View>
-        {!isSelecting && (
-          <TouchableOpacity
-            onPress={() => navigation.navigate('ArchivedCards')}
-            className="items-center flex-row justify-center gap-2 py-4 mb-6"
-          >
-            <Ionicons name="archive-outline" size={16} color={COLORS.text.muted} />
-            <Text className="text-sm text-text-muted">Archive</Text>
-          </TouchableOpacity>
+            <View className="items-center justify-center pt-20">
+              <Text className="text-text-muted text-base">No cards match your search</Text>
+            </View>
+          )
+        }
+        renderItem={({ item: card }) => (
+          <CardListItem
+            card={card}
+            tasks={getCardTasks(card.name)}
+            isSelecting={isSelecting}
+            isSelected={selectedCardNames.includes(card.name)}
+            onPress={() => navigation.navigate('CardDetail', { cardName: card.name })}
+            onToggleSelection={() => toggleCardSelection(card.name)}
+            showOwnerBadge={filter === 'all'}
+            showTasks={taskTimeFilter !== 'hidden'}
+            onToggleTaskDone={(taskId) => handleToggleDone(taskId)}
+          />
         )}
-        <View className="h-20" />
-      </ScrollView>
+        contentContainerStyle={{ paddingBottom: isSelecting ? 160 : 0 }}
+      />
 
       {/* Floating Selective Shuffle Buttons */}
       {isSelecting && (
@@ -277,6 +287,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
         onStartSwipeShuffle={() => startSwipeShuffle()}
         onStartSelectiveShuffle={() => {
           setShowShuffleModal(false);
+          setSearchQuery('');
           setIsSelecting(true);
         }}
         onFreshStart={handleFreshStart}
