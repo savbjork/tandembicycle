@@ -155,10 +155,10 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
     <View>
       <TouchableOpacity
         onPress={() => navigation.navigate('ArchivedCards')}
-        className="items-center flex-row justify-center gap-2 py-4 mb-6"
+        className="flex-row items-center justify-center gap-2 py-3 px-5 mb-6 bg-surface border border-border rounded-2xl"
       >
-        <Ionicons name="archive-outline" size={16} color={COLORS.text.muted} />
-        <Text className="text-sm text-text-muted">Archive</Text>
+        <Ionicons name="archive-outline" size={18} color={COLORS.text.secondary} />
+        <Text className="text-sm font-semibold text-text-secondary">Archived Cards</Text>
       </TouchableOpacity>
       <View className="h-20" />
     </View>
@@ -218,10 +218,10 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
           cards.filter(c => !c.archived).length === 0 ? (
             <View className="flex-1 items-center justify-center pt-20">
               <TouchableOpacity
-                className="bg-primary-600 px-8 py-4 rounded-2xl shadow-md active:opacity-90"
+                className="bg-surface border border-border px-8 py-4 rounded-2xl active:opacity-70"
                 onPress={startWithDefaults}
               >
-                <Text className="text-white text-lg font-bold">Start with defaults</Text>
+                <Text className="text-text-secondary text-lg font-semibold">Start with defaults</Text>
               </TouchableOpacity>
             </View>
           ) : (

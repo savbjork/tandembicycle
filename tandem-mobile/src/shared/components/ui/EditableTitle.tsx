@@ -28,12 +28,13 @@ export const EditableTitle: React.FC<EditableTitleProps> = ({
         <View className={`mb-4 ${className}`}>
             {isEditing ? (
                 <TextInput
-                    className="text-[32px] font-bold text-text tracking-tight mb-1 p-0"
+                    className="text-[32px] font-bold text-text tracking-tight mb-1 py-1 px-0"
                     value={value}
                     onChangeText={onChangeText}
                     onBlur={onSave}
                     autoFocus
-                    returnKeyType="done"
+                    multiline
+                    blurOnSubmit
                     placeholder={placeholder}
                 />
             ) : (
