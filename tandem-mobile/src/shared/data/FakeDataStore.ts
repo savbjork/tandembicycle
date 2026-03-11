@@ -2,13 +2,22 @@
 
 export type Person = string;
 
+export type CardFrequency = 'daily' | 'weekly' | 'as-needed';
+
+export const FREQUENCY_WEIGHT: Record<CardFrequency, number> = {
+    daily: 3,
+    weekly: 2,
+    'as-needed': 1,
+};
+
 export interface Card {
     dbId?: string;
     name: string;
     owner: Person;
+    frequency: CardFrequency;
     note?: string;
     archived?: boolean;
-    archivedAt?: string; // ISO date string, set when card is archived
+    archivedAt?: string;
 }
 
 export interface Task {
