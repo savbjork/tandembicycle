@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Alert } from 'react-native';
-import { type Card, type Task, type Person } from '@shared/data/FakeDataStore';
+import { type Card, type Task, type Person, type CardFrequency } from '@shared/data/FakeDataStore';
 import { useCurrentUser } from '@shared/hooks/useCurrentUser';
 
 export const DEFAULT_CARDS = [
@@ -69,6 +69,64 @@ export const DEFAULT_CARDS = [
     'Pick up prescriptions'
 ] as const;
 
+export const DEFAULT_CARD_FREQUENCIES: Partial<Record<typeof DEFAULT_CARDS[number], CardFrequency>> = {
+    // Daily
+    'Cook dinner': 'daily',
+    'Cook breakfast/lunch': 'daily',
+    'Dishes': 'daily',
+    'Wipe down counters': 'daily',
+    'Water plants': 'daily',
+    'Sort mail & packages': 'daily',
+
+    // Weekly
+    'Take out trash': 'weekly',
+    'Recycling & compost': 'weekly',
+    'Mop': 'weekly',
+    'Sweep': 'weekly',
+    'Vacuum': 'weekly',
+    'Laundry': 'weekly',
+    'Wash bedding & linens': 'weekly',
+    'Meal planning': 'weekly',
+    'Grocery shopping': 'weekly',
+    'Buy cleaning supplies': 'weekly',
+    'Buy household consumables (TP, soap)': 'weekly',
+    'Yard work / Lawn care': 'weekly',
+    'Pay credit card bills': 'weekly',
+    'Pay utility bills': 'weekly',
+
+    // As-needed (everything else defaults here, but explicit for clarity)
+    'Bathroom deep clean': 'as-needed',
+    'Kitchen deep clean': 'as-needed',
+    'Clean out fridge': 'as-needed',
+    'Clean microwave/oven': 'as-needed',
+    'Clean windows & mirrors': 'as-needed',
+    'Dusting': 'as-needed',
+    'Organize closets & drawers': 'as-needed',
+    'Decluttering/Donations': 'as-needed',
+    'House maintenance': 'as-needed',
+    'Snow removal / Seasonal exterior': 'as-needed',
+    'Car maintenance': 'as-needed',
+    'Vehicle registration': 'as-needed',
+    'Home tech support & wifi': 'as-needed',
+    'Manage budget': 'as-needed',
+    'Manage subscriptions': 'as-needed',
+    'Taxes': 'as-needed',
+    'Retirement': 'as-needed',
+    'Investing': 'as-needed',
+    'Car insurance': 'as-needed',
+    'Rental/Homeowners Insurance': 'as-needed',
+    'Health insurance admin': 'as-needed',
+    'Internet': 'as-needed',
+    'Plan dates': 'as-needed',
+    'Plan vacations & travel': 'as-needed',
+    'Family events': 'as-needed',
+    'Family holiday/birthday gifts': 'as-needed',
+    'Write thank you notes/cards': 'as-needed',
+    'Host guests/entertaining': 'as-needed',
+    'Schedule medical/dental appointments': 'as-needed',
+    'Pick up prescriptions': 'as-needed',
+};
+
 interface UseCardShuffleProps {
     cards: Card[];
     reassignCards: (assignments: Array<{ name: string; owner: Person }>) => void;
@@ -133,7 +191,11 @@ export const useCardShuffle = ({
         const nonArchivedCards = updatedCards.filter(c => !archivedCardNames.includes(c.name));
 
         if (isDefaultsMode) {
-            const freshCards: Card[] = nonArchivedCards.map(c => ({ name: c.name, owner: c.owner }));
+            const freshCards: Card[] = nonArchivedCards.map(c => ({
+                name: c.name,
+                owner: c.owner,
+                frequency: DEFAULT_CARD_FREQUENCIES[c.name as typeof DEFAULT_CARDS[number]] ?? 'as-needed',
+            }));
             resetToDefaults(freshCards, []);
         } else {
             reassignCards(nonArchivedCards.map(c => ({ name: c.name, owner: c.owner })));
