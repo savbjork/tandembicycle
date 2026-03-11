@@ -69,6 +69,8 @@ create table cards (
     name          text        not null,
     owner_id      uuid        not null references profiles(user_id) on delete restrict,
     note          text,
+    frequency     text        not null default 'as-needed'
+                              check (frequency in ('daily', 'weekly', 'as-needed')),
     is_archived   boolean     not null default false,
     archived_at   timestamptz,
     created_at    timestamptz not null default now()
