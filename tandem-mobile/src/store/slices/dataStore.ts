@@ -92,7 +92,13 @@ export const useDataStore = create<DataState>((set, get) => ({
 
         supabase
             .from('cards')
-            .insert({ household_id: householdId, name: card.name, owner_id: ownerId, note: card.note ?? null })
+            .insert({
+                household_id: householdId,
+                name: card.name,
+                owner_id: ownerId,
+                frequency: card.frequency,
+                note: card.note ?? null,
+            })
             .select('id')
             .single()
             .then(({ data }) => {
@@ -121,6 +127,7 @@ export const useDataStore = create<DataState>((set, get) => ({
             if (card?.dbId) {
                 const dbUpdates: Record<string, unknown> = {};
                 if (updates.note !== undefined) dbUpdates.note = updates.note ?? null;
+                if (updates.frequency !== undefined) dbUpdates.frequency = updates.frequency;
                 if (Object.keys(dbUpdates).length > 0) {
                     supabase.from('cards').update(dbUpdates).eq('id', card.dbId);
                 }
@@ -448,6 +455,7 @@ export const useDataStore = create<DataState>((set, get) => ({
                         household_id: householdId,
                         name: card.name,
                         owner_id: ownerId,
+                        frequency: card.frequency,
                         note: card.note ?? null,
                     })
                     .select('id')
