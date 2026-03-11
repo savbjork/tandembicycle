@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useMemo, useRef } from 'react';
 import { View, FlatList, TouchableOpacity } from 'react-native';
 import { Text, ScreenHeader, TextInput } from '@shared/components/ui';
 import { AddButton } from '@shared/components/ui/AddButton';
@@ -45,14 +45,9 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedCardNames, setSelectedCardNames] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchBarHeight, setSearchBarHeight] = useState(0);
   const flatListRef = useRef<FlatList>(null);
-
-  useEffect(() => {
-    if (searchBarHeight > 0) {
-      flatListRef.current?.scrollToOffset({ offset: searchBarHeight, animated: false });
-    }
-  }, [searchBarHeight]);
+  // mt-1 (4px) + input row (~36px) + mb-4 (16px) = ~56px — used for initial contentOffset
+  const SEARCH_BAR_HEIGHT = 56;
 
   // Filter states (persisted to AsyncStorage)
   const { prefs, update: updateFilter } = useCardsFilterPreferences();
@@ -122,7 +117,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
 
   const listHeader = useMemo(() => !isSelecting ? (
     <View>
-      <View className="mb-4 mt-1" onLayout={(e) => setSearchBarHeight(e.nativeEvent.layout.height)}>
+      <View className="mb-4 mt-1" onLayout={(e) => flatListRef.current?.scrollToOffset({ offset: e.nativeEvent.layout.height, animated: false })}>
         <View className="flex-row items-center bg-surface border border-border rounded-xl px-3 py-2 gap-2">
           <Ionicons name="search" size={18} color={COLORS.text.muted} />
           <TextInput
@@ -214,6 +209,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
       <FlatList
         ref={flatListRef}
         className="flex-1 px-5"
+        contentOffset={{ x: 0, y: SEARCH_BAR_HEIGHT }}
         data={filteredCards}
         keyExtractor={(card, i) => `${card.name}-${i}`}
         ListHeaderComponent={listHeader}
