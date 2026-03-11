@@ -63,8 +63,9 @@ export const SwipeModeScreen: React.FC<SwipeModeScreenProps> = ({
         >
             <View className="flex-1 bg-surface-dim pt-16 pb-12 px-6">
                 <View className="flex-row justify-between items-center mb-10">
-                    <View>
-                    </View>
+                    <Text className="text-sm font-semibold text-text-muted">
+                        {Math.min(currentCardIndex + 1, shuffledCards.length)} / {shuffledCards.length}
+                    </Text>
                     <TouchableOpacity
                         onPress={onClose}
                         className="bg-surface w-10 h-10 rounded-full items-center justify-center border border-border"
