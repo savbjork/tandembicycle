@@ -30,7 +30,11 @@ export const useCardsFiltering = ({
     const filteredCards = useMemo(() => {
         const filtered = cards.filter((c: Card) => {
             if (c.archived) return false;
-            if (searchQuery && !c.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+            if (searchQuery) {
+                const q = searchQuery.toLowerCase();
+                const matchesWord = c.name.toLowerCase().split(' ').some(word => word.startsWith(q));
+                if (!matchesWord) return false;
+            }
             const matchesOwnership = filter === 'all' ? true : c.owner === currentUser;
             if (!matchesOwnership) return false;
 

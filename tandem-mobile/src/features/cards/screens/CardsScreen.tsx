@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { View, FlatList, TouchableOpacity, TextInput } from 'react-native';
-import { Text, ScreenHeader } from '@shared/components/ui';
+import { View, FlatList, TouchableOpacity } from 'react-native';
+import { Text, ScreenHeader, TextInput } from '@shared/components/ui';
 import { AddButton } from '@shared/components/ui/AddButton';
 import { DoneButton } from '@shared/components/ui/HeaderButtons';
 import { Ionicons } from '@expo/vector-icons';
