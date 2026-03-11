@@ -97,6 +97,13 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
     startSwipeShuffle(cardsToShuffle);
   };
 
+  const handleAssignAllToMe = () => {
+    const assignments = selectedCardNames.map(name => ({ name, owner: currentUser }));
+    reassignCards(assignments);
+    setIsSelecting(false);
+    setSelectedCardNames([]);
+  };
+
   const handleToggleDone = (taskId: string) => {
     toggleTaskDone(taskId);
   };
@@ -198,17 +205,25 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
         <View className="h-20" />
       </ScrollView>
 
-      {/* Floating Selective Shuffle Button */}
+      {/* Floating Selective Shuffle Buttons */}
       {isSelecting && (
-        <View className="absolute bottom-10 left-5 right-5">
+        <View className="absolute bottom-10 left-5 right-5 gap-3">
           <TouchableOpacity
-            className={`py-4 rounded-xl items-center shadow-lg ${selectedCardNames.length > 0 ? 'bg-primary-600' : 'bg-border'
-              }`}
+            className={`py-4 rounded-xl items-center shadow-lg ${selectedCardNames.length > 0 ? 'bg-primary-600' : 'bg-border'}`}
+            disabled={selectedCardNames.length === 0}
+            onPress={handleAssignAllToMe}
+          >
+            <Text className="text-white font-bold text-lg">
+              Assign all to me ({selectedCardNames.length})
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            className={`py-4 rounded-xl items-center shadow-lg ${selectedCardNames.length > 0 ? 'bg-secondary-600' : 'bg-border'}`}
             disabled={selectedCardNames.length === 0}
             onPress={handleSelectiveShuffle}
           >
             <Text className="text-white font-bold text-lg">
-              Reassign {selectedCardNames.length} Cards
+              Assign one by one ({selectedCardNames.length})
             </Text>
           </TouchableOpacity>
         </View>
