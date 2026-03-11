@@ -13,6 +13,7 @@ interface UseCardsFilteringProps {
     hideCompleted: boolean;
     hideUndated: boolean;
     currentUser: string;
+    searchQuery: string;
 }
 
 export const useCardsFiltering = ({
@@ -24,10 +25,12 @@ export const useCardsFiltering = ({
     hideCompleted,
     hideUndated,
     currentUser,
+    searchQuery,
 }: UseCardsFilteringProps) => {
     const filteredCards = useMemo(() => {
         const filtered = cards.filter((c: Card) => {
             if (c.archived) return false;
+            if (searchQuery && !c.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
             const matchesOwnership = filter === 'all' ? true : c.owner === currentUser;
             if (!matchesOwnership) return false;
 
@@ -60,7 +63,7 @@ export const useCardsFiltering = ({
             const bCount = taskCountByCard.get(b.name) ?? 0;
             return bCount - aCount;
         });
-    }, [cards, tasks, filter, taskTimeFilter, hideEmptyCards, hideCompleted, hideUndated, currentUser]);
+    }, [cards, tasks, filter, taskTimeFilter, hideEmptyCards, hideCompleted, hideUndated, currentUser, searchQuery]);
 
     const getCardTasks = (cardName: string) => {
         return tasks.filter((t: Task) =>

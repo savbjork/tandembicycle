@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { View, ScrollView, TouchableOpacity } from 'react-native';
+import { View, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import { Text, ScreenHeader } from '@shared/components/ui';
 import { AddButton } from '@shared/components/ui/AddButton';
 import { DoneButton } from '@shared/components/ui/HeaderButtons';
@@ -44,6 +44,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
   const [showAddCard, setShowAddCard] = useState(false);
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedCardNames, setSelectedCardNames] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Filter states (persisted to AsyncStorage)
   const { prefs, update: updateFilter } = useCardsFilterPreferences();
@@ -58,11 +59,13 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
     hideCompleted,
     hideUndated,
     currentUser,
+    searchQuery,
   });
 
   const onShuffleEnd = useCallback(() => {
     setIsSelecting(false);
     setSelectedCardNames([]);
+    setSearchQuery('');
   }, []);
 
   const {
@@ -102,6 +105,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
     reassignCards(assignments);
     setIsSelecting(false);
     setSelectedCardNames([]);
+    setSearchQuery('');
   };
 
   const handleToggleDone = (taskId: string) => {
@@ -118,6 +122,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
               onPress={() => {
                 setIsSelecting(false);
                 setSelectedCardNames([]);
+                setSearchQuery('');
               }}
               className="bg-surface px-4 py-2 rounded-full border border-border"
             >
@@ -150,6 +155,27 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
       />
 
       <ScrollView className="flex-1 px-5 pb-5">
+        {!isSelecting && (
+          <View className="mb-4 mt-1">
+            <View className="flex-row items-center bg-surface border border-border rounded-xl px-3 py-2 gap-2">
+              <Ionicons name="search" size={18} color={COLORS.text.muted} />
+              <TextInput
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                placeholder="Search cards..."
+                placeholderTextColor={COLORS.text.muted}
+                className="flex-1 text-base text-text"
+                autoCorrect={false}
+                autoCapitalize="none"
+              />
+              {searchQuery.length > 0 && (
+                <TouchableOpacity onPress={() => setSearchQuery('')}>
+                  <Ionicons name="close-circle" size={18} color={COLORS.text.muted} />
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+        )}
         {!isSelecting && (
           <NavigationRow
             onNavigateTasks={() => navigation.navigate('Tasks')}
