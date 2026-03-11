@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { View, ScrollView, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { Text, ScreenHeader, FieldLabel, DatePickerSheet, EmptyState, EditableTitle, TextInput } from '@shared/components/ui';
 import { CardPickerField } from '@shared/components/ui/CardPickerField';
@@ -34,6 +34,26 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     );
     const [showDatePicker, setShowDatePicker] = useState(false);
 
+    // Keep a ref with the latest edit values so the beforeRemove listener always saves current state,
+    // even when navigated away via iOS swipe-back (which bypasses the back button's onBack handler).
+    const latestEdits = useRef({ editName, editCard, editNote, editDueDate });
+    useEffect(() => {
+        latestEdits.current = { editName, editCard, editNote, editDueDate };
+    });
+
+    useEffect(() => {
+        if (!task) return;
+        return navigation.addListener('beforeRemove', () => {
+            const { editName: name, editCard: card, editNote: note, editDueDate: dueDate } = latestEdits.current;
+            updateTask(taskId, {
+                name: name.trim() || task.name,
+                card: card || task.card,
+                dueDate: dueDate ? toDateStringLocal(dueDate) : task.dueDate,
+                note,
+            });
+        });
+    }, [navigation, task]);
+
     if (!task) {
         return (
             <View className="flex-1 bg-surface-dim">
@@ -51,13 +71,7 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     const isOwner = task.owner === currentUser;
 
     const handleSave = () => {
-        updateTask(taskId, {
-            name: editName.trim() || task.name,
-            card: editCard || task.card,
-            dueDate: editDueDate ? toDateStringLocal(editDueDate) : task.dueDate,
-            note: editNote,
-        });
-        navigation.goBack();
+        navigation.goBack(); // beforeRemove listener handles saving
     };
 
     const handleRename = () => {

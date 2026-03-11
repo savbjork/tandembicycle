@@ -121,14 +121,14 @@ export const AddTaskSheet: React.FC<AddTaskSheetProps> = ({
                 >
                     <Text className="text-white font-bold text-base">Add Task</Text>
                 </TouchableOpacity>
-            </BottomSheet>
 
-            <DatePickerSheet
-                visible={showDatePicker}
-                onClose={() => setShowDatePicker(false)}
-                value={taskDueDate}
-                onChange={setTaskDueDate}
-            />
+                <DatePickerSheet
+                    visible={showDatePicker}
+                    onClose={() => setShowDatePicker(false)}
+                    value={taskDueDate}
+                    onChange={setTaskDueDate}
+                />
+            </BottomSheet>
         </>
     );
 };

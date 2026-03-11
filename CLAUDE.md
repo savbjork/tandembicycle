@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Tandem is a mobile app for household task management (Fair Play methodology). It helps couples/households assign and balance household responsibilities using a card-based system.
+Tandem is a mobile IOS app for household task management (Fair Play methodology). It helps couples/households assign and balance household responsibilities using a card-based system.
 
 **Monorepo structure:**
 ```
