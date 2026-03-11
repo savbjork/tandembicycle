@@ -53,6 +53,10 @@ export const DatePickerSheet: React.FC<DatePickerSheetProps> = ({
                         onChange={(_, date) => {
                             if (date) {
                                 onChange(date);
+                            }
+                            // Android's native dialog closes itself; dismiss the modal wrapper too.
+                            // On iOS the inline picker stays open until the user taps the backdrop.
+                            if (Platform.OS === 'android') {
                                 onClose();
                             }
                         }}
