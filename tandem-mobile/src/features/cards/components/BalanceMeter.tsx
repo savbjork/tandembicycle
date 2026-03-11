@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Text } from '@shared/components/ui';
-import { type Card } from '@shared/data/FakeDataStore';
+import { type Card, FREQUENCY_WEIGHT } from '@shared/data/FakeDataStore';
 
 interface BalanceMeterProps {
     cards: Card[];
@@ -10,9 +10,17 @@ interface BalanceMeterProps {
 }
 
 export const BalanceMeter: React.FC<BalanceMeterProps> = ({ cards, currentUser, partner }) => {
-    const currentUserCardsCount = cards.filter((c: Card) => c.owner === currentUser).length;
-    const partnerCardsCount = cards.filter((c: Card) => c.owner === partner).length;
-    const totalCards = cards.length;
+    const activeCards = cards.filter((c) => !c.archived);
+
+    const currentUserPoints = activeCards
+        .filter((c) => c.owner === currentUser)
+        .reduce((sum, c) => sum + FREQUENCY_WEIGHT[c.frequency], 0);
+
+    const partnerPoints = activeCards
+        .filter((c) => c.owner === partner)
+        .reduce((sum, c) => sum + FREQUENCY_WEIGHT[c.frequency], 0);
+
+    const totalPoints = currentUserPoints + partnerPoints;
 
     return (
         <View className="bg-surface rounded-xl p-5 mb-6 shadow-sm">
@@ -22,20 +30,30 @@ export const BalanceMeter: React.FC<BalanceMeterProps> = ({ cards, currentUser, 
                         Balance
                     </Text>
                     <Text className="text-[13px] text-text-secondary mt-0.5">
-                        {totalCards} cards total
+                        {totalPoints} pts total
                     </Text>
                 </View>
             </View>
 
             <View className="h-2 bg-border-muted rounded-full flex-row overflow-hidden mb-4">
-                <View className="h-full bg-primary-600" style={{ width: `${(currentUserCardsCount / totalCards) * 100}%` }} />
-                <View className="h-full bg-secondary-600" style={{ width: `${(partnerCardsCount / totalCards) * 100}%` }} />
+                {totalPoints > 0 && (
+                    <>
+                        <View
+                            className="h-full bg-primary-600"
+                            style={{ width: `${(currentUserPoints / totalPoints) * 100}%` }}
+                        />
+                        <View
+                            className="h-full bg-secondary-600"
+                            style={{ width: `${(partnerPoints / totalPoints) * 100}%` }}
+                        />
+                    </>
+                )}
             </View>
 
             <View className="flex-row justify-around">
                 <View className="items-center">
                     <Text className="text-2xl font-bold text-primary-600">
-                        {currentUserCardsCount}
+                        {currentUserPoints}
                     </Text>
                     <Text className="text-[13px] text-text-secondary mt-1">
                         {currentUser}
@@ -43,7 +61,7 @@ export const BalanceMeter: React.FC<BalanceMeterProps> = ({ cards, currentUser, 
                 </View>
                 <View className="items-center">
                     <Text className="text-2xl font-bold text-secondary-600">
-                        {partnerCardsCount}
+                        {partnerPoints}
                     </Text>
                     <Text className="text-[13px] text-text-secondary mt-1">
                         {partner}
