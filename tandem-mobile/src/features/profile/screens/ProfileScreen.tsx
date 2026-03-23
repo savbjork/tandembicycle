@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
 import { View, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { Text, Button, Input, BottomSheet, ScreenHeader, FieldLabel, Badge, OwnerBadge } from '@shared/components/ui';
+import {
+  Text,
+  Button,
+  Input,
+  BottomSheet,
+  ScreenHeader,
+  FieldLabel,
+  Badge,
+  OwnerBadge,
+} from '@shared/components/ui';
 import { useAuthStore, useDataStore } from '@store';
 import { useAuth } from '@shared/hooks/useAuth';
 import { useCurrentUser } from '@shared/hooks/useCurrentUser';
@@ -51,14 +60,9 @@ export const ProfileScreen: React.FC = () => {
 
   return (
     <View className="flex-1 bg-surface-dim">
-      <ScreenHeader
-        title="Home"
-        showBack
-        onBack={() => navigation.goBack()}
-      />
+      <ScreenHeader title="Home" showBack onBack={() => navigation.goBack()} />
 
       <ScrollView className="flex-1 px-5 pb-5">
-
         {/* 1. Profile Section */}
         <View className="bg-surface rounded-3xl p-6 mb-6 shadow-sm border border-border-muted">
           <View className="flex-row items-center mb-6">
@@ -142,7 +146,9 @@ export const ProfileScreen: React.FC = () => {
         {/* Footer Info */}
         <View className="items-center mb-10">
           <Text className="text-xs text-text-muted font-medium">TANDEM HOUSEHOLD</Text>
-          <Text className="text-[10px] text-text-muted mt-1 uppercase tracking-widest">v1.2.4 Premium</Text>
+          <Text className="text-[10px] text-text-muted mt-1 uppercase tracking-widest">
+            v1.2.4 Premium
+          </Text>
         </View>
       </ScrollView>
 

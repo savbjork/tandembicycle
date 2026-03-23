@@ -5,12 +5,12 @@ import type { User as SupabaseUser } from '@supabase/supabase-js';
 import type { User } from '@store/slices/authStore';
 
 function toUser(u: SupabaseUser): User {
-    return {
-        id: u.id,
-        email: u.email ?? '',
-        name: u.user_metadata?.display_name ?? u.email?.split('@')[0] ?? 'User',
-        avatar: u.user_metadata?.avatar_url,
-    };
+  return {
+    id: u.id,
+    email: u.email ?? '',
+    name: u.user_metadata?.display_name ?? u.email?.split('@')[0] ?? 'User',
+    avatar: u.user_metadata?.avatar_url,
+  };
 }
 
 /**
@@ -21,35 +21,37 @@ function toUser(u: SupabaseUser): User {
  *   the Zustand store in sync automatically.
  */
 export const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const { setUser, setLoading, clearAuth } = useAuthStore();
+  const { setUser, setLoading, clearAuth } = useAuthStore();
 
-    useEffect(() => {
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-            if (session?.user) {
-                const baseUser = toUser(session.user);
-                setUser(baseUser);
+  useEffect(() => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        const baseUser = toUser(session.user);
+        setUser(baseUser);
 
-                // Fetch display_name from profiles (authoritative source) and
-                // resolve loading state once done. .finally() guarantees
-                // setLoading(false) runs even if the fetch fails.
-                supabase
-                    .from('profiles')
-                    .select('display_name')
-                    .eq('user_id', session.user.id)
-                    .single()
-                    .then(({ data }) => {
-                        if (data?.display_name) {
-                            setUser({ ...baseUser, name: data.display_name });
-                        }
-                    })
-                    .finally(() => setLoading(false));
-            } else {
-                clearAuth();
+        // Fetch display_name from profiles (authoritative source) and
+        // resolve loading state once done. .finally() guarantees
+        // setLoading(false) runs even if the fetch fails.
+        supabase
+          .from('profiles')
+          .select('display_name')
+          .eq('user_id', session.user.id)
+          .single()
+          .then(({ data }) => {
+            if (data?.display_name) {
+              setUser({ ...baseUser, name: data.display_name });
             }
-        });
+          })
+          .finally(() => setLoading(false));
+      } else {
+        clearAuth();
+      }
+    });
 
-        return () => subscription.unsubscribe();
-    }, [setUser, setLoading, clearAuth]);
+    return () => subscription.unsubscribe();
+  }, [setUser, setLoading, clearAuth]);
 
-    return <>{children}</>;
+  return <>{children}</>;
 };

@@ -26,7 +26,6 @@ export type AuthStackParamList = {
 export type MainStackParamList = {
   CardsList: undefined;
   CardDetail: { cardName: string };
-  ArchivedCards: undefined;
   Tasks: undefined;
   Inbox: undefined;
   Profile: undefined;
@@ -58,7 +57,6 @@ export type HouseholdStackParamList = {
 
 declare global {
   namespace ReactNavigation {
-    interface RootParamList extends RootStackParamList { }
+    interface RootParamList extends RootStackParamList {}
   }
 }
-

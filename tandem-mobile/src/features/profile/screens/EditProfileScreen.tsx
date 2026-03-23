@@ -29,11 +29,7 @@ export const EditProfileScreen: React.FC = () => {
 
   return (
     <View className="flex-1 bg-surface-dim">
-      <ScreenHeader
-        title="Edit Profile"
-        showBack
-        onBack={() => navigation.goBack()}
-      />
+      <ScreenHeader title="Edit Profile" showBack onBack={() => navigation.goBack()} />
 
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -91,10 +87,7 @@ export const EditProfileScreen: React.FC = () => {
             className="shadow-md mb-4"
           />
 
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            className="py-4 items-center mb-10"
-          >
+          <TouchableOpacity onPress={() => navigation.goBack()} className="py-4 items-center mb-10">
             <Text className="text-text-muted font-bold">Discard</Text>
           </TouchableOpacity>
         </ScrollView>

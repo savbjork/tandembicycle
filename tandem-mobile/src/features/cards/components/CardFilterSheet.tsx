@@ -91,7 +91,7 @@ export const CardFilterSheet: React.FC<CardFilterSheetProps> = ({
 
       {frequencyFilter !== undefined && onFrequencyFilterChange && (
         <>
-          <FieldLabel>Frequency</FieldLabel>
+          <FieldLabel>Card Frequency</FieldLabel>
           <ChipGroup
             options={frequencyOptions}
             value={frequencyFilter}

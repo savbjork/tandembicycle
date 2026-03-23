@@ -124,7 +124,7 @@ export type TaskTimeFilter = 'hidden' | 'thisWeek' | 'next7' | 'next30' | 'thisY
 export const isDateInTimeFrame = (
   dueDate: string | undefined,
   timeFilter: TaskTimeFilter,
-  hideUndated: boolean = false,
+  hideUndated: boolean = false
 ): boolean => {
   if (timeFilter === 'all') return true;
   if (timeFilter === 'hidden') return false;
@@ -159,4 +159,3 @@ export const isDateInTimeFrame = (
   }
   return true;
 };
-

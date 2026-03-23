@@ -35,7 +35,7 @@ src/
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
 - Expo CLI
 - iOS Simulator (Mac) or Android Emulator
@@ -43,22 +43,26 @@ src/
 ### Setup
 
 1. Clone the repository:
+
 ```bash
 git clone <repository-url>
 cd fairplay
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 ```
 
 3. Create environment file:
+
 ```bash
 cp .env.example .env
 ```
 
 4. Add your Firebase configuration to `.env`:
+
 ```
 EXPO_PUBLIC_FIREBASE_API_KEY=your_api_key
 EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
@@ -69,11 +73,13 @@ EXPO_PUBLIC_FIREBASE_APP_ID=your_app_id
 ```
 
 5. Start the development server:
+
 ```bash
 npm run start
 ```
 
 6. Run on iOS or Android:
+
 ```bash
 npm run ios
 npm run android
@@ -96,6 +102,7 @@ npm run android
 ### Components
 
 All UI components are built with NativeWind and follow consistent patterns:
+
 - `Button`: Primary, secondary, outline, ghost variants
 - `Input`: With labels, errors, and helper text
 - `Card`: Container with header, content, footer sections
@@ -136,6 +143,7 @@ All UI components are built with NativeWind and follow consistent patterns:
 ### Repository Pattern
 
 Each domain model has a corresponding repository interface and Firebase implementation:
+
 - `IUserRepository` → `UserRepository`
 - `IHouseholdRepository` → `HouseholdRepository`
 - `ICardRepository` → `CardRepository`
@@ -161,6 +169,7 @@ Each domain model has a corresponding repository interface and Firebase implemen
 ### Security Rules
 
 Security rules should be configured in Firebase Console to ensure:
+
 - Users can only read/write their own data
 - Household members can read/write household data
 - Card templates are read-only
@@ -178,6 +187,7 @@ Security rules should be configured in Firebase Console to ensure:
 ### Path Aliases
 
 The project uses path aliases for clean imports:
+
 - `@app/*`: App-level code
 - `@features/*`: Feature modules
 - `@shared/*`: Shared components and utilities
@@ -215,4 +225,3 @@ This project is private and proprietary.
 - Inspired by Eve Rodsky's Fair Play methodology
 - Built with modern React Native best practices
 - Follows Clean Architecture principles by Robert C. Martin
-

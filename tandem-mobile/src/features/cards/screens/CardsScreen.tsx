@@ -38,7 +38,7 @@ type NavigationProp = CompositeNavigationProp<
 export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
   const navigation = useNavigation<NavigationProp>();
   const { currentUser, partner, householdMembers } = useCurrentUser();
-  const { cards, tasks, toggleTaskDone, reassignCards, resetToDefaults, archiveCard } =
+  const { cards, tasks, toggleTaskDone, reassignCards, resetToDefaults, removeCard } =
     useDataStore();
 
   const [showFilterMenu, setShowFilterMenu] = useState(false);
@@ -83,14 +83,14 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
     startWithDefaults,
     cancelSwipe,
     assignCard,
-    markCardArchived,
+    markCardDeleted,
     finishShuffle,
     handleFreshStart,
   } = useCardShuffle({
     cards,
     reassignCards,
     resetToDefaults,
-    archiveCard,
+    removeCard,
     onShuffleEnd,
   });
 
@@ -162,22 +162,8 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
   );
 
   const listFooter = useMemo(
-    () =>
-      !isSelecting ? (
-        <View>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('ArchivedCards')}
-            className="flex-row items-center justify-center gap-2 py-3 px-5 mb-6 bg-surface border border-border rounded-2xl"
-          >
-            <Ionicons name="archive-outline" size={18} color={COLORS.text.secondary} />
-            <Text className="text-sm font-semibold text-text-secondary">Archived Cards</Text>
-          </TouchableOpacity>
-          <View className="h-20" />
-        </View>
-      ) : (
-        <View className="h-20" />
-      ),
-    [isSelecting]
+    () => <View className="h-20" />,
+    []
   );
 
   return (
@@ -236,7 +222,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
         ListHeaderComponent={listHeader}
         ListFooterComponent={listFooter}
         ListEmptyComponent={
-          cards.filter((c) => !c.archived).length === 0 ? (
+          cards.length === 0 ? (
             <View className="flex-1 items-center justify-center pt-20">
               <TouchableOpacity
                 className="bg-surface border border-border px-8 py-4 rounded-2xl active:opacity-70"
@@ -330,7 +316,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
         currentCardIndex={currentCardIndex}
         members={householdMembers}
         onAssign={assignCard}
-        onArchive={markCardArchived}
+        onDelete={markCardDeleted}
         onSwipedAll={finishShuffle}
       />
 

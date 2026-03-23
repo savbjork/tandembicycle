@@ -25,17 +25,18 @@ Below are all findings, grouped by category, with severity and recommended actio
 ### 1. Global Mutable Singleton as "State Management"
 
 **Files:** Every screen file  
-**Issue:** `FakeDataStore` is a mutable class singleton (`fakeData`) that every screen reads and writes to directly. Screens *also* duplicate its arrays into local `useState`, creating two sources of truth that easily fall out of sync.
+**Issue:** `FakeDataStore` is a mutable class singleton (`fakeData`) that every screen reads and writes to directly. Screens _also_ duplicate its arrays into local `useState`, creating two sources of truth that easily fall out of sync.
 
 ```tsx
 // Pattern repeated in every screen:
-fakeData.tasks.unshift(newTask);         // mutate global
-setTasks([newTask, ...tasks]);           // also set local state
+fakeData.tasks.unshift(newTask); // mutate global
+setTasks([newTask, ...tasks]); // also set local state
 ```
 
 **Why it matters:** When you move to real data (Firebase), you'll need to rewrite every screen. Bugs from stale local state are inevitable.
 
 **Recommendation:**
+
 - Create proper Zustand slices for `cards`, `tasks`, and `dropZoneItems`
 - Screens should read from and dispatch actions to the store
 - The store can hold mock data now and swap to Firebase later — zero screen changes needed
@@ -46,16 +47,17 @@ setTasks([newTask, ...tasks]);           // also set local state
 
 **Files:** `src/core/models/` vs. `src/shared/data/FakeDataStore.ts`
 
-| Aspect | `core/models/Task.ts` | `FakeDataStore.ts` |
-|---|---|---|
-| `id` type | `TaskId` (branded) | `string` |
-| `owner` | `UserId` (branded) | `'Savannah' \| 'Kevin'` |
-| `dueDate` | `Date \| null` | `string` |
-| `card` reference | `HouseholdCardId` | `string` (card name) |
+| Aspect           | `core/models/Task.ts` | `FakeDataStore.ts`      |
+| ---------------- | --------------------- | ----------------------- |
+| `id` type        | `TaskId` (branded)    | `string`                |
+| `owner`          | `UserId` (branded)    | `'Savannah' \| 'Kevin'` |
+| `dueDate`        | `Date \| null`        | `string`                |
+| `card` reference | `HouseholdCardId`     | `string` (card name)    |
 
 The `core/models/` types are well-designed with branded types, DTOs, and proper relationships. But **no screen actually uses them**. Every screen imports types from `FakeDataStore.ts` instead.
 
 **Recommendation:**
+
 - Migrate `FakeDataStore` to use `core/models/` types (or a simplified version of them)
 - Remove duplicate type definitions from `FakeDataStore.ts`
 - This makes the transition to real data seamless
@@ -67,6 +69,7 @@ The `core/models/` types are well-designed with branded types, DTOs, and proper 
 **File:** `src/features/cards/screens/CardsScreen.tsx`
 
 This single file contains:
+
 - The main CardsScreen component (28 state variables!)
 - Balance meter widget
 - Card list with inline task display
@@ -79,17 +82,17 @@ This single file contains:
 
 **Recommendation:** Break into focused pieces:
 
-| New File | What it contains |
-|---|---|
-| `BalanceMeter.tsx` | The balance bar with owner counts |
-| `CardListItem.tsx` | Individual card row with inline tasks |
-| `NavigationRow.tsx` | The Tasks / Inbox / Home quick-nav buttons |
-| `CardFilterSheet.tsx` | The filter bottom sheet |
-| `ShuffleModal.tsx` | Shuffle options modal |
-| `SwipeModeScreen.tsx` | Full-screen card assignment swiper |
-| `AddCardModal.tsx` | Already a separate component, just move to its own file |
-| `useCardsFiltering.ts` | Hook for `isTaskInTimeFrame` and filter logic |
-| `useCardShuffle.ts` | Hook for shuffle state and handlers |
+| New File               | What it contains                                        |
+| ---------------------- | ------------------------------------------------------- |
+| `BalanceMeter.tsx`     | The balance bar with owner counts                       |
+| `CardListItem.tsx`     | Individual card row with inline tasks                   |
+| `NavigationRow.tsx`    | The Tasks / Inbox / Home quick-nav buttons              |
+| `CardFilterSheet.tsx`  | The filter bottom sheet                                 |
+| `ShuffleModal.tsx`     | Shuffle options modal                                   |
+| `SwipeModeScreen.tsx`  | Full-screen card assignment swiper                      |
+| `AddCardModal.tsx`     | Already a separate component, just move to its own file |
+| `useCardsFiltering.ts` | Hook for `isTaskInTimeFrame` and filter logic           |
+| `useCardShuffle.ts`    | Hook for shuffle state and handlers                     |
 
 ---
 
@@ -100,36 +103,43 @@ This single file contains:
 These UI patterns are **copy-pasted almost identically** across multiple screens:
 
 #### a) **Date Picker Modal** (duplicated in 2+ files)
+
 `TasksScreen.tsx` lines 198-219 and `TaskDetailScreen.tsx` lines 127-149 have the exact same date picker modal pattern.
 
 → **Create:** `shared/components/ui/DatePickerSheet.tsx`
 
 #### b) **Bottom Sheet Modal** (manually re-implemented despite having a `BottomSheet` component)
+
 `CardsScreen.tsx` lines 482-551 and `InboxScreen.tsx` lines 229-271 manually implement the bottom-sheet pattern with `<Modal>` + `<TouchableOpacity>` backdrop instead of using the shared `<BottomSheet>` component.
 
 → **Fix:** Use the existing `<BottomSheet>` component everywhere
 
 #### c) **Filter Chip / Segmented Control**
+
 `CardsScreen.tsx` lines 415-427 (ownership filter), lines 431-448 (time filter), and lines 731-755 (owner selection) all implement the same "pill selector" pattern.
 
 → **Create:** `shared/components/ui/ChipGroup.tsx` or `SegmentedControl.tsx`
 
 #### d) **Owner Avatar Badge**
+
 The small colored circle with an initial (`card.owner.charAt(0)`) appears in `CardsScreen`, `SwipeableTaskRow`, and `CardDetailScreen`.
 
 → **Create:** `shared/components/ui/OwnerBadge.tsx`
 
 #### e) **Empty State**
+
 Custom empty states are defined inline in `TasksScreen` (lines 98-104), `CardDetailScreen` (lines 129-133), and `InboxScreen` (lines 100-104). There's already an `EmptyState` component exported but it's not being used.
 
 → **Fix:** Use the existing `<EmptyState>` component
 
 #### f) **Section Header with Count Badge**
+
 `InboxScreen` lines 82-88 and 110-116 duplicate a "label + icon + count badge" pattern.
 
 → **Create:** `shared/components/ui/SectionHeaderWithCount.tsx` (or extend existing `SectionHeader`)
 
 #### g) **Form Field Label**
+
 The pattern `<Text className="text-xs font-bold text-text-muted uppercase tracking-wider mb-2">` appears in `TasksScreen`, `TaskDetailScreen`, `CardDetailScreen`, `CardsScreen`, and `HomeOverviewScreen`.
 
 → **Create:** `shared/components/ui/FieldLabel.tsx`
@@ -139,12 +149,14 @@ The pattern `<Text className="text-xs font-bold text-text-muted uppercase tracki
 ### 5. Duplicated Business Logic
 
 #### a) `toDateStringLocal()` — defined identically in TWO files
+
 - `TasksScreen.tsx` line 12
 - `TaskDetailScreen.tsx` line 10
 
 → **Move to:** `shared/utils/date.ts` (which already exists but doesn't have this function!)
 
 #### b) `handleToggleDone()` — implemented identically in 3+ screens
+
 - `CardsScreen.tsx` line 150
 - `TasksScreen.tsx` line 39
 - `CardDetailScreen.tsx` line 57
@@ -152,11 +164,13 @@ The pattern `<Text className="text-xs font-bold text-text-muted uppercase tracki
 → **Move to:** A Zustand action or a shared hook `useTaskActions()`
 
 #### c) `isTaskInTimeFrame()` date filtering logic
+
 - `CardsScreen.tsx` lines 157-190
 
 → **Move to:** `shared/utils/date.ts` as a reusable utility
 
 #### d) `formatDate()` and `isOverdue()` in `SwipeableTaskRow.tsx`
+
 - Lines 11-26 duplicate logic that exists in `shared/utils/date.ts`
 
 → **Use:** The existing utilities in `shared/utils/date.ts`
@@ -166,11 +180,12 @@ The pattern `<Text className="text-xs font-bold text-text-muted uppercase tracki
 ### 6. Hardcoded User Data
 
 **Throughout the codebase:**
+
 ```tsx
-const selectedPerson = 'Savannah';    // CardsScreen
-const currentUser = 'Savannah';       // InboxScreen
+const selectedPerson = 'Savannah'; // CardsScreen
+const currentUser = 'Savannah'; // InboxScreen
 const selectedPerson: Person = 'Savannah'; // TasksScreen
-const partner = 'Kevin';              // InboxScreen
+const partner = 'Kevin'; // InboxScreen
 ```
 
 These should come from auth state / the store, not be hardcoded strings.
@@ -198,6 +213,7 @@ These should come from auth state / the store, not be hardcoded strings.
 ### 9. Unused / Dead Infrastructure Code
 
 The following are well-architected but **completely unused**:
+
 - `core/models/` — all models (Card, Task, Household, User, etc.)
 - `core/repositories/` — all repository interfaces
 - `infrastructure/firebase/` — converters, repositories, config
@@ -240,12 +256,14 @@ Screens render data immediately with no loading skeleton or spinner patterns. Wh
 ## 📋 Prioritized Action Plan
 
 ### Phase 1: Foundation Fixes ✅ COMPLETED
+
 1. ✅ ~~Create Zustand slices for `cards`, `tasks`, `dropZoneItems`~~ — Created `store/slices/dataStore.ts` with full CRUD + shuffle actions
 2. ✅ ~~Unify type system~~ — Added `note` to `Card` interface; all screens now import from `FakeDataStore` types consistently
 3. ✅ ~~Create `useCurrentUser()` hook~~ — Created `shared/hooks/useCurrentUser.ts`, removed all hardcoded `'Savannah'`/`'Kevin'` strings
 4. ✅ ~~Move duplicated utilities to `shared/utils/`~~ — Moved `toDateStringLocal`, `isDateInTimeFrame`, `formatShortDate`, `isOverdue` to `shared/utils/date.ts`
 
 ### Phase 2: Extract Reusable Components (high impact)
+
 5. ✅ `DatePickerSheet` — eliminate duplicated date picker modals
 6. ✅ `ChipGroup` / `SegmentedControl` — reusable pill/chip selector
 7. ✅ `OwnerBadge` — avatar circle with initial
@@ -253,11 +271,13 @@ Screens render data immediately with no loading skeleton or spinner patterns. Wh
 9. ✅ Use existing `EmptyState` and `BottomSheet` components consistently
 
 ### Phase 3: Decompose Giant Screens
+
 10. ✅ Break `CardsScreen.tsx` into 6-8 focused files
 11. ✅ Extract `AddCardModal`, `ShuffleModal`, `SwipeModeScreen` into separate files
 12. ✅ Create custom hooks for complex screen state (`useCardsFiltering`, `useCardShuffle`)
 
 ### Phase 4: Polish & Resilience
+
 13. ✅ Add `ErrorBoundary` component
 14. ✅ Add loading/skeleton states
 15. ✅ Fix navigation type safety
@@ -269,12 +289,12 @@ Screens render data immediately with no loading skeleton or spinner patterns. Wh
 
 ## 📊 Metrics Summary
 
-| Metric | Current | Target |
-|---|---|---|
-| Largest screen file | 769 lines | < 200 lines |
-| Duplicated UI patterns | 7+ patterns | 0 |
-| Duplicated business logic | 4+ functions | 0 |
-| Hardcoded user strings | 6+ instances | 0 |
-| Unused infrastructure files | ~15 files | Wired up or removed |
-| Shared components actually used | ~8 of 18 | 18 of 18 |
-| Type systems in use | 2 (competing) | 1 (unified) |
+| Metric                          | Current       | Target              |
+| ------------------------------- | ------------- | ------------------- |
+| Largest screen file             | 769 lines     | < 200 lines         |
+| Duplicated UI patterns          | 7+ patterns   | 0                   |
+| Duplicated business logic       | 4+ functions  | 0                   |
+| Hardcoded user strings          | 6+ instances  | 0                   |
+| Unused infrastructure files     | ~15 files     | Wired up or removed |
+| Shared components actually used | ~8 of 18      | 18 of 18            |
+| Type systems in use             | 2 (competing) | 1 (unified)         |

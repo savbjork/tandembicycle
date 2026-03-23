@@ -24,11 +24,8 @@ export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthInitializer>
-        <DataInitializer>
-          {children}
-        </DataInitializer>
+        <DataInitializer>{children}</DataInitializer>
       </AuthInitializer>
     </QueryClientProvider>
   );
 };
-

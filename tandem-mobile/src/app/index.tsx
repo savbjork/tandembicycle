@@ -17,7 +17,7 @@ export const App: React.FC = () => {
     // 'Barriecito-Regular': require('../../assets/fonts/Barriecito/Barriecito-Regular.ttf'),
     'NanumMyeongjo-Regular': require('../../assets/fonts/Nanum_Myeongjo/NanumMyeongjo-Regular.ttf'),
     'NanumMyeongjo-Bold': require('../../assets/fonts/Nanum_Myeongjo/NanumMyeongjo-Bold.ttf'),
-    'NanumMyeongjo-ExtraBold': require('../../assets/fonts/Nanum_Myeongjo/NanumMyeongjo-ExtraBold.ttf')
+    'NanumMyeongjo-ExtraBold': require('../../assets/fonts/Nanum_Myeongjo/NanumMyeongjo-ExtraBold.ttf'),
   });
 
   useEffect(() => {

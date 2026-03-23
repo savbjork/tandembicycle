@@ -12,59 +12,23 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@app": [
-        "./src/app"
-      ],
-      "@app/*": [
-        "./src/app/*"
-      ],
-      "@features": [
-        "./src/features"
-      ],
-      "@features/*": [
-        "./src/features/*"
-      ],
-      "@shared": [
-        "./src/shared"
-      ],
-      "@shared/*": [
-        "./src/shared/*"
-      ],
-      "@core": [
-        "./src/core"
-      ],
-      "@core/*": [
-        "./src/core/*"
-      ],
-      "@infrastructure": [
-        "./src/infrastructure"
-      ],
-      "@infrastructure/*": [
-        "./src/infrastructure/*"
-      ],
-      "@store": [
-        "./src/store"
-      ],
-      "@store/*": [
-        "./src/store/*"
-      ],
-      "@lib": [
-        "./src/lib"
-      ],
-      "@lib/*": [
-        "./src/lib/*"
-      ]
+      "@/*": ["./src/*"],
+      "@app": ["./src/app"],
+      "@app/*": ["./src/app/*"],
+      "@features": ["./src/features"],
+      "@features/*": ["./src/features/*"],
+      "@shared": ["./src/shared"],
+      "@shared/*": ["./src/shared/*"],
+      "@core": ["./src/core"],
+      "@core/*": ["./src/core/*"],
+      "@infrastructure": ["./src/infrastructure"],
+      "@infrastructure/*": ["./src/infrastructure/*"],
+      "@store": ["./src/store"],
+      "@store/*": ["./src/store/*"],
+      "@lib": ["./src/lib"],
+      "@lib/*": ["./src/lib/*"]
     }
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "nativewind-env.d.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts"],
+  "exclude": ["node_modules"]
 }

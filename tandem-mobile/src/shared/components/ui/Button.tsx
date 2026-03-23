@@ -1,9 +1,5 @@
 import React from 'react';
-import {
-  TouchableOpacity,
-  ActivityIndicator,
-  TouchableOpacityProps,
-} from 'react-native';
+import { TouchableOpacity, ActivityIndicator, TouchableOpacityProps } from 'react-native';
 import { Text } from '@shared/components/ui/Text';
 import { COLORS } from '@shared/constants/colors';
 
@@ -65,10 +61,9 @@ export const Button: React.FC<ButtonProps> = ({
         <>
           {leftIcon}
           <Text
-            className={`font-semibold text-center ${textSizeClasses[size]} ${variant === 'outline' || variant === 'ghost'
-              ? 'text-primary-600'
-              : 'text-white'
-              }`}
+            className={`font-semibold text-center ${textSizeClasses[size]} ${
+              variant === 'outline' || variant === 'ghost' ? 'text-primary-600' : 'text-white'
+            }`}
           >
             {title}
           </Text>

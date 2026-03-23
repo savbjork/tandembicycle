@@ -15,6 +15,7 @@
 ## Task 1: Delete dead code — store slices
 
 **Files:**
+
 - Delete: `src/store/slices/householdStore.ts`
 - Delete: `src/store/slices/uiStore.ts`
 - Modify: `src/store/index.ts`
@@ -40,6 +41,7 @@ export { useDataStore } from './slices/dataStore';
 ```bash
 cd tandem-mobile && npx tsc --noEmit
 ```
+
 Expected: no errors related to householdStore or uiStore.
 
 **Step 4: Commit**
@@ -54,6 +56,7 @@ git commit -m "refactor: remove unused householdStore and uiStore slices"
 ## Task 2: Delete dead code — shared types and utils
 
 **Files:**
+
 - Delete: `src/shared/types/branded.ts`
 - Delete: `src/shared/types/enums.ts`
 - Delete: `src/shared/types/index.ts`
@@ -84,6 +87,7 @@ export * from './date';
 ```bash
 cd tandem-mobile && npx tsc --noEmit
 ```
+
 Expected: no errors.
 
 **Step 4: Commit**
@@ -98,6 +102,7 @@ git commit -m "refactor: remove unused shared types and utility scaffolding"
 ## Task 3: Delete dead code — core, infrastructure, and dead nav stacks
 
 **Files:**
+
 - Delete: `src/core/` (entire directory)
 - Delete: `src/infrastructure/` (entire directory)
 - Delete: `src/app/navigation/stacks/HomeStackNavigator.tsx`
@@ -121,6 +126,7 @@ rm tandem-mobile/src/shared/constants/mockData.ts
 ```bash
 cd tandem-mobile && npx tsc --noEmit
 ```
+
 Expected: no errors. (None of these files were imported by active code.)
 
 **Step 3: Commit**
@@ -138,11 +144,13 @@ git commit -m "refactor: delete unused core, infrastructure, and dead scaffoldin
 ## Task 4: Move SwipeableTaskRow into ui/
 
 Three files import `TaskRow` from `@shared/components/SwipeableTaskRow`:
+
 - `src/features/home/screens/TasksScreen.tsx`
 - `src/features/cards/screens/CardDetailScreen.tsx`
 - `src/features/cards/components/CardListItem.tsx`
 
 **Files:**
+
 - Move: `src/shared/components/SwipeableTaskRow.tsx` → `src/shared/components/ui/SwipeableTaskRow.tsx`
 - Modify: `src/shared/components/ui/index.ts` (add export)
 - Modify: 3 files with import `@shared/components/SwipeableTaskRow`
@@ -165,15 +173,19 @@ export { TaskRow, SwipeableTaskRow } from './SwipeableTaskRow';
 **Step 3: Update imports in the 3 files that reference the old path**
 
 In each of these files, change:
+
 ```typescript
 import { TaskRow } from '@shared/components/SwipeableTaskRow';
 ```
+
 to:
+
 ```typescript
 import { TaskRow } from '@shared/components/ui/SwipeableTaskRow';
 ```
 
 Files to update:
+
 - `src/features/home/screens/TasksScreen.tsx`
 - `src/features/cards/screens/CardDetailScreen.tsx`
 - `src/features/cards/components/CardListItem.tsx`
@@ -183,6 +195,7 @@ Files to update:
 ```bash
 cd tandem-mobile && npx tsc --noEmit
 ```
+
 Expected: no errors.
 
 **Step 5: Commit**
@@ -200,11 +213,13 @@ git commit -m "refactor: move SwipeableTaskRow into shared/components/ui/"
 ## Task 5: Rename features/home/ → tasks/ and split out inbox/
 
 The `home/` folder has 3 screens:
+
 - `TasksScreen.tsx` → goes to `features/tasks/`
 - `TaskDetailScreen.tsx` → goes to `features/tasks/`
 - `InboxScreen.tsx` → goes to `features/inbox/`
 
 **Files:**
+
 - Create: `src/features/tasks/screens/TasksScreen.tsx` (moved)
 - Create: `src/features/tasks/screens/TaskDetailScreen.tsx` (moved)
 - Create: `src/features/tasks/index.ts` (new barrel)
@@ -252,16 +267,19 @@ export { InboxScreen } from './screens/InboxScreen';
 ```bash
 cd tandem-mobile && npx tsc --noEmit
 ```
+
 Expected: errors about `@features/home/...` imports not found. This is expected — fix in next step.
 
 **Step 5: Update all imports that referenced the old home/ paths**
 
 Files to search for old imports: run this to find them:
+
 ```bash
 grep -r "features/home\b" tandem-mobile/src --include="*.ts" --include="*.tsx" -l
 ```
 
 Update each file found:
+
 - `@features/home/screens/TasksScreen` → `@features/tasks/screens/TasksScreen`
 - `@features/home/screens/TaskDetailScreen` → `@features/tasks/screens/TaskDetailScreen`
 - `@features/home/screens/InboxScreen` → `@features/inbox/screens/InboxScreen`
@@ -271,6 +289,7 @@ Update each file found:
 ```bash
 cd tandem-mobile && npx tsc --noEmit
 ```
+
 Expected: no errors.
 
 **Step 7: Commit**
@@ -287,6 +306,7 @@ git commit -m "refactor: split features/home into features/tasks and features/in
 ## Task 6: Rename features/home-hub/ → profile/, rename HomeOverviewScreen → ProfileScreen
 
 **Files:**
+
 - Create: `src/features/profile/screens/ProfileScreen.tsx` (moved + renamed)
 - Create: `src/features/profile/index.ts` (new barrel)
 - Delete: `src/features/home-hub/` (entire directory)
@@ -305,10 +325,13 @@ rm -rf tandem-mobile/src/features/home-hub
 **Step 2: Rename the component inside the file**
 
 Open `src/features/profile/screens/ProfileScreen.tsx`. Find:
+
 ```typescript
 export const HomeOverviewScreen: React.FC = () => {
 ```
+
 Replace with:
+
 ```typescript
 export const ProfileScreen: React.FC = () => {
 ```
@@ -328,6 +351,7 @@ grep -r "HomeOverviewScreen\|home-hub" tandem-mobile/src --include="*.ts" --incl
 ```
 
 For each file found, update:
+
 - `@features/home-hub/screens/HomeOverviewScreen` → `@features/profile/screens/ProfileScreen`
 - `HomeOverviewScreen` (component reference) → `ProfileScreen`
 
@@ -336,6 +360,7 @@ For each file found, update:
 ```bash
 cd tandem-mobile && npx tsc --noEmit
 ```
+
 Expected: no errors.
 
 **Step 6: Commit**
@@ -351,6 +376,7 @@ git commit -m "refactor: rename home-hub to profile, HomeOverviewScreen to Profi
 ## Task 7: Rename navigation types and CardsStackNavigator → MainStackNavigator
 
 **Files:**
+
 - Modify: `src/app/navigation/types.ts`
 - Rename + Modify: `src/app/navigation/stacks/CardsStackNavigator.tsx` → `MainStackNavigator.tsx`
 - Modify: `src/app/navigation/MainNavigator.tsx` (update import)
@@ -452,6 +478,7 @@ export const MainStackNavigator: React.FC = () => {
 **Step 3: Update MainNavigator.tsx**
 
 Open `src/app/navigation/MainNavigator.tsx`. Update:
+
 - Import: `CardsStackNavigator` → `MainStackNavigator`
 - Import path: `./stacks/CardsStackNavigator` → `./stacks/MainStackNavigator`
 - Usage: `component={CardsStackNavigator}` → `component={MainStackNavigator}`
@@ -463,22 +490,28 @@ Open `src/app/navigation/MainNavigator.tsx`. Update:
 Open `src/features/cards/screens/CardsScreen.tsx`.
 
 Find:
+
 ```typescript
 import { CardsStackParamList, MainTabParamList } from '@app/navigation/types';
 ```
+
 Replace with:
+
 ```typescript
 import { MainStackParamList, MainTabParamList } from '@app/navigation/types';
 ```
 
 Find:
+
 ```typescript
 type NavigationProp = CompositeNavigationProp<
   NativeStackNavigationProp<CardsStackParamList>,
   BottomTabNavigationProp<MainTabParamList>
 >;
 ```
+
 Replace with:
+
 ```typescript
 type NavigationProp = CompositeNavigationProp<
   NativeStackNavigationProp<MainStackParamList>,
@@ -487,12 +520,15 @@ type NavigationProp = CompositeNavigationProp<
 ```
 
 Find and update the three navigate calls:
+
 ```typescript
 onNavigateTasks={() => navigation.navigate('MyBoard')}
 onNavigateInbox={() => navigation.navigate('Inbox')}
 onNavigateHome={() => navigation.navigate('Home')}
 ```
+
 Replace with:
+
 ```typescript
 onNavigateTasks={() => navigation.navigate('Tasks')}
 onNavigateInbox={() => navigation.navigate('Inbox')}
@@ -504,12 +540,15 @@ onNavigateHome={() => navigation.navigate('Profile')}
 Open `src/features/tasks/screens/TasksScreen.tsx`.
 
 Find:
+
 ```typescript
 import type { CardsStackParamList } from '@app/navigation/types';
 ...
 const navigation = useNavigation<NativeStackNavigationProp<CardsStackParamList>>();
 ```
+
 Replace with:
+
 ```typescript
 import type { MainStackParamList } from '@app/navigation/types';
 ...
@@ -522,6 +561,7 @@ const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>(
 grep -r "CardsStackParamList\|CardsStackNavigator\|MyBoard\b\|navigate.*'Home'" \
   tandem-mobile/src --include="*.ts" --include="*.tsx"
 ```
+
 Expected: no results.
 
 **Step 7: Run TypeScript check**
@@ -529,6 +569,7 @@ Expected: no results.
 ```bash
 cd tandem-mobile && npx tsc --noEmit
 ```
+
 Expected: no errors.
 
 **Step 8: Commit**
@@ -549,6 +590,7 @@ git commit -m "refactor: rename CardsStack to MainStack, update navigation route
 ```bash
 cd tandem-mobile && npx tsc --noEmit
 ```
+
 Expected: 0 errors.
 
 **Step 2: Verify the new folder structure looks right**
@@ -558,6 +600,7 @@ find tandem-mobile/src/features -type d | sort
 ```
 
 Expected output:
+
 ```
 tandem-mobile/src/features
 tandem-mobile/src/features/auth
@@ -579,6 +622,7 @@ tandem-mobile/src/features/tasks/screens
 ```bash
 find tandem-mobile/src -type d | grep -E "home|home-hub|core|infrastructure|household" | grep -v node_modules
 ```
+
 Expected: no output.
 
 **Step 4: Commit if any cleanup needed, otherwise done**
@@ -586,4 +630,5 @@ Expected: no output.
 ```bash
 git log --oneline -8
 ```
+
 Review the commit history looks clean and logical.

@@ -24,10 +24,7 @@ export const Screen: React.FC<ScreenProps> = ({
       className="flex-1"
     >
       {scrollable ? (
-        <ScrollView
-          className="flex-1 flex-grow"
-          keyboardShouldPersistTaps="handled"
-        >
+        <ScrollView className="flex-1 flex-grow" keyboardShouldPersistTaps="handled">
           <View className={`flex-1 ${className ?? ''}`}>{children}</View>
         </ScrollView>
       ) : (
@@ -37,11 +34,7 @@ export const Screen: React.FC<ScreenProps> = ({
   );
 
   if (safeArea) {
-    return (
-      <SafeAreaView className="flex-1 bg-surface-muted">
-        {content}
-      </SafeAreaView>
-    );
+    return <SafeAreaView className="flex-1 bg-surface-muted">{content}</SafeAreaView>;
   }
 
   return <View className="flex-1 bg-surface-muted">{content}</View>;

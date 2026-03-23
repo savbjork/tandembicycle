@@ -29,18 +29,18 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
         keyboardShouldPersistTaps="handled"
       >
         <View className="mb-8">
-            <TouchableOpacity
-                onPress={() => navigation.goBack()}
-                className="flex-row items-center gap-1 mb-8 -ml-1"
-            >
-                <Ionicons name="chevron-back" size={28} color="#374151" />
-            </TouchableOpacity>
-            <Text className="text-[32px] font-bold text-text tracking-tight mb-1">
-                Create Account
-            </Text>
-            <Text className="text-base text-text-secondary">
-                Join Tandem to start balancing household responsibilities
-            </Text>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            className="flex-row items-center gap-1 mb-8 -ml-1"
+          >
+            <Ionicons name="chevron-back" size={28} color="#374151" />
+          </TouchableOpacity>
+          <Text className="text-[32px] font-bold text-text tracking-tight mb-1">
+            Create Account
+          </Text>
+          <Text className="text-base text-text-secondary">
+            Join Tandem to start balancing household responsibilities
+          </Text>
         </View>
 
         <View className="mb-6">
@@ -83,9 +83,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
             </Text>
           </View>
 
-          {error && (
-            <Text className="text-sm text-red-600 mb-3">{error}</Text>
-          )}
+          {error && <Text className="text-sm text-red-600 mb-3">{error}</Text>}
 
           <TouchableOpacity
             className={`bg-primary-600 rounded-xl py-3.5 items-center mt-2 ${isLoading ? 'opacity-60' : ''}`}

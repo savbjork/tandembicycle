@@ -9,14 +9,14 @@ import { COLORS } from '@shared/constants/colors';
  * Use this instead of React Native's TextInput throughout the app.
  */
 export const TextInput = React.forwardRef<RNTextInput, TextInputProps & { className?: string }>(
-    ({ className, placeholderTextColor, ...props }, ref) => (
-        <RNTextInput
-            ref={ref}
-            className={`font-nanum ${className ?? ''}`}
-            placeholderTextColor={placeholderTextColor ?? COLORS.text.muted}
-            {...props}
-        />
-    )
+  ({ className, placeholderTextColor, ...props }, ref) => (
+    <RNTextInput
+      ref={ref}
+      className={`font-nanum ${className ?? ''}`}
+      placeholderTextColor={placeholderTextColor ?? COLORS.text.muted}
+      {...props}
+    />
+  )
 );
 
 TextInput.displayName = 'TextInput';

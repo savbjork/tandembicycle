@@ -1,29 +1,25 @@
 module.exports = function (api) {
   api.cache(true);
   return {
-    presets: [
-      "babel-preset-expo",
-      "nativewind/babel",
-    ],
+    presets: ['babel-preset-expo', 'nativewind/babel'],
     plugins: [
       [
-        "module-resolver",
+        'module-resolver',
         {
-          root: ["./src"],
+          root: ['./src'],
           alias: {
-            "@app": "./src/app",
-            "@features": "./src/features",
-            "@shared": "./src/shared",
-            "@core": "./src/core",
-            "@infrastructure": "./src/infrastructure",
-            "@store": "./src/store",
-            "@lib": "./src/lib",
+            '@app': './src/app',
+            '@features': './src/features',
+            '@shared': './src/shared',
+            '@core': './src/core',
+            '@infrastructure': './src/infrastructure',
+            '@store': './src/store',
+            '@lib': './src/lib',
           },
         },
       ],
       // react-native-reanimated/plugin MUST be listed last
-      "react-native-reanimated/plugin",
+      'react-native-reanimated/plugin',
     ],
   };
 };
-

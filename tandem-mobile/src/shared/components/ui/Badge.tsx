@@ -11,11 +11,7 @@ interface BadgeProps {
 /**
  * Badge component for labels and status indicators
  */
-export const Badge: React.FC<BadgeProps> = ({
-  label,
-  variant = 'primary',
-  size = 'sm',
-}) => {
+export const Badge: React.FC<BadgeProps> = ({ label, variant = 'primary', size = 'sm' }) => {
   const getVariantStyles = () => {
     switch (variant) {
       case 'primary':
@@ -45,4 +41,3 @@ export const Badge: React.FC<BadgeProps> = ({
     </View>
   );
 };
-

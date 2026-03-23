@@ -20,7 +20,6 @@ export const RootNavigator: React.FC = () => {
     return null;
   }
 
-
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -34,11 +33,10 @@ export const RootNavigator: React.FC = () => {
           component={TaskDetailScreen}
           options={{
             presentation: 'pageSheet',
-            headerShown: false
+            headerShown: false,
           }}
         />
       </Stack.Navigator>
     </NavigationContainer>
   );
 };
-

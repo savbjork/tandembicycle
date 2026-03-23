@@ -48,11 +48,7 @@ interface CardHeaderProps {
   rightElement?: React.ReactNode;
 }
 
-export const CardHeader: React.FC<CardHeaderProps> = ({
-  title,
-  subtitle,
-  rightElement,
-}) => (
+export const CardHeader: React.FC<CardHeaderProps> = ({ title, subtitle, rightElement }) => (
   <View className="flex-row items-center justify-between mb-3">
     <View className="flex-1">
       <Text className="text-lg font-semibold text-text">{title}</Text>
@@ -77,5 +73,3 @@ interface CardFooterProps {
 export const CardFooter: React.FC<CardFooterProps> = ({ children }) => (
   <View className="mt-3 pt-3 border-t border-border-light">{children}</View>
 );
-
-

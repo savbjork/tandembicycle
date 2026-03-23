@@ -73,8 +73,7 @@ const FrequencySelector: React.FC<FrequencySelectorProps> = ({ value, onChange }
 export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const { cardName } = route.params;
   const { currentUser } = useCurrentUser();
-  const { cards, tasks, toggleTaskDone, updateCard, renameCard, removeCard, archiveCard } =
-    useDataStore();
+  const { cards, tasks, toggleTaskDone, updateCard, renameCard, removeCard } = useDataStore();
 
   const card = useMemo(() => cards.find((c) => c.name === cardName), [cards, cardName]);
 
@@ -118,14 +117,14 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     toggleTaskDone(taskId);
   };
 
-  const handleArchive = () => {
-    Alert.alert('Archive Card?', `This will remove "${card.name}" from your roster.`, [
+  const handleDelete = () => {
+    Alert.alert('Delete Card?', `"${card.name}" will be permanently deleted.`, [
       { text: 'Cancel', style: 'cancel' },
       {
-        text: 'Archive',
+        text: 'Delete',
         style: 'destructive',
         onPress: () => {
-          archiveCard(card.name);
+          removeCard(card.name);
           navigation.goBack();
         },
       },
@@ -267,7 +266,7 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             )}
           </View>
 
-          {/* Archive Card */}
+          {/* Card Actions */}
           {isOwner && (
             <View className="flex-row gap-3 mt-2 mb-10">
               <TouchableOpacity
@@ -278,11 +277,11 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                 <Text className="text-sm font-bold text-primary-600">Add Task</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={handleArchive}
+                onPress={handleDelete}
                 className="flex-1 flex-row items-center justify-center gap-2 py-4 bg-red-50 rounded-xl border border-red-100"
               >
-                <Ionicons name="archive-outline" size={18} color="#dc2626" />
-                <Text className="text-sm font-bold text-red-600">Archive</Text>
+                <Ionicons name="trash-outline" size={18} color="#dc2626" />
+                <Text className="text-sm font-bold text-red-600">Delete</Text>
               </TouchableOpacity>
             </View>
           )}

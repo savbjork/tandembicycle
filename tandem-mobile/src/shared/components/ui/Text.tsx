@@ -8,13 +8,9 @@ import { Text as RNText, TextProps } from 'react-native';
  * Use this instead of React Native's Text throughout the app.
  */
 export const Text = React.forwardRef<RNText, TextProps & { className?: string }>(
-    ({ className, ...props }, ref) => (
-        <RNText
-            ref={ref}
-            className={`font-nanum ${className ?? ''}`}
-            {...props}
-        />
-    )
+  ({ className, ...props }, ref) => (
+    <RNText ref={ref} className={`font-nanum ${className ?? ''}`} {...props} />
+  )
 );
 
 Text.displayName = 'Text';

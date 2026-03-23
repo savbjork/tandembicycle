@@ -2,10 +2,10 @@ import React from 'react';
 import { Text } from './Text';
 
 interface FieldLabelProps {
-    /** The label text to display */
-    children: string;
-    /** Extra className to merge */
-    className?: string;
+  /** The label text to display */
+  children: string;
+  /** Extra className to merge */
+  className?: string;
 }
 
 /**
@@ -21,13 +21,10 @@ interface FieldLabelProps {
  * <FieldLabel>Card</FieldLabel>
  * <FieldLabel className="mb-4">Household Identity</FieldLabel>
  */
-export const FieldLabel: React.FC<FieldLabelProps> = ({
-    children,
-    className = '',
-}) => (
-    <Text
-        className={`text-[11px] font-bold text-text-muted uppercase tracking-widest mb-2 ${className}`}
-    >
-        {children}
-    </Text>
+export const FieldLabel: React.FC<FieldLabelProps> = ({ children, className = '' }) => (
+  <Text
+    className={`text-[11px] font-bold text-text-muted uppercase tracking-widest mb-2 ${className}`}
+  >
+    {children}
+  </Text>
 );

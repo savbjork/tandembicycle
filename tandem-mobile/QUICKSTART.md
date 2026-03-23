@@ -73,7 +73,7 @@ const db = getFirestore(app);
 
 async function seedCards() {
   console.log('Seeding card templates...');
-  
+
   for (const card of CARD_TEMPLATES) {
     const cardRef = doc(collection(db, 'card_templates'));
     await setDoc(cardRef, {
@@ -82,7 +82,7 @@ async function seedCards() {
     });
     console.log(`Added: ${card.name}`);
   }
-  
+
   console.log('✅ All 36 cards seeded successfully!');
 }
 
@@ -110,17 +110,20 @@ npm run start
 ## 📱 Testing the App
 
 ### Create Your First Account
+
 1. App opens to Welcome screen
 2. Tap "Create Account"
 3. Enter your name, email, and password
 4. Tap "Create Account"
 
 ### Create Your First Household
+
 1. After sign up, you'll be prompted to create a household
 2. Enter a household name (e.g., "The Smith Family")
 3. Tap "Create Household"
 
 ### Browse and Add Cards
+
 1. Go to "Cards" tab
 2. Browse the 36 Fair Play cards
 3. Tap a card to see details
@@ -128,6 +131,7 @@ npm run start
 5. Assign to yourself or your partner
 
 ### View Dashboard
+
 1. Go to "Home" tab
 2. See your assigned cards
 3. View workload balance meter
@@ -136,23 +140,27 @@ npm run start
 ## 🔧 Troubleshooting
 
 ### Metro Bundler Issues
+
 ```bash
 # Clear cache
 npx expo start -c
 ```
 
 ### TypeScript Errors
+
 ```bash
 # Restart TypeScript server
 # In VS Code: Cmd+Shift+P → "TypeScript: Restart TS Server"
 ```
 
 ### Firebase Connection Issues
+
 - Double-check your `.env` file has correct values
 - Ensure you've enabled Authentication and created Firestore database
 - Check Firebase Console for any security rule errors
 
 ### Module Not Found
+
 ```bash
 # Reinstall dependencies
 rm -rf node_modules
@@ -194,6 +202,7 @@ Edit `src/shared/constants/cardTemplates.ts` and add new cards:
 ## 📚 Next Steps
 
 ### Must-Do Before Launch
+
 - [ ] Implement authentication service hooks
 - [ ] Complete card assignment logic
 - [ ] Build household invitation system
@@ -202,6 +211,7 @@ Edit `src/shared/constants/cardTemplates.ts` and add new cards:
 - [ ] Add app icons and splash screen
 
 ### Nice-to-Have Features
+
 - [ ] Push notifications
 - [ ] Offline support
 - [ ] Dark mode
@@ -221,42 +231,42 @@ service cloud.firestore {
     function isAuthenticated() {
       return request.auth != null;
     }
-    
+
     // Helper function to check if user is household member
     function isHouseholdMember(householdId) {
-      return isAuthenticated() && 
+      return isAuthenticated() &&
              request.auth.uid in get(/databases/$(database)/documents/households/$(householdId)).data.memberIds;
     }
-    
+
     // Users can only read/write their own data
     match /users/{userId} {
       allow read, write: if isAuthenticated() && request.auth.uid == userId;
     }
-    
+
     // Household members can read/write household data
     match /households/{householdId} {
       allow read: if isAuthenticated() && request.auth.uid in resource.data.memberIds;
       allow create: if isAuthenticated();
       allow update, delete: if isHouseholdMember(householdId);
     }
-    
+
     // Anyone authenticated can read card templates
     match /card_templates/{cardId} {
       allow read: if isAuthenticated();
       allow write: if false; // Only admins can modify templates
     }
-    
+
     // Household members can manage their household cards
     match /household_cards/{cardId} {
       allow read, write: if isHouseholdMember(resource.data.householdId);
     }
-    
+
     // Invitations
     match /invitations/{invitationId} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated();
-      allow update, delete: if isAuthenticated() && 
-                              (request.auth.uid == resource.data.invitedBy || 
+      allow update, delete: if isAuthenticated() &&
+                              (request.auth.uid == resource.data.invitedBy ||
                                request.auth.email == resource.data.invitedEmail);
     }
   }
@@ -308,15 +318,14 @@ git push origin feature/new-feature
 
 Common issues and solutions:
 
-| Issue | Solution |
-|-------|----------|
-| App won't start | Clear cache: `npx expo start -c` |
-| TypeScript errors | Restart TS server in IDE |
-| Firebase errors | Check `.env` configuration |
-| Module errors | Reinstall: `npm install --legacy-peer-deps` |
-| Styling issues | Clear Metro cache |
+| Issue             | Solution                                    |
+| ----------------- | ------------------------------------------- |
+| App won't start   | Clear cache: `npx expo start -c`            |
+| TypeScript errors | Restart TS server in IDE                    |
+| Firebase errors   | Check `.env` configuration                  |
+| Module errors     | Reinstall: `npm install --legacy-peer-deps` |
+| Styling issues    | Clear Metro cache                           |
 
 ---
 
 **You're all set!** 🎉 Start building and make household labor visible and equitable!
-

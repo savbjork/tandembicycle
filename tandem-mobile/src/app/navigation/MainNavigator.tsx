@@ -31,9 +31,7 @@ export const MainNavigator: React.FC = () => {
         component={MainStackNavigator}
         options={{
           tabBarLabel: 'Roster',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="people" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size }) => <Ionicons name="people" size={size} color={color} />,
         }}
       />
       <Tab.Screen
@@ -41,9 +39,7 @@ export const MainNavigator: React.FC = () => {
         component={InboxScreen}
         options={{
           tabBarLabel: 'Inbox',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="mail" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size }) => <Ionicons name="mail" size={size} color={color} />,
         }}
       />
       <Tab.Screen
@@ -51,9 +47,7 @@ export const MainNavigator: React.FC = () => {
         component={ProfileScreen}
         options={{
           tabBarLabel: 'Home',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
         }}
       />
     </Tab.Navigator>

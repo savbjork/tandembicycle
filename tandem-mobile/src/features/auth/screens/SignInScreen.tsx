@@ -28,18 +28,14 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
         keyboardShouldPersistTaps="handled"
       >
         <View className="mb-8">
-            <TouchableOpacity
-                onPress={() => navigation.goBack()}
-                className="flex-row items-center gap-1 mb-8 -ml-1"
-            >
-                <Ionicons name="chevron-back" size={28} color="#374151" />
-            </TouchableOpacity>
-            <Text className="text-[32px] font-bold text-text tracking-tight mb-1">
-                Welcome back
-            </Text>
-            <Text className="text-base text-text-secondary">
-                Sign in to continue
-            </Text>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            className="flex-row items-center gap-1 mb-8 -ml-1"
+          >
+            <Ionicons name="chevron-back" size={28} color="#374151" />
+          </TouchableOpacity>
+          <Text className="text-[32px] font-bold text-text tracking-tight mb-1">Welcome back</Text>
+          <Text className="text-base text-text-secondary">Sign in to continue</Text>
         </View>
 
         <View className="mb-8">
@@ -68,14 +64,10 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
             />
           </View>
 
-          {error && (
-            <Text className="text-sm text-red-600 mb-4">{error}</Text>
-          )}
+          {error && <Text className="text-sm text-red-600 mb-4">{error}</Text>}
 
           <TouchableOpacity className="items-end mb-6">
-            <Text className="text-sm text-primary-600 font-medium">
-              Forgot password?
-            </Text>
+            <Text className="text-sm text-primary-600 font-medium">Forgot password?</Text>
           </TouchableOpacity>
 
           <TouchableOpacity

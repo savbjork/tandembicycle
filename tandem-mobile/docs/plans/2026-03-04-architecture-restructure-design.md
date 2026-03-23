@@ -1,4 +1,5 @@
 # Architecture Restructure Design
+
 **Date:** 2026-03-04
 **Branch:** taskScreen
 **Scope:** File/folder structure, dead code removal, navigation type cleanup
@@ -16,17 +17,18 @@
 
 ## Section 1: Feature Folder Renames
 
-| Before | After | Notes |
-|---|---|---|
-| `features/home/screens/TasksScreen.tsx` | `features/tasks/screens/TasksScreen.tsx` | |
-| `features/home/screens/TaskDetailScreen.tsx` | `features/tasks/screens/TaskDetailScreen.tsx` | |
-| `features/home/screens/InboxScreen.tsx` | `features/inbox/screens/InboxScreen.tsx` | Inbox is its own feature |
-| `features/home/index.ts` | `features/tasks/index.ts` + `features/inbox/index.ts` | Split barrel exports |
-| `features/home-hub/screens/HomeOverviewScreen.tsx` | `features/profile/screens/ProfileScreen.tsx` | Rename file and component |
-| `features/home-hub/index.ts` | `features/profile/index.ts` | |
-| `features/household/` | DELETE | Not wired into any navigation |
+| Before                                             | After                                                 | Notes                         |
+| -------------------------------------------------- | ----------------------------------------------------- | ----------------------------- |
+| `features/home/screens/TasksScreen.tsx`            | `features/tasks/screens/TasksScreen.tsx`              |                               |
+| `features/home/screens/TaskDetailScreen.tsx`       | `features/tasks/screens/TaskDetailScreen.tsx`         |                               |
+| `features/home/screens/InboxScreen.tsx`            | `features/inbox/screens/InboxScreen.tsx`              | Inbox is its own feature      |
+| `features/home/index.ts`                           | `features/tasks/index.ts` + `features/inbox/index.ts` | Split barrel exports          |
+| `features/home-hub/screens/HomeOverviewScreen.tsx` | `features/profile/screens/ProfileScreen.tsx`          | Rename file and component     |
+| `features/home-hub/index.ts`                       | `features/profile/index.ts`                           |                               |
+| `features/household/`                              | DELETE                                                | Not wired into any navigation |
 
 **Result:**
+
 ```
 features/
   auth/
@@ -58,6 +60,7 @@ src/app/navigation/stacks/HouseholdStackNavigator.tsx
 ```
 
 Also move:
+
 - `shared/components/SwipeableTaskRow.tsx` → `shared/components/ui/SwipeableTaskRow.tsx`
 
 ---
@@ -66,11 +69,11 @@ Also move:
 
 Rename `CardsStackParamList` → `MainStackParamList` and its route names:
 
-| Before | After |
-|---|---|
+| Before                | After                |
+| --------------------- | -------------------- |
 | `CardsStackParamList` | `MainStackParamList` |
-| route `MyBoard` | route `Tasks` |
-| route `Home` | route `Profile` |
+| route `MyBoard`       | route `Tasks`        |
+| route `Home`          | route `Profile`      |
 | `CardsStackNavigator` | `MainStackNavigator` |
 
 Update all `navigation.navigate('MyBoard')` → `navigation.navigate('Tasks')` etc.
@@ -93,6 +96,7 @@ Update `MainNavigator.tsx` to import from `MainStackNavigator` and the new featu
 ## UI Fixes (Follow-up, not in this plan)
 
 To be addressed after the structural refactor:
+
 1. Text input fields look inconsistent
 2. Keyboard hides notes field in CardDetailScreen
 3. Top margin too large on CardDetailScreen and TaskDetailScreen
