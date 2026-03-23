@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { type TaskTimeFilter } from '@shared/utils/date';
 import { type CardsFilter } from './useCardsFiltering';
+import { type CardFrequency } from '@shared/data/FakeDataStore';
 
 const STORAGE_KEY = 'cards_filter_preferences';
 
@@ -11,6 +12,7 @@ interface FilterPreferences {
   hideCompleted: boolean;
   hideUndated: boolean;
   hideEmptyCards: boolean;
+  frequencyFilter: CardFrequency | 'all';
 }
 
 const DEFAULTS: FilterPreferences = {
@@ -19,6 +21,7 @@ const DEFAULTS: FilterPreferences = {
   hideCompleted: false,
   hideUndated: false,
   hideEmptyCards: false,
+  frequencyFilter: 'all',
 };
 
 export const useCardsFilterPreferences = () => {
