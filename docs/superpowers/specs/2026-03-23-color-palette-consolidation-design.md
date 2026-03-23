@@ -14,9 +14,11 @@ Eliminate the dual-source color problem (tailwind.config.js and colors.ts manual
 
 ## Architecture
 
-### Canonical source: `src/shared/constants/tokens.js`
+### Canonical source: `src/shared/constants/tokens.js` + `tokens.d.ts`
 
-A plain JavaScript file (no TypeScript) containing all raw color values. Plain JS is required so both `tailwind.config.js` (Node.js) and `colors.ts` (TypeScript) can import from it without any special setup.
+`tokens.js` is a plain JavaScript file containing all raw color values with numeric keys (e.g. `600: '#dc2626'`). Plain JS is required because `tailwind.config.js` is processed by Node.js at build time and Tailwind CSS v3 does not support TypeScript config files.
+
+`tokens.d.ts` sits alongside `tokens.js` and declares the full TypeScript type for the module. TypeScript automatically uses this declaration file when `colors.ts` imports `./tokens` — no `require`, no `any`, full type safety.
 
 ### `tailwind.config.js`
 
@@ -24,7 +26,7 @@ A plain JavaScript file (no TypeScript) containing all raw color values. Plain J
 
 ### `src/shared/constants/colors.ts`
 
-Imports from tokens.js and re-exports as `COLORS` with TypeScript `as const`. Same shape as today — no call sites change.
+`import tokens from './tokens'` — TypeScript resolves `tokens.d.ts` for types. Re-exports as `COLORS` with the same shape as today — no call sites change.
 
 ## Token Changes
 
@@ -66,8 +68,9 @@ One new token:
 
 | File | Change |
 |---|---|
-| `src/shared/constants/tokens.js` | Create — canonical color values |
-| `src/shared/constants/colors.ts` | Rewrite to import from tokens.js |
+| `src/shared/constants/tokens.js` | Create — canonical color values (plain JS) |
+| `src/shared/constants/tokens.d.ts` | Create — TypeScript type declarations for tokens.js |
+| `src/shared/constants/colors.ts` | Rewrite to import from tokens via tokens.d.ts |
 | `tailwind.config.js` | Rewrite to require tokens.js |
 | `src/features/cards/screens/CardDetailScreen.tsx` | Replace hardcoded colors |
 | `src/features/tasks/screens/TaskDetailScreen.tsx` | Replace hardcoded colors |
