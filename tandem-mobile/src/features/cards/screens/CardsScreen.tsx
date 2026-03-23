@@ -38,7 +38,8 @@ type NavigationProp = CompositeNavigationProp<
 export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
   const navigation = useNavigation<NavigationProp>();
   const { currentUser, partner, householdMembers } = useCurrentUser();
-  const { cards, tasks, toggleTaskDone, reassignCards, resetToDefaults, archiveCard } = useDataStore();
+  const { cards, tasks, toggleTaskDone, reassignCards, resetToDefaults, archiveCard } =
+    useDataStore();
 
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [showAddCard, setShowAddCard] = useState(false);
@@ -51,7 +52,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
 
   // Filter states (persisted to AsyncStorage)
   const { prefs, update: updateFilter } = useCardsFilterPreferences();
-  const { filter, taskTimeFilter, hideCompleted, hideUndated, hideEmptyCards } = prefs;
+  const { filter, taskTimeFilter, hideCompleted, hideUndated, hideEmptyCards, frequencyFilter } = prefs;
 
   const { filteredCards, getCardTasks } = useCardsFiltering({
     cards,
@@ -63,6 +64,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
     hideUndated,
     currentUser,
     searchQuery,
+    frequencyFilter,
   });
 
   const onShuffleEnd = useCallback(() => {
@@ -93,18 +95,18 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
   });
 
   const toggleCardSelection = (name: string) => {
-    setSelectedCardNames(prev =>
-      prev.includes(name) ? prev.filter(n => n !== name) : [...prev, name]
+    setSelectedCardNames((prev) =>
+      prev.includes(name) ? prev.filter((n) => n !== name) : [...prev, name]
     );
   };
 
   const handleSelectiveShuffle = () => {
-    const cardsToShuffle = cards.filter(c => selectedCardNames.includes(c.name));
+    const cardsToShuffle = cards.filter((c) => selectedCardNames.includes(c.name));
     startSwipeShuffle(cardsToShuffle);
   };
 
   const handleAssignAllToMe = () => {
-    const assignments = selectedCardNames.map(name => ({ name, owner: currentUser }));
+    const assignments = selectedCardNames.map((name) => ({ name, owner: currentUser }));
     reassignCards(assignments);
     setIsSelecting(false);
     setSelectedCardNames([]);
@@ -115,54 +117,68 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
     toggleTaskDone(taskId);
   };
 
-  const listHeader = useMemo(() => !isSelecting ? (
-    <View>
-      <View className="mb-4 mt-1" onLayout={(e) => flatListRef.current?.scrollToOffset({ offset: e.nativeEvent.layout.height, animated: false })}>
-        <View className="flex-row items-center bg-surface border border-border rounded-xl px-3 py-2 gap-2">
-          <Ionicons name="search" size={18} color={COLORS.text.muted} />
-          <TextInput
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            // placeholder="Search cards..."
-            // placeholderTextColor={COLORS.text.muted}
-            className="flex-1 text-base text-text"
-            autoCorrect={false}
-            autoCapitalize="none"
+  const listHeader = useMemo(
+    () =>
+      !isSelecting ? (
+        <View>
+          <View
+            className="mb-4 mt-1"
+            onLayout={(e) =>
+              flatListRef.current?.scrollToOffset({
+                offset: e.nativeEvent.layout.height,
+                animated: false,
+              })
+            }
+          >
+            <View className="flex-row items-center bg-surface border border-border rounded-xl px-3 py-2 gap-2">
+              <Ionicons name="search" size={18} color={COLORS.text.muted} />
+              <TextInput
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                // placeholder="Search cards..."
+                // placeholderTextColor={COLORS.text.muted}
+                className="flex-1 text-base text-text"
+                autoCorrect={false}
+                autoCapitalize="none"
+              />
+              {searchQuery.length > 0 && (
+                <TouchableOpacity onPress={() => setSearchQuery('')}>
+                  <Ionicons name="close-circle" size={18} color={COLORS.text.muted} />
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+          <NavigationRow
+            onNavigateTasks={() => navigation.navigate('Tasks')}
+            onNavigateInbox={() => navigation.navigate('Inbox')}
+            onNavigateHome={() => navigation.navigate('Profile')}
           />
-          {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={() => setSearchQuery('')}>
-              <Ionicons name="close-circle" size={18} color={COLORS.text.muted} />
-            </TouchableOpacity>
+          {filter === 'all' && (
+            <BalanceMeter cards={cards} currentUser={currentUser} partner={partner} />
           )}
         </View>
-      </View>
-      <NavigationRow
-        onNavigateTasks={() => navigation.navigate('Tasks')}
-        onNavigateInbox={() => navigation.navigate('Inbox')}
-        onNavigateHome={() => navigation.navigate('Profile')}
-      />
-      {filter === 'all' && (
-        <BalanceMeter
-          cards={cards}
-          currentUser={currentUser}
-          partner={partner}
-        />
-      )}
-    </View>
-  ) : null, [isSelecting, searchQuery, filter, cards, currentUser, partner]);
+      ) : null,
+    [isSelecting, searchQuery, filter, cards, currentUser, partner]
+  );
 
-  const listFooter = useMemo(() => !isSelecting ? (
-    <View>
-      <TouchableOpacity
-        onPress={() => navigation.navigate('ArchivedCards')}
-        className="flex-row items-center justify-center gap-2 py-3 px-5 mb-6 bg-surface border border-border rounded-2xl"
-      >
-        <Ionicons name="archive-outline" size={18} color={COLORS.text.secondary} />
-        <Text className="text-sm font-semibold text-text-secondary">Archived Cards</Text>
-      </TouchableOpacity>
-      <View className="h-20" />
-    </View>
-  ) : <View className="h-20" />, [isSelecting]);
+  const listFooter = useMemo(
+    () =>
+      !isSelecting ? (
+        <View>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ArchivedCards')}
+            className="flex-row items-center justify-center gap-2 py-3 px-5 mb-6 bg-surface border border-border rounded-2xl"
+          >
+            <Ionicons name="archive-outline" size={18} color={COLORS.text.secondary} />
+            <Text className="text-sm font-semibold text-text-secondary">Archived Cards</Text>
+          </TouchableOpacity>
+          <View className="h-20" />
+        </View>
+      ) : (
+        <View className="h-20" />
+      ),
+    [isSelecting]
+  );
 
   return (
     <View className="flex-1 bg-surface-dim">
@@ -195,7 +211,12 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
                 className="bg-surface w-11 h-11 rounded-full items-center justify-center border border-border"
               >
                 <Ionicons name="options-outline" size={24} color={COLORS.text.secondary} />
-                {(filter !== 'all' || taskTimeFilter !== 'hidden' || hideEmptyCards || hideCompleted || hideUndated) && (
+                {(filter !== 'all' ||
+                  taskTimeFilter !== 'hidden' ||
+                  hideEmptyCards ||
+                  hideCompleted ||
+                  hideUndated ||
+                  frequencyFilter !== 'all') && (
                   <View className="absolute top-0 right-0 w-3.5 h-3.5 rounded-full bg-primary-600 border-2 border-surface" />
                 )}
               </TouchableOpacity>
@@ -215,13 +236,15 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
         ListHeaderComponent={listHeader}
         ListFooterComponent={listFooter}
         ListEmptyComponent={
-          cards.filter(c => !c.archived).length === 0 ? (
+          cards.filter((c) => !c.archived).length === 0 ? (
             <View className="flex-1 items-center justify-center pt-20">
               <TouchableOpacity
                 className="bg-surface border border-border px-8 py-4 rounded-2xl active:opacity-70"
                 onPress={startWithDefaults}
               >
-                <Text className="text-text-secondary text-lg font-semibold">Start with defaults</Text>
+                <Text className="text-text-secondary text-lg font-semibold">
+                  Start with defaults
+                </Text>
               </TouchableOpacity>
             </View>
           ) : (
@@ -284,6 +307,8 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
         onHideUndatedChange={(v) => updateFilter({ hideUndated: v })}
         hideEmptyCards={hideEmptyCards}
         onHideEmptyCardsChange={(v) => updateFilter({ hideEmptyCards: v })}
+        frequencyFilter={frequencyFilter}
+        onFrequencyFilterChange={(v) => updateFilter({ frequencyFilter: v })}
       />
 
       <ShuffleModal
@@ -310,7 +335,6 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
       />
 
       {showAddCard && <AddCardModal onClose={() => setShowAddCard(false)} />}
-    </View >
+    </View>
   );
 };
-
