@@ -12,9 +12,9 @@ interface DeleteButtonProps extends TouchableOpacityProps {
  */
 export const DeleteButton: React.FC<DeleteButtonProps> = ({ title, className, ...props }) => (
   <TouchableOpacity
-    className={`bg-surface rounded-xl p-4 border border-red-100 items-center active:bg-red-50 ${className ?? ''}`}
+    className={`bg-surface rounded-xl p-4 border border-primary-100 items-center active:bg-primary-50 ${className ?? ''}`}
     {...props}
   >
-    <Text className="text-base font-semibold text-red-500">{title}</Text>
+    <Text className="text-base font-semibold text-primary-500">{title}</Text>
   </TouchableOpacity>
 );

@@ -64,14 +64,14 @@ export const ShuffleModal: React.FC<ShuffleModalProps> = ({
           </TouchableOpacity>
 
           <TouchableOpacity
-            className="bg-red-50 rounded-xl p-4 mb-6 border border-red-100 flex-row items-center gap-4 shadow-sm"
+            className="bg-primary-50 rounded-xl p-4 mb-6 border border-primary-100 flex-row items-center gap-4 shadow-sm"
             onPress={onFreshStart}
           >
-            <View className="w-10 h-10 bg-red-100 rounded-full items-center justify-center">
-              <Ionicons name="trash" size={20} color="#dc2626" />
+            <View className="w-10 h-10 bg-primary-100 rounded-full items-center justify-center">
+              <Ionicons name="trash" size={20} color={COLORS.primary[600]} />
             </View>
             <View className="flex-1">
-              <Text className="text-base font-bold text-red-600">Restart with defaults</Text>
+              <Text className="text-base font-bold text-primary-600">Restart with defaults</Text>
             </View>
           </TouchableOpacity>
         </TouchableOpacity>

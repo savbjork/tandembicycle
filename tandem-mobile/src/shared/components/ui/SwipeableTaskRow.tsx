@@ -76,7 +76,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
         </Text>
         {!hideDueDate && (
           <Text
-            className={`text-[11px] ${overdue ? 'text-red-500 font-semibold' : 'text-text-muted'}`}
+            className={`text-[11px] ${overdue ? 'text-primary-500 font-semibold' : 'text-text-muted'}`}
           >
             {formatShortDate(task.dueDate)}
           </Text>
@@ -88,7 +88,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
   if (isBoard) {
     return (
       <TouchableOpacity
-        className={`${hideBackground ? '' : 'bg-surface shadow-sm ' + (overdue ? 'border border-red-200' : '')} rounded-lg px-3.5 py-3 mb-2`}
+        className={`${hideBackground ? '' : 'bg-surface shadow-sm ' + (overdue ? 'border border-primary-200' : '')} rounded-lg px-3.5 py-3 mb-2`}
         onPress={handlePress}
         activeOpacity={0.7}
       >
@@ -101,7 +101,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
             />
           </TouchableOpacity>
           <Text
-            className={`text-[14px] font-medium flex-1 ${isDone ? 'text-text-muted line-through' : overdue ? 'text-red-600' : 'text-text'}`}
+            className={`text-[14px] font-medium flex-1 ${isDone ? 'text-text-muted line-through' : overdue ? 'text-primary-600' : 'text-text'}`}
           >
             {task.name}
           </Text>
@@ -110,7 +110,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
           {!hideCardName && <Text className="text-xs text-text-muted">{task.card}</Text>}
           {!hideDueDate && (
             <Text
-              className={`text-xs ${overdue ? 'text-red-500 font-semibold' : 'text-text-secondary'}`}
+              className={`text-xs ${overdue ? 'text-primary-500 font-semibold' : 'text-text-secondary'}`}
             >
               {overdue ? 'Overdue' : formatShortDate(task.dueDate)}
             </Text>
@@ -122,7 +122,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
 
   return (
     <TouchableOpacity
-      className={`${hideBackground ? '' : 'bg-surface shadow-sm ' + (overdue ? 'border border-red-200' : '')} ${hideBackground ? '' : hideCardName ? 'mb-1.5' : 'mb-3'} ${hideCardName ? 'py-1.5' : 'py-3.5'} rounded-xl px-4`}
+      className={`${hideBackground ? '' : 'bg-surface shadow-sm ' + (overdue ? 'border border-primary-200' : '')} ${hideBackground ? '' : hideCardName ? 'mb-1.5' : 'mb-3'} ${hideCardName ? 'py-1.5' : 'py-3.5'} rounded-xl px-4`}
       onPress={handlePress}
       activeOpacity={0.7}
     >
@@ -136,7 +136,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
         </TouchableOpacity>
         <View className="flex-1">
           <Text
-            className={`${hideCardName ? 'text-[14px]' : 'text-[15px]'} font-medium ${isDone ? 'text-text-muted line-through' : overdue ? 'text-red-600' : 'text-text'}`}
+            className={`${hideCardName ? 'text-[14px]' : 'text-[15px]'} font-medium ${isDone ? 'text-text-muted line-through' : overdue ? 'text-primary-600' : 'text-text'}`}
           >
             {task.name}
           </Text>
@@ -150,14 +150,14 @@ export const TaskRow: React.FC<TaskRowProps> = ({
           <View className="items-end">
             {!hideDueDate && (
               <Text
-                className={`text-xs ${overdue ? 'text-red-500 font-semibold' : 'text-text-secondary'}`}
+                className={`text-xs ${overdue ? 'text-primary-500 font-semibold' : 'text-text-secondary'}`}
               >
                 {overdue ? 'Overdue' : formatShortDate(task.dueDate)}
               </Text>
             )}
             {pendingHandoffLabel && (
-              <View className="bg-amber-100 px-1.5 py-0.5 rounded mt-1">
-                <Text className="text-[10px] font-semibold text-amber-600">
+              <View className="bg-warning-100 px-1.5 py-0.5 rounded mt-1">
+                <Text className="text-[10px] font-semibold text-warning-600">
                   {pendingHandoffLabel}
                 </Text>
               </View>

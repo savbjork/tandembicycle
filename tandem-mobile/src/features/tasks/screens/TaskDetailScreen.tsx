@@ -145,9 +145,9 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           />
 
           {!isOwner && (
-            <View className="bg-yellow-50 rounded-xl p-4 mb-4 flex-row items-center gap-3 border border-yellow-100">
-              <Ionicons name="lock-closed" size={18} color="#ca8a04" />
-              <Text className="text-sm text-yellow-800 flex-1">
+            <View className="bg-warning-50 rounded-xl p-4 mb-4 flex-row items-center gap-3 border border-warning-100">
+              <Ionicons name="lock-closed" size={18} color={COLORS.warning[600]} />
+              <Text className="text-sm text-warning-800 flex-1">
                 This task belongs to {task.owner}. You can view but not edit.
               </Text>
             </View>
@@ -233,10 +233,10 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             <View className="flex-row gap-3 mt-2 mb-6">
               <TouchableOpacity
                 onPress={handleDelete}
-                className="flex-1 flex-row items-center justify-center gap-2 py-4 bg-red-50 rounded-xl border border-red-100"
+                className="flex-1 flex-row items-center justify-center gap-2 py-4 bg-primary-50 rounded-xl border border-primary-100"
               >
-                <Ionicons name="trash-outline" size={18} color="#dc2626" />
-                <Text className="text-sm font-bold text-red-600">Delete</Text>
+                <Ionicons name="trash-outline" size={18} color={COLORS.primary[600]} />
+                <Text className="text-sm font-bold text-primary-600">Delete</Text>
               </TouchableOpacity>
             </View>
           )}

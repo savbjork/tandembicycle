@@ -6,6 +6,7 @@ import { useAuth } from '@shared/hooks/useAuth';
 import { Text } from '@shared/components/ui/Text';
 import { TextInput } from '@shared/components/ui/TextInput';
 import { Ionicons } from '@expo/vector-icons';
+import { COLORS } from '@shared/constants/colors';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'SignUp'>;
 
@@ -33,7 +34,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
             onPress={() => navigation.goBack()}
             className="flex-row items-center gap-1 mb-8 -ml-1"
           >
-            <Ionicons name="chevron-back" size={28} color="#374151" />
+            <Ionicons name="chevron-back" size={28} color={COLORS.text.light} />
           </TouchableOpacity>
           <Text className="text-[32px] font-bold text-text tracking-tight mb-1">
             Create Account
@@ -83,7 +84,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
             </Text>
           </View>
 
-          {error && <Text className="text-sm text-red-600 mb-3">{error}</Text>}
+          {error && <Text className="text-sm text-primary-600 mb-3">{error}</Text>}
 
           <TouchableOpacity
             className={`bg-primary-600 rounded-xl py-3.5 items-center mt-2 ${isLoading ? 'opacity-60' : ''}`}

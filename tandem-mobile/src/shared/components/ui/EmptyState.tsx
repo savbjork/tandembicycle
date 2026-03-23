@@ -25,9 +25,9 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     <View className="flex-1 items-center justify-center px-6 py-12">
       {icon && <View className="mb-4">{icon}</View>}
 
-      <Text className="text-xl font-semibold text-gray-900 text-center mb-2">{title}</Text>
+      <Text className="text-xl font-semibold text-text text-center mb-2">{title}</Text>
 
-      {description && <Text className="text-gray-500 text-center mb-6">{description}</Text>}
+      {description && <Text className="text-text-secondary text-center mb-6">{description}</Text>}
 
       {actionLabel && onAction && <Button title={actionLabel} onPress={onAction} size="md" />}
     </View>

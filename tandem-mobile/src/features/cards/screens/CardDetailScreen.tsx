@@ -37,7 +37,7 @@ const FREQUENCY_OPTIONS: { label: string; value: CardFrequency }[] = [
 const FREQUENCY_ACTIVE_STYLE: Record<CardFrequency, string> = {
   daily: 'bg-primary-600',
   weekly: 'bg-secondary-600',
-  'as-needed': 'bg-gray-500',
+  'as-needed': 'bg-neutral-500',
 };
 
 interface FrequencySelectorProps {
@@ -161,9 +161,9 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
           {/* Not Owner Banner */}
           {!isOwner && (
-            <View className="bg-yellow-50 rounded-xl p-4 mb-4 flex-row items-center gap-3 border border-yellow-100">
-              <Ionicons name="lock-closed" size={18} color="#ca8a04" />
-              <Text className="text-sm text-yellow-800 flex-1">
+            <View className="bg-warning-50 rounded-xl p-4 mb-4 flex-row items-center gap-3 border border-warning-100">
+              <Ionicons name="lock-closed" size={18} color={COLORS.warning[600]} />
+              <Text className="text-sm text-warning-800 flex-1">
                 This card belongs to {card.owner}. You can view but not edit.
               </Text>
             </View>
@@ -278,10 +278,10 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={handleDelete}
-                className="flex-1 flex-row items-center justify-center gap-2 py-4 bg-red-50 rounded-xl border border-red-100"
+                className="flex-1 flex-row items-center justify-center gap-2 py-4 bg-primary-50 rounded-xl border border-primary-100"
               >
-                <Ionicons name="trash-outline" size={18} color="#dc2626" />
-                <Text className="text-sm font-bold text-red-600">Delete</Text>
+                <Ionicons name="trash-outline" size={18} color={COLORS.primary[600]} />
+                <Text className="text-sm font-bold text-primary-600">Delete</Text>
               </TouchableOpacity>
             </View>
           )}

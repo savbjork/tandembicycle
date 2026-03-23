@@ -6,6 +6,7 @@ import { AuthStackParamList } from '@app/navigation/types';
 import { useAuth } from '@shared/hooks/useAuth';
 import { Text } from '@shared/components/ui/Text';
 import { TextInput } from '@shared/components/ui/TextInput';
+import { COLORS } from '@shared/constants/colors';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'SignIn'>;
 
@@ -32,7 +33,7 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
             onPress={() => navigation.goBack()}
             className="flex-row items-center gap-1 mb-8 -ml-1"
           >
-            <Ionicons name="chevron-back" size={28} color="#374151" />
+            <Ionicons name="chevron-back" size={28} color={COLORS.text.light} />
           </TouchableOpacity>
           <Text className="text-[32px] font-bold text-text tracking-tight mb-1">Welcome back</Text>
           <Text className="text-base text-text-secondary">Sign in to continue</Text>
@@ -64,7 +65,7 @@ export const SignInScreen: React.FC<Props> = ({ navigation }) => {
             />
           </View>
 
-          {error && <Text className="text-sm text-red-600 mb-4">{error}</Text>}
+          {error && <Text className="text-sm text-primary-600 mb-4">{error}</Text>}
 
           <TouchableOpacity className="items-end mb-6">
             <Text className="text-sm text-primary-600 font-medium">Forgot password?</Text>

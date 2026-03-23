@@ -19,15 +19,15 @@ export const Badge: React.FC<BadgeProps> = ({ label, variant = 'primary', size =
       case 'secondary':
         return 'bg-secondary-100 text-secondary-700';
       case 'success':
-        return 'bg-green-100 text-green-700';
+        return 'bg-success-100 text-success-700';
       case 'warning':
-        return 'bg-amber-100 text-amber-700';
+        return 'bg-warning-100 text-warning-700';
       case 'error':
-        return 'bg-red-100 text-red-700';
+        return 'bg-primary-100 text-primary-700';
       case 'info':
-        return 'bg-blue-100 text-blue-700';
+        return 'bg-info-100 text-info-700';
       default:
-        return 'bg-gray-100 text-gray-700';
+        return 'bg-border-muted text-text-light';
     }
   };
 

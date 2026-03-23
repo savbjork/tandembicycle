@@ -31,7 +31,7 @@ export const ProfileScreen: React.FC = () => {
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
 
-  const partnerCardCount = cards.filter((c) => !c.archived && c.owner === partner).length;
+  const partnerCardCount = cards.filter((c) => c.owner === partner).length;
 
   const handleLeaveHousehold = () => {
     Alert.alert(
@@ -124,10 +124,10 @@ export const ProfileScreen: React.FC = () => {
           {/* Dangerous Zone */}
           <TouchableOpacity
             onPress={handleLeaveHousehold}
-            className="flex-row items-center justify-center gap-2 py-3 border border-red-100 bg-red-50 rounded-xl"
+            className="flex-row items-center justify-center gap-2 py-3 border border-primary-100 bg-primary-50 rounded-xl"
           >
-            <Ionicons name="exit-outline" size={18} color="#dc2626" />
-            <Text className="text-sm text-red-600 font-bold">Leave Household</Text>
+            <Ionicons name="exit-outline" size={18} color={COLORS.primary[600]} />
+            <Text className="text-sm text-primary-600 font-bold">Leave Household</Text>
           </TouchableOpacity>
         </View>
 
