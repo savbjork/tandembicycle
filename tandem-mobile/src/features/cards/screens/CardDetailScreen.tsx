@@ -35,9 +35,9 @@ const FREQUENCY_OPTIONS: { label: string; value: CardFrequency }[] = [
 ];
 
 const FREQUENCY_ACTIVE_STYLE: Record<CardFrequency, string> = {
-  daily: 'bg-primary-600',
-  weekly: 'bg-secondary-600',
-  'as-needed': 'bg-neutral-500',
+  daily: 'bg-cranberry-600',
+  weekly: 'bg-cranberry-500',
+  'as-needed': 'bg-cranberry-300',
 };
 
 interface FrequencySelectorProps {
@@ -278,10 +278,10 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={handleDelete}
-                className="flex-1 flex-row items-center justify-center gap-2 py-4 bg-primary-50 rounded-xl border border-primary-100"
+                className="flex-1 flex-row items-center justify-center gap-2 py-4 bg-error-50 rounded-xl border border-error-200"
               >
-                <Ionicons name="trash-outline" size={18} color={COLORS.primary[600]} />
-                <Text className="text-sm font-bold text-primary-600">Delete</Text>
+                <Ionicons name="trash-outline" size={18} color={COLORS.error[600]} />
+                <Text className="text-sm font-bold text-error-600">Delete</Text>
               </TouchableOpacity>
             </View>
           )}
