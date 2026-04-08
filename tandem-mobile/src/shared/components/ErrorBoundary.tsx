@@ -83,11 +83,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   button: {
-    backgroundColor: COLORS.primary[600],
+    backgroundColor: COLORS.error[600],
     paddingVertical: 14,
     paddingHorizontal: 32,
     borderRadius: 16,
-    shadowColor: COLORS.primary[600],
+    shadowColor: COLORS.error[600],
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 8,

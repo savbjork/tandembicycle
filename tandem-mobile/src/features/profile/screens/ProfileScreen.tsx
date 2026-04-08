@@ -124,10 +124,10 @@ export const ProfileScreen: React.FC = () => {
           {/* Dangerous Zone */}
           <TouchableOpacity
             onPress={handleLeaveHousehold}
-            className="flex-row items-center justify-center gap-2 py-3 border border-primary-100 bg-primary-50 rounded-xl"
+            className="flex-row items-center justify-center gap-2 py-3 border border-error-200 bg-error-50 rounded-xl"
           >
-            <Ionicons name="exit-outline" size={18} color={COLORS.primary[600]} />
-            <Text className="text-sm text-primary-600 font-bold">Leave Household</Text>
+            <Ionicons name="exit-outline" size={18} color={COLORS.error[600]} />
+            <Text className="text-sm text-error-600 font-bold">Leave Household</Text>
           </TouchableOpacity>
         </View>
 
