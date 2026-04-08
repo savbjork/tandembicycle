@@ -1,0 +1,54 @@
+<h2>How should these 5 colors be used?</h2>
+<p class="subtitle">The names suggest rooms — which design role fits best?</p>
+
+<div style="display:flex;gap:12px;flex-wrap:wrap;margin:24px 0;">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+    <div style="width:80px;height:80px;border-radius:12px;background:#c0634c;"></div>
+    <span style="font-size:12px;font-weight:600;color:var(--text-primary)">Terracotta</span>
+    <span style="font-size:11px;color:var(--text-secondary)">Kitchen</span>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+    <div style="width:80px;height:80px;border-radius:12px;background:#1e3a5f;"></div>
+    <span style="font-size:12px;font-weight:600;color:var(--text-primary)">Navy</span>
+    <span style="font-size:11px;color:var(--text-secondary)">Living Room</span>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+    <div style="width:80px;height:80px;border-radius:12px;background:#c8922a;"></div>
+    <span style="font-size:12px;font-weight:600;color:var(--text-primary)">Gold</span>
+    <span style="font-size:11px;color:var(--text-secondary)">Bedroom</span>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+    <div style="width:80px;height:80px;border-radius:12px;background:#3a6644;"></div>
+    <span style="font-size:12px;font-weight:600;color:var(--text-primary)">Forest Green</span>
+    <span style="font-size:11px;color:var(--text-secondary)">Office</span>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+    <div style="width:80px;height:80px;border-radius:12px;background:#1a7f8e;"></div>
+    <span style="font-size:12px;font-weight:600;color:var(--text-primary)">Teal</span>
+    <span style="font-size:11px;color:var(--text-secondary)">Bathroom</span>
+  </div>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Card category colors</h3>
+      <p>Each color represents a domain (Kitchen tasks = Terracotta, Living Room = Navy, etc.). The app's primary/secondary accent stays separate.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Full palette replacement</h3>
+      <p>Replace primary (red) and secondary (purple) with colors from this set. The whole app's look shifts to this earthy, room-inspired palette.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Both — categories + new primary</h3>
+      <p>Use these as category colors AND pick one or two to anchor the app's new primary/secondary brand colors.</p>
+    </div>
+  </div>
+</div>
