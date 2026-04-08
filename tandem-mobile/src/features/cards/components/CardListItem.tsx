@@ -6,10 +6,10 @@ import { COLORS } from '@shared/constants/colors';
 import { TaskRow } from '@shared/components/ui/SwipeableTaskRow';
 import { type Card, type Task, type CardFrequency } from '@shared/data/FakeDataStore';
 
-const FREQUENCY_STYLE: Record<CardFrequency, { bg: string; border: string }> = {
-  daily: { bg: 'bg-primary-50', border: 'border-primary-200' },
-  weekly: { bg: 'bg-secondary-50', border: 'border-secondary-200' },
-  'as-needed': { bg: 'bg-surface', border: 'border-border-light' },
+const FREQUENCY_CHIP: Record<CardFrequency, { label: string; color: string }> = {
+  daily: { label: 'Daily', color: 'text-cranberry-600' },
+  weekly: { label: 'Weekly', color: 'text-cranberry-500' },
+  'as-needed': { label: 'As needed', color: 'text-cranberry-300' },
 };
 
 interface CardListItemProps {
@@ -37,8 +37,8 @@ export const CardListItem: React.FC<CardListItemProps> = ({
 }) => {
   return (
     <TouchableOpacity
-      className={`${FREQUENCY_STYLE[card.frequency].bg} p-4 rounded-xl mb-3 border-[0.5px] shadow-sm ${
-        isSelecting && isSelected ? 'border-primary-600' : FREQUENCY_STYLE[card.frequency].border
+      className={`bg-surface p-4 rounded-xl mb-3 border-[0.5px] shadow-sm ${
+        isSelecting && isSelected ? 'border-primary-600' : 'border-border-light'
       }`}
       onPress={isSelecting ? onToggleSelection : onPress}
     >
@@ -55,6 +55,9 @@ export const CardListItem: React.FC<CardListItemProps> = ({
         </View>
         {!isSelecting && showOwnerBadge && <OwnerBadge name={card.owner} />}
       </View>
+      <Text className={`text-[11px] font-semibold mb-1 ${FREQUENCY_CHIP[card.frequency].color}`}>
+        {FREQUENCY_CHIP[card.frequency].label}
+      </Text>
 
       {!isSelecting && showTasks && tasks.length > 0 && (
         <View className="pl-0 mt-2">
