@@ -162,10 +162,10 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             <Ionicons
               name={task.isDone ? 'checkmark-circle' : 'ellipse-outline'}
               size={20}
-              color={task.isDone ? COLORS.primary[600] : COLORS.text.muted}
+              color={task.isDone ? COLORS.evergreen[600] : COLORS.text.muted}
             />
             <Text
-              className={`text-sm font-semibold ${task.isDone ? 'text-primary-600' : 'text-text-secondary'}`}
+              className={`text-sm font-semibold ${task.isDone ? 'text-evergreen-600' : 'text-text-secondary'}`}
             >
               {task.isDone ? 'Completed' : 'Pending'}
             </Text>
@@ -233,10 +233,10 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             <View className="flex-row gap-3 mt-2 mb-6">
               <TouchableOpacity
                 onPress={handleDelete}
-                className="flex-1 flex-row items-center justify-center gap-2 py-4 bg-primary-50 rounded-xl border border-primary-100"
+                className="flex-1 flex-row items-center justify-center gap-2 py-4 bg-error-50 rounded-xl border border-error-200"
               >
-                <Ionicons name="trash-outline" size={18} color={COLORS.primary[600]} />
-                <Text className="text-sm font-bold text-primary-600">Delete</Text>
+                <Ionicons name="trash-outline" size={18} color={COLORS.error[600]} />
+                <Text className="text-sm font-bold text-error-600">Delete</Text>
               </TouchableOpacity>
             </View>
           )}
