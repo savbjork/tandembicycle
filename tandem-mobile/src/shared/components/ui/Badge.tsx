@@ -23,7 +23,7 @@ export const Badge: React.FC<BadgeProps> = ({ label, variant = 'primary', size =
       case 'warning':
         return 'bg-warning-100 text-warning-700';
       case 'error':
-        return 'bg-primary-100 text-primary-700';
+        return 'bg-error-100 text-error-700';
       case 'info':
         return 'bg-info-100 text-info-700';
       default:
