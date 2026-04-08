@@ -26,7 +26,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
     >
       <View
         className={`rounded border items-center justify-center ${
-          checked ? 'bg-primary-600 border-primary-600' : 'bg-surface border-border'
+          checked ? 'bg-evergreen-600 border-evergreen-600' : 'bg-surface border-border'
         }`}
         style={{ width: size, height: size }}
       >
