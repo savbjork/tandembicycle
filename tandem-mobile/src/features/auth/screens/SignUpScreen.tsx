@@ -84,7 +84,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
             </Text>
           </View>
 
-          {error && <Text className="text-sm text-primary-600 mb-3">{error}</Text>}
+          {error && <Text className="text-sm text-error-600 mb-3">{error}</Text>}
 
           <TouchableOpacity
             className={`bg-primary-600 rounded-xl py-3.5 items-center mt-2 ${isLoading ? 'opacity-60' : ''}`}
