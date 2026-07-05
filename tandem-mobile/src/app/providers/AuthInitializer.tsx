@@ -3,6 +3,7 @@ import { useAuthStore } from '@store';
 import { supabase } from '@lib/supabase';
 import type { User as SupabaseUser } from '@supabase/supabase-js';
 import type { User } from '@store/slices/authStore';
+import { TEST_AUTOLOGIN, TEST_EMAIL, TEST_PASSWORD } from '@shared/constants/config';
 
 function toUser(u: SupabaseUser): User {
   return {
@@ -52,6 +53,31 @@ export const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ child
 
     return () => subscription.unsubscribe();
   }, [setUser, setLoading, clearAuth]);
+
+  // Dev-only auto sign-in (EXPO_PUBLIC_TEST_AUTOLOGIN set by npm scripts).
+  useEffect(() => {
+    if (!TEST_AUTOLOGIN) return;
+    if (!TEST_EMAIL || !TEST_PASSWORD) {
+      console.warn(
+        'TEST_AUTOLOGIN is enabled but EXPO_PUBLIC_TEST_EMAIL / EXPO_PUBLIC_TEST_PASSWORD are not set in .env'
+      );
+      return;
+    }
+    (async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session?.user.email === TEST_EMAIL) return;
+      // Supabase persists sessions across Metro restarts, so a previous
+      // (different) test account may still be signed in — clear it first.
+      if (session) await supabase.auth.signOut();
+      const { error } = await supabase.auth.signInWithPassword({
+        email: TEST_EMAIL,
+        password: TEST_PASSWORD,
+      });
+      if (error) console.warn(`Test auto-login failed: ${error.message}`);
+    })();
+  }, []);
 
   return <>{children}</>;
 };
