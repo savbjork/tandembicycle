@@ -1,4 +1,4 @@
-import type { Card, NetItem, Task } from '@shared/data/FakeDataStore';
+import type { Card, NetItem, NetItemStatus, Task } from '@shared/data/FakeDataStore';
 import {
   canTransition,
   isHead,
@@ -42,6 +42,33 @@ describe('canTransition', () => {
     expect(canTransition('done', 'pending')).toBe(false);
     expect(canTransition('unrouted', 'declined')).toBe(false);
   });
+  it('locks the full 36-pair transition table', () => {
+    const statuses: NetItemStatus[] = [
+      'unrouted',
+      'pending',
+      'accepted',
+      'done',
+      'someday',
+      'declined',
+    ];
+    const allowed: Record<NetItemStatus, NetItemStatus[]> = {
+      unrouted: ['pending'],
+      pending: ['accepted', 'done', 'someday', 'declined'],
+      declined: ['pending'],
+      someday: ['accepted', 'done'],
+      accepted: [],
+      done: [],
+    };
+    statuses.forEach((from) =>
+      statuses.forEach((to) =>
+        expect({ from, to, ok: canTransition(from, to) }).toEqual({
+          from,
+          to,
+          ok: allowed[from].includes(to),
+        })
+      )
+    );
+  });
 });
 
 describe('isHead', () => {
@@ -77,6 +104,15 @@ describe('selectors — the visibility wall', () => {
   it('selectTriage: only pending items in domains I head', () => {
     expect(selectTriage(items, cards, 'Sam').map((i) => i.id)).toEqual(['c']);
     expect(selectTriage(items, cards, 'Alex').map((i) => i.id)).toEqual(['b']);
+  });
+
+  it('selectTriage: excludes pending items in unclaimed or unknown domains', () => {
+    const withEdgeCases = [
+      ...items,
+      item({ id: 'g', capturer: 'Alex', status: 'pending', domain: 'Yard' }), // unclaimed
+      item({ id: 'h', capturer: 'Alex', status: 'pending', domain: 'Deleted Domain' }), // no matching card
+    ];
+    expect(selectTriage(withEdgeCases, cards, 'Sam').map((i) => i.id)).toEqual(['c']);
   });
 
   it('selectReturned: only my declined captures', () => {
