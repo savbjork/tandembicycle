@@ -7,10 +7,9 @@ import {
   BottomSheet,
   ScreenHeader,
   FieldLabel,
-  Badge,
   OwnerBadge,
 } from '@shared/components/ui';
-import { useAuthStore, useDataStore } from '@store';
+import { useAuthStore } from '@store';
 import { useAuth } from '@shared/hooks/useAuth';
 import { useCurrentUser } from '@shared/hooks/useCurrentUser';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,13 +24,10 @@ export const ProfileScreen: React.FC = () => {
   const { user } = useAuthStore();
   const { signOut } = useAuth();
   const { partner, householdName } = useCurrentUser();
-  const { cards } = useDataStore();
   const navigation = useNavigation<NavigationProp>();
 
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
-
-  const partnerCardCount = cards.filter((c) => c.owner === partner).length;
 
   const handleLeaveHousehold = () => {
     Alert.alert(

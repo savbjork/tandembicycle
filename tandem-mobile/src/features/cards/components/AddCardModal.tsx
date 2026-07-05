@@ -26,7 +26,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
 
   const handleAddCard = () => {
     if (!cardName.trim()) return;
-    addCard({ name: cardName.trim(), owner: selectedOwner, note: cardNote.trim() || undefined, frequency: 'as-needed' });
+    addCard({ name: cardName.trim(), owner: selectedOwner, note: cardNote.trim() || undefined });
     onClose();
   };
 

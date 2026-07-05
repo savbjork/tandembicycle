@@ -27,19 +27,19 @@ export const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ child
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         const baseUser = toUser(session.user);
         setUser(baseUser);
 
         // Fetch display_name from profiles (authoritative source) and
-        // resolve loading state once done. .finally() guarantees
-        // setLoading(false) runs even if the fetch fails.
-        supabase
-          .from('profiles')
-          .select('display_name')
-          .eq('user_id', session.user.id)
-          .single()
+        // resolve loading state once done, whether the fetch succeeds or fails.
+        // (Supabase's query builder `.then` returns a PromiseLike, not a full
+        // Promise, so `.finally()` isn't available — use Promise.resolve to
+        // get one back.)
+        Promise.resolve(
+          supabase.from('profiles').select('display_name').eq('user_id', session.user.id).single()
+        )
           .then(({ data }) => {
             if (data?.display_name) {
               setUser({ ...baseUser, name: data.display_name });

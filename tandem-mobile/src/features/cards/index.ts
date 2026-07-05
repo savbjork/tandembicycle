@@ -3,7 +3,6 @@ export * from './screens/CardDetailScreen';
 export * from './components/AddCardModal';
 export * from './components/ShuffleModal';
 export * from './components/SwipeModeScreen';
-export * from './components/BalanceMeter';
 export * from './components/CardListItem';
 export * from './components/NavigationRow';
 export * from './components/CardFilterSheet';

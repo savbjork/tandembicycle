@@ -11,7 +11,6 @@ import {
   Text,
   ScreenHeader,
   FieldLabel,
-  Badge,
   EmptyState,
   TextInput,
 } from '@shared/components/ui';
@@ -22,53 +21,11 @@ import { COLORS } from '@shared/constants/colors';
 import { TaskRow } from '@shared/components/ui/SwipeableTaskRow';
 import { useDataStore } from '@store';
 import { useCurrentUser } from '@shared/hooks/useCurrentUser';
-import type { Task, CardFrequency } from '@shared/data/FakeDataStore';
+import type { Task } from '@shared/data/FakeDataStore';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { MainStackParamList } from '@app/navigation/types';
 
 type Props = NativeStackScreenProps<MainStackParamList, 'CardDetail'>;
-
-const FREQUENCY_OPTIONS: { label: string; value: CardFrequency }[] = [
-  { label: 'Daily', value: 'daily' },
-  { label: 'Weekly', value: 'weekly' },
-  { label: 'As needed', value: 'as-needed' },
-];
-
-const FREQUENCY_ACTIVE_STYLE: Record<CardFrequency, string> = {
-  daily: 'bg-cranberry-600',
-  weekly: 'bg-cranberry-500',
-  'as-needed': 'bg-cranberry-300',
-};
-
-interface FrequencySelectorProps {
-  value: CardFrequency;
-  onChange: (v: CardFrequency) => void;
-}
-
-const FrequencySelector: React.FC<FrequencySelectorProps> = ({ value, onChange }) => (
-  <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
-    <FieldLabel>Frequency</FieldLabel>
-    <View className="flex-row rounded-lg overflow-hidden border border-border-light mt-1">
-      {FREQUENCY_OPTIONS.map((opt, i) => (
-        <TouchableOpacity
-          key={opt.value}
-          onPress={() => onChange(opt.value)}
-          className={`flex-1 py-2 items-center ${
-            value === opt.value ? FREQUENCY_ACTIVE_STYLE[opt.value] : 'bg-surface'
-          } ${i > 0 ? 'border-l border-border-light' : ''}`}
-        >
-          <Text
-            className={`text-sm font-semibold ${
-              value === opt.value ? 'text-white' : 'text-text-secondary'
-            }`}
-          >
-            {opt.label}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  </View>
-);
 
 export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const { cardName } = route.params;
@@ -164,24 +121,7 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             <View className="bg-warning-50 rounded-xl p-4 mb-4 flex-row items-center gap-3 border border-warning-100">
               <Ionicons name="lock-closed" size={18} color={COLORS.warning[600]} />
               <Text className="text-sm text-warning-800 flex-1">
-                This card belongs to {card.owner}. You can view but not edit.
-              </Text>
-            </View>
-          )}
-
-          {/* Frequency */}
-          {isOwner ? (
-            <FrequencySelector
-              value={card.frequency}
-              onChange={(v) => updateCard(card.name, { frequency: v })}
-            />
-          ) : (
-            <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
-              <FieldLabel>Frequency</FieldLabel>
-              <Text className="text-base text-text py-1">
-                {card.frequency === 'as-needed'
-                  ? 'As needed'
-                  : card.frequency.charAt(0).toUpperCase() + card.frequency.slice(1)}
+                This card belongs to {card.owner ?? 'Unclaimed'}. You can view but not edit.
               </Text>
             </View>
           )}

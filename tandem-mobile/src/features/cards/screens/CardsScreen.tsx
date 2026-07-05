@@ -13,7 +13,6 @@ import { MainStackParamList, MainTabParamList } from '@app/navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 // Decomposed Components
-import { BalanceMeter } from '../components/BalanceMeter';
 import { CardListItem } from '../components/CardListItem';
 import { NavigationRow } from '../components/NavigationRow';
 import { CardFilterSheet } from '../components/CardFilterSheet';
@@ -37,7 +36,7 @@ type NavigationProp = CompositeNavigationProp<
 
 export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
   const navigation = useNavigation<NavigationProp>();
-  const { currentUser, partner, householdMembers } = useCurrentUser();
+  const { currentUser, householdMembers } = useCurrentUser();
   const { cards, tasks, toggleTaskDone, reassignCards, resetToDefaults, removeCard } =
     useDataStore();
 
@@ -52,7 +51,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
 
   // Filter states (persisted to AsyncStorage)
   const { prefs, update: updateFilter } = useCardsFilterPreferences();
-  const { filter, taskTimeFilter, hideCompleted, hideUndated, hideEmptyCards, frequencyFilter } = prefs;
+  const { filter, taskTimeFilter, hideCompleted, hideUndated, hideEmptyCards } = prefs;
 
   const { filteredCards, getCardTasks } = useCardsFiltering({
     cards,
@@ -64,7 +63,6 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
     hideUndated,
     currentUser,
     searchQuery,
-    frequencyFilter,
   });
 
   const onShuffleEnd = useCallback(() => {
@@ -153,12 +151,9 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
             onNavigateInbox={() => navigation.navigate('Inbox')}
             onNavigateHome={() => navigation.navigate('Profile')}
           />
-          {filter === 'all' && (
-            <BalanceMeter cards={cards} currentUser={currentUser} partner={partner} />
-          )}
         </View>
       ) : null,
-    [isSelecting, searchQuery, filter, cards, currentUser, partner]
+    [isSelecting, searchQuery]
   );
 
   const listFooter = useMemo(
@@ -201,8 +196,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
                   taskTimeFilter !== 'hidden' ||
                   hideEmptyCards ||
                   hideCompleted ||
-                  hideUndated ||
-                  frequencyFilter !== 'all') && (
+                  hideUndated) && (
                   <View className="absolute top-0 right-0 w-3.5 h-3.5 rounded-full bg-primary-600 border-2 border-surface" />
                 )}
               </TouchableOpacity>
@@ -293,8 +287,6 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
         onHideUndatedChange={(v) => updateFilter({ hideUndated: v })}
         hideEmptyCards={hideEmptyCards}
         onHideEmptyCardsChange={(v) => updateFilter({ hideEmptyCards: v })}
-        frequencyFilter={frequencyFilter}
-        onFrequencyFilterChange={(v) => updateFilter({ frequencyFilter: v })}
       />
 
       <ShuffleModal

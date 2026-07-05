@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { type Card, type Task, type CardFrequency } from '@shared/data/FakeDataStore';
+import { type Card, type Task } from '@shared/data/FakeDataStore';
 import { isDateInTimeFrame, type TaskTimeFilter } from '@shared/utils/date';
 
 export type CardsFilter = 'all' | 'me';
@@ -14,7 +14,6 @@ interface UseCardsFilteringProps {
   hideUndated: boolean;
   currentUser: string;
   searchQuery: string;
-  frequencyFilter: CardFrequency | 'all';
 }
 
 export const useCardsFiltering = ({
@@ -27,14 +26,12 @@ export const useCardsFiltering = ({
   hideUndated,
   currentUser,
   searchQuery,
-  frequencyFilter,
 }: UseCardsFilteringProps) => {
   const filteredCards = useMemo(() => {
     const filtered = cards.filter((c: Card) => {
       if (searchQuery && !c.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
       const matchesOwnership = filter === 'all' ? true : c.owner === currentUser;
       if (!matchesOwnership) return false;
-      if (frequencyFilter !== 'all' && c.frequency !== frequencyFilter) return false;
 
       if (hideEmptyCards) {
         const hasTasks = tasks.some(
@@ -76,7 +73,6 @@ export const useCardsFiltering = ({
     hideUndated,
     currentUser,
     searchQuery,
-    frequencyFilter,
   ]);
 
   const getCardTasks = (cardName: string) => {

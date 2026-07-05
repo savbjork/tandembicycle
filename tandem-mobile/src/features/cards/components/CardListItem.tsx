@@ -4,13 +4,7 @@ import { Text, OwnerBadge } from '@shared/components/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
 import { TaskRow } from '@shared/components/ui/SwipeableTaskRow';
-import { type Card, type Task, type CardFrequency } from '@shared/data/FakeDataStore';
-
-const FREQUENCY_CHIP: Record<CardFrequency, { label: string; color: string }> = {
-  daily: { label: 'Daily', color: 'text-cranberry-600' },
-  weekly: { label: 'Weekly', color: 'text-cranberry-500' },
-  'as-needed': { label: 'As needed', color: 'text-cranberry-300' },
-};
+import { type Card, type Task } from '@shared/data/FakeDataStore';
 
 interface CardListItemProps {
   card: Card;
@@ -53,11 +47,8 @@ export const CardListItem: React.FC<CardListItemProps> = ({
           )}
           <Text className="text-[17px] font-bold text-text">{card.name}</Text>
         </View>
-        {!isSelecting && showOwnerBadge && <OwnerBadge name={card.owner} />}
+        {!isSelecting && showOwnerBadge && <OwnerBadge name={card.owner ?? 'Unclaimed'} />}
       </View>
-      <Text className={`text-[11px] font-semibold mb-1 ${FREQUENCY_CHIP[card.frequency].color}`}>
-        {FREQUENCY_CHIP[card.frequency].label}
-      </Text>
 
       {!isSelecting && showTasks && tasks.length > 0 && (
         <View className="pl-0 mt-2">

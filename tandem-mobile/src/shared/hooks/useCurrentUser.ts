@@ -26,7 +26,7 @@ export const useCurrentUser = () => {
 
       if (!membership) return;
 
-      const name = (membership.households as { name: string } | null)?.name;
+      const name = (membership.households as unknown as { name: string } | null)?.name;
       if (name) setHouseholdName(name);
 
       const { data: members } = await supabase
@@ -37,13 +37,15 @@ export const useCurrentUser = () => {
       if (!members) return;
 
       const names = members.map(
-        (m) => (m.profiles as { display_name: string } | null)?.display_name ?? 'Unknown'
+        (m) => (m.profiles as unknown as { display_name: string } | null)?.display_name ?? 'Unknown'
       );
       setHouseholdMembers(names);
 
       const partner = members
         .filter((m) => m.user_id !== user.id)
-        .map((m) => (m.profiles as { display_name: string } | null)?.display_name ?? 'Unknown')[0];
+        .map(
+          (m) => (m.profiles as unknown as { display_name: string } | null)?.display_name ?? 'Unknown'
+        )[0];
 
       if (partner) setPartnerName(partner);
     };
