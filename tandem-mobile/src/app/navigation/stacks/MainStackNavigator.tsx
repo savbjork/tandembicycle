@@ -4,7 +4,7 @@ import { MainStackParamList } from '../types';
 import { CardsScreen } from '@features/cards/screens/CardsScreen';
 import { CardDetailScreen } from '@features/cards/screens/CardDetailScreen';
 import { TasksScreen } from '@features/tasks/screens/TasksScreen';
-import { InboxScreen } from '@features/inbox/screens/InboxScreen';
+import { NetScreen } from '@features/net';
 import { ProfileScreen } from '@features/profile/screens/ProfileScreen';
 import { EditProfileScreen } from '@features/profile/screens/EditProfileScreen';
 
@@ -24,7 +24,7 @@ export const MainStackNavigator: React.FC = () => {
         options={{ presentation: 'modal' }}
       />
       <Stack.Screen name="Tasks" component={TasksScreen} />
-      <Stack.Screen name="Inbox" component={InboxScreen} />
+      <Stack.Screen name="Inbox" component={NetScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="EditProfile" component={EditProfileScreen} />
     </Stack.Navigator>

@@ -30,7 +30,7 @@ export const NavigationRow: React.FC<NavigationRowProps> = ({
         className="flex-1 bg-surface h-11 rounded-2xl flex-row items-center justify-center gap-2 border border-border-light shadow-sm"
       >
         <Ionicons name="mail-outline" size={18} color={COLORS.text.secondary} />
-        <Text className="text-text-secondary font-bold text-[15px]">Inbox</Text>
+        <Text className="text-text-secondary font-bold text-[15px]">Net</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
