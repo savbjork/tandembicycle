@@ -225,7 +225,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
         className="flex-1 px-5"
         contentOffset={{ x: 0, y: SEARCH_BAR_HEIGHT }}
         data={sortedCards}
-        keyExtractor={(card, i) => `${card.name}-${i}`}
+        keyExtractor={(card) => card.name}
         ListHeaderComponent={listHeader}
         ListFooterComponent={listFooter}
         ListEmptyComponent={
