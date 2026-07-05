@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import { View, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface ScreenProps {
@@ -10,7 +10,7 @@ interface ScreenProps {
 }
 
 /**
- * Screen wrapper component with safe area and keyboard avoidance
+ * Screen wrapper component with safe area and keyboard avoidance – NativeWind edition
  */
 export const Screen: React.FC<ScreenProps> = ({
   children,
@@ -21,46 +21,21 @@ export const Screen: React.FC<ScreenProps> = ({
   const content = (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.flex}
+      className="flex-1"
     >
       {scrollable ? (
-        <ScrollView
-          style={styles.flex}
-          contentContainerStyle={styles.contentContainer}
-          keyboardShouldPersistTaps="handled"
-          className={className}
-        >
-          {children}
+        <ScrollView className="flex-1 flex-grow" keyboardShouldPersistTaps="handled">
+          <View className={`flex-1 ${className ?? ''}`}>{children}</View>
         </ScrollView>
       ) : (
-        <View style={styles.flex} className={className}>
-          {children}
-        </View>
+        <View className={`flex-1 ${className ?? ''}`}>{children}</View>
       )}
     </KeyboardAvoidingView>
   );
 
   if (safeArea) {
-    return (
-      <SafeAreaView style={styles.safeArea}>
-        {content}
-      </SafeAreaView>
-    );
+    return <SafeAreaView className="flex-1 bg-surface-muted">{content}</SafeAreaView>;
   }
 
-  return <View style={styles.safeArea}>{content}</View>;
+  return <View className="flex-1 bg-surface-muted">{content}</View>;
 };
-
-const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#f9fafb',
-  },
-  contentContainer: {
-    flexGrow: 1,
-  },
-});
-

@@ -5,6 +5,7 @@ import { useAuthStore } from '@store';
 import { RootStackParamList } from './types';
 import { AuthNavigator } from './AuthNavigator';
 import { MainNavigator } from './MainNavigator';
+import { TaskDetailScreen } from '@features/tasks/screens/TaskDetailScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -27,8 +28,15 @@ export const RootNavigator: React.FC = () => {
         ) : (
           <Stack.Screen name="Main" component={MainNavigator} />
         )}
+        <Stack.Screen
+          name="TaskDetail"
+          component={TaskDetailScreen}
+          options={{
+            presentation: 'pageSheet',
+            headerShown: false,
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
 };
-

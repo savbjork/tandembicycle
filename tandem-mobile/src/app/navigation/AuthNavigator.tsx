@@ -15,6 +15,7 @@ const Stack = createNativeStackNavigator<AuthStackParamList>();
 export const AuthNavigator: React.FC = () => {
   return (
     <Stack.Navigator
+      initialRouteName="Welcome"
       screenOptions={{
         headerShown: false,
         animation: 'slide_from_right',
@@ -26,4 +27,3 @@ export const AuthNavigator: React.FC = () => {
     </Stack.Navigator>
   );
 };
-

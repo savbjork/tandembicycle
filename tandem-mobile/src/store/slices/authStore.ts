@@ -1,5 +1,12 @@
 import { create } from 'zustand';
-import { User } from '@core/models/User';
+
+/** User shape used by auth state. */
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  avatar?: string;
+}
 
 /**
  * Authentication state interface
@@ -27,29 +34,31 @@ export const useAuthStore = create<AuthState>((set) => ({
   isLoading: true,
   error: null,
 
-  setUser: (user) =>
+  setUser: (user) => {
     set({
       user,
       isAuthenticated: !!user,
       error: null,
-    }),
+    });
+  },
 
-  setLoading: (isLoading) =>
+  setLoading: (isLoading) => {
     set({
       isLoading,
-    }),
+    });
+  },
 
   setError: (error) =>
     set({
       error,
     }),
 
-  clearAuth: () =>
+  clearAuth: () => {
     set({
       user: null,
       isAuthenticated: false,
       isLoading: false,
       error: null,
-    }),
+    });
+  },
 }));
-

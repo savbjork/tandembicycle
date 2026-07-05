@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, Image } from 'react-native';
+import { View, Image } from 'react-native';
+import { Text } from '@shared/components/ui/Text';
 
 interface AvatarProps {
   name: string;
@@ -10,11 +11,7 @@ interface AvatarProps {
 /**
  * Avatar component with fallback to initials
  */
-export const Avatar: React.FC<AvatarProps> = ({
-  name,
-  imageUrl,
-  size = 'md',
-}) => {
+export const Avatar: React.FC<AvatarProps> = ({ name, imageUrl, size = 'md' }) => {
   const getInitials = (fullName: string): string => {
     const names = fullName.trim().split(' ');
     if (names.length === 1) {
@@ -68,12 +65,7 @@ export const Avatar: React.FC<AvatarProps> = ({
   };
 
   if (imageUrl) {
-    return (
-      <Image
-        source={{ uri: imageUrl }}
-        className={`${getSizeClasses()} rounded-full`}
-      />
-    );
+    return <Image source={{ uri: imageUrl }} className={`${getSizeClasses()} rounded-full`} />;
   }
 
   return (
@@ -86,10 +78,7 @@ export const Avatar: React.FC<AvatarProps> = ({
         justify-center
       `}
     >
-      <Text className={`${getTextSize()} font-bold text-white`}>
-        {getInitials(name)}
-      </Text>
+      <Text className={`${getTextSize()} font-bold text-white`}>{getInitials(name)}</Text>
     </View>
   );
 };
-

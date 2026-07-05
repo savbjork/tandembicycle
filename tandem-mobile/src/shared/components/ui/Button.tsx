@@ -1,11 +1,7 @@
 import React from 'react';
-import {
-  TouchableOpacity,
-  Text,
-  ActivityIndicator,
-  TouchableOpacityProps,
-  StyleSheet,
-} from 'react-native';
+import { TouchableOpacity, ActivityIndicator, TouchableOpacityProps } from 'react-native';
+import { Text } from '@shared/components/ui/Text';
+import { COLORS } from '@shared/constants/colors';
 
 interface ButtonProps extends TouchableOpacityProps {
   title: string;
@@ -16,8 +12,27 @@ interface ButtonProps extends TouchableOpacityProps {
   rightIcon?: React.ReactNode;
 }
 
+const variantClasses: Record<string, string> = {
+  primary: 'bg-primary-600',
+  secondary: 'bg-secondary-600',
+  outline: 'bg-transparent border-2 border-primary-600',
+  ghost: 'bg-transparent',
+};
+
+const sizeClasses: Record<string, string> = {
+  sm: 'px-4 py-2 rounded-lg',
+  md: 'px-6 py-3 rounded-xl',
+  lg: 'px-8 py-4 rounded-xl',
+};
+
+const textSizeClasses: Record<string, string> = {
+  sm: 'text-sm',
+  md: 'text-base',
+  lg: 'text-lg',
+};
+
 /**
- * Button component with consistent styling
+ * Button component with consistent styling via NativeWind className
  */
 export const Button: React.FC<ButtonProps> = ({
   title,
@@ -27,100 +42,34 @@ export const Button: React.FC<ButtonProps> = ({
   leftIcon,
   rightIcon,
   disabled,
-  style,
+  className,
   ...props
 }) => {
-  const buttonStyles = [
-    styles.base,
-    variant === 'primary' && styles.primary,
-    variant === 'secondary' && styles.secondary,
-    variant === 'outline' && styles.outline,
-    variant === 'ghost' && styles.ghost,
-    size === 'sm' && styles.sm,
-    size === 'md' && styles.md,
-    size === 'lg' && styles.lg,
-    (disabled || isLoading) && styles.disabled,
-    style,
-  ];
-
-  const textStyles = [
-    styles.baseText,
-    size === 'sm' && styles.smText,
-    size === 'lg' && styles.lgText,
-    (variant === 'outline' || variant === 'ghost') && styles.outlineText,
-  ];
+  const disabledClass = disabled || isLoading ? 'opacity-50' : '';
 
   return (
     <TouchableOpacity
-      style={buttonStyles}
+      className={`flex-row items-center justify-center ${variantClasses[variant]} ${sizeClasses[size]} ${disabledClass} ${className ?? ''}`}
       disabled={disabled || isLoading}
       {...props}
     >
       {isLoading ? (
         <ActivityIndicator
-          color={variant === 'outline' || variant === 'ghost' ? '#0284c7' : '#fff'}
+          color={variant === 'outline' || variant === 'ghost' ? COLORS.primary[600] : COLORS.white}
         />
       ) : (
         <>
           {leftIcon}
-          <Text style={textStyles}>{title}</Text>
+          <Text
+            className={`font-semibold text-center ${textSizeClasses[size]} ${
+              variant === 'outline' || variant === 'ghost' ? 'text-primary-600' : 'text-white'
+            }`}
+          >
+            {title}
+          </Text>
           {rightIcon}
         </>
       )}
     </TouchableOpacity>
   );
 };
-
-const styles = StyleSheet.create({
-  base: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  primary: {
-    backgroundColor: '#0284c7',
-  },
-  secondary: {
-    backgroundColor: '#c026d3',
-  },
-  outline: {
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: '#0284c7',
-  },
-  ghost: {
-    backgroundColor: 'transparent',
-  },
-  sm: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  md: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 12,
-  },
-  lg: {
-    paddingHorizontal: 32,
-    paddingVertical: 16,
-    borderRadius: 12,
-  },
-  disabled: {
-    opacity: 0.5,
-  },
-  baseText: {
-    fontWeight: '600',
-    textAlign: 'center',
-    color: '#ffffff',
-  },
-  smText: {
-    fontSize: 14,
-  },
-  lgText: {
-    fontSize: 18,
-  },
-  outlineText: {
-    color: '#0284c7',
-  },
-});

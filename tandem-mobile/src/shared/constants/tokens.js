@@ -1,0 +1,102 @@
+module.exports = {
+  // App shell — Teal (replaces red "primary")
+  primary: {
+    50: '#e5f3f7',
+    100: '#c2e4ec',
+    200: '#8fcdd9',
+    300: '#5cb5c7',
+    400: '#2e9eb5',
+    500: '#1a7a8f',
+    600: '#0f4c5c',
+    700: '#0a3a47',
+    800: '#062830',
+    900: '#03151a',
+  },
+  // People — Plum (replaces fuchsia "secondary")
+  secondary: {
+    50: '#ede6f5',
+    100: '#d5c4e8',
+    200: '#bba0d9',
+    300: '#a07bcb',
+    400: '#8558bc',
+    500: '#6d46a0',
+    600: '#5c3d7a',
+    700: '#472f5f',
+    800: '#322244',
+    900: '#1e132a',
+  },
+  // Frequency classification — Cranberry
+  cranberry: {
+    50: '#fcf0f2',
+    100: '#f8d4da',
+    200: '#f0a8b3',
+    300: '#e77c8d',
+    400: '#d95070',
+    500: '#a8304c',
+    600: '#8b1a2f',
+    700: '#6f1526',
+    800: '#53101c',
+    900: '#380b12',
+  },
+  // Task actions / completion — Evergreen
+  evergreen: {
+    50: '#e5f0ed',
+    100: '#c2ddd6',
+    200: '#94c4b7',
+    300: '#66ab99',
+    400: '#3d8a72',
+    500: '#2a6b59',
+    600: '#1b4d3e',
+    700: '#163d32',
+    800: '#0f2d25',
+    900: '#081e18',
+  },
+  // Validation errors / danger / destructive actions
+  error: {
+    50: '#fef2f2',
+    100: '#fee2e2',
+    200: '#fecaca',
+    500: '#ef4444',
+    600: '#dc2626',
+    700: '#b91c1c',
+  },
+  surface: {
+    DEFAULT: '#ffffff',
+    muted: '#f9fafb',
+    dim: '#fafafa',
+    hover: '#f3f4f6',
+  },
+  border: {
+    DEFAULT: '#e5e7eb',
+    light: '#f0f0f0',
+    muted: '#f3f4f6',
+    strong: '#d1d5db',
+  },
+  text: {
+    DEFAULT: '#111827',
+    secondary: '#6b7280',
+    muted: '#9ca3af',
+    light: '#374151',
+  },
+  success: {
+    50: '#f0fdf4',
+    100: '#dcfce7',
+    600: '#16a34a',
+    700: '#15803d',
+  },
+  warning: {
+    50: '#fffbeb',
+    100: '#fef3c7',
+    500: '#f59e0b',
+    600: '#d97706',
+    700: '#b45309',
+    800: '#92400e',
+  },
+  neutral: {
+    500: '#6b7280',
+  },
+  info: {
+    100: '#dbeafe',
+    700: '#1d4ed8',
+  },
+};

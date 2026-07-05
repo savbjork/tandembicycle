@@ -9,4 +9,3 @@ module.exports = {
   useTabs: false,
   printWidth: 100,
 };
-

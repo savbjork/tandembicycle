@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ViewProps } from 'react-native';
+import { View, TouchableOpacity, ViewProps } from 'react-native';
+import { Text } from '@shared/components/ui/Text';
 
 interface CardProps extends ViewProps {
   children: React.ReactNode;
@@ -18,7 +19,7 @@ export const Card: React.FC<CardProps> = ({
   ...props
 }) => {
   const cardClasses = `
-    bg-white rounded-2xl shadow-sm border border-gray-100 p-4
+    bg-surface rounded-2xl shadow-sm border border-border-light p-4
     ${className || ''}
   `;
 
@@ -27,7 +28,7 @@ export const Card: React.FC<CardProps> = ({
       <TouchableOpacity
         className={`${cardClasses} active:opacity-80`}
         onPress={onPress}
-        {...props}
+        activeOpacity={0.8}
       >
         {children}
       </TouchableOpacity>
@@ -47,15 +48,11 @@ interface CardHeaderProps {
   rightElement?: React.ReactNode;
 }
 
-export const CardHeader: React.FC<CardHeaderProps> = ({
-  title,
-  subtitle,
-  rightElement,
-}) => (
+export const CardHeader: React.FC<CardHeaderProps> = ({ title, subtitle, rightElement }) => (
   <View className="flex-row items-center justify-between mb-3">
     <View className="flex-1">
-      <Text className="text-lg font-semibold text-gray-900">{title}</Text>
-      {subtitle && <Text className="text-sm text-gray-500 mt-1">{subtitle}</Text>}
+      <Text className="text-lg font-semibold text-text">{title}</Text>
+      {subtitle && <Text className="text-sm text-text-secondary mt-1">{subtitle}</Text>}
     </View>
     {rightElement && <View className="ml-3">{rightElement}</View>}
   </View>
@@ -74,6 +71,5 @@ interface CardFooterProps {
 }
 
 export const CardFooter: React.FC<CardFooterProps> = ({ children }) => (
-  <View className="mt-3 pt-3 border-t border-gray-100">{children}</View>
+  <View className="mt-3 pt-3 border-t border-border-light">{children}</View>
 );
-

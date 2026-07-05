@@ -11,6 +11,7 @@ export type RootStackParamList = {
   Main: NavigatorScreenParams<MainTabParamList>;
   CreateHousehold: undefined;
   JoinHousehold: { inviteCode?: string };
+  TaskDetail: { taskId: string };
 };
 
 // Auth Stack Navigator
@@ -21,28 +22,32 @@ export type AuthStackParamList = {
   ForgotPassword: undefined;
 };
 
+// Main Stack Navigator (primary app stack, accessed from RosterTab)
+export type MainStackParamList = {
+  CardsList: undefined;
+  CardDetail: { cardName: string };
+  Tasks: undefined;
+  Inbox: undefined;
+  Profile: undefined;
+  EditProfile: undefined;
+};
+
 // Main Bottom Tab Navigator
 export type MainTabParamList = {
+  RosterTab: NavigatorScreenParams<MainStackParamList>;
+  InboxTab: undefined;
   HomeTab: undefined;
-  CardsTab: undefined;
-  HouseholdTab: undefined;
-  ProfileTab: undefined;
 };
 
-// Home Stack (inside Home Tab)
+// Home Stack (repurposed from Profile)
 export type HomeStackParamList = {
-  Dashboard: undefined;
-  CardDetail: { cardId: string };
+  HomeOverview: undefined;
+  EditProfile: undefined;
+  Settings: undefined;
+  About: undefined;
 };
 
-// Cards Stack (inside Cards Tab)
-export type CardsStackParamList = {
-  CardLibrary: undefined;
-  CardDetail: { cardId: string };
-  AddCard: undefined;
-};
-
-// Household Stack (inside Household Tab)
+// Household Stack (inside Household Tab/Section)
 export type HouseholdStackParamList = {
   HouseholdOverview: undefined;
   HouseholdSettings: undefined;
@@ -50,17 +55,8 @@ export type HouseholdStackParamList = {
   MemberProfile: { userId: string };
 };
 
-// Profile Stack (inside Profile Tab)
-export type ProfileStackParamList = {
-  ProfileOverview: undefined;
-  EditProfile: undefined;
-  Settings: undefined;
-  About: undefined;
-};
-
 declare global {
   namespace ReactNavigation {
     interface RootParamList extends RootStackParamList {}
   }
 }
-

@@ -1,0 +1,229 @@
+<h2>Full Color Token Design</h2>
+<p class="subtitle">Option A — remap existing tokens, add frequency group, warm surfaces</p>
+
+<style>
+  .section { margin: 28px 0; }
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+  }
+  .scale { display: flex; gap: 6px; flex-wrap: wrap; }
+  .swatch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+  .swatch-block {
+    width: 52px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.08);
+  }
+  .swatch-label { font-size: 10px; color: var(--text-secondary); }
+  .swatch-hex { font-size: 9px; color: var(--text-tertiary); font-family: monospace; }
+  .token-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .token-dot { width: 28px; height: 28px; border-radius: 6px; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.1); }
+  .token-name { font-size: 13px; font-family: monospace; flex: 1; }
+  .token-hex { font-size: 12px; color: var(--text-secondary); font-family: monospace; }
+  .token-desc { font-size: 12px; color: var(--text-secondary); flex: 1.5; }
+
+  /* mock card preview */
+  .preview-area {
+    background: #f5f0ea;
+    border-radius: 14px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .mock-card {
+    background: #fdf8f3;
+    border: 1px solid #e4d5c4;
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .mock-card-title { font-size: 13px; font-weight: 600; color: #2c1f10; }
+  .mock-card-meta { display: flex; gap: 6px; }
+  .chip {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+    color: white;
+  }
+  .chip-light {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+  .mock-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+    background: #c0634c;
+    display: inline-block;
+    margin-top: 4px;
+    border: none;
+  }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+</style>
+
+<!-- Primary (Person 1 — Terracotta) -->
+<div class="section">
+  <div class="section-title">primary — Person 1 (Terracotta)</div>
+  <div class="scale">
+    <div class="swatch"><div class="swatch-block" style="background:#fef5f3"></div><div class="swatch-label">50</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:#fde8e3"></div><div class="swatch-label">100</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:#f9c9be"></div><div class="swatch-label">200</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:#f3a08d"></div><div class="swatch-label">300</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:#e97860"></div><div class="swatch-label">400</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:#c0634c"></div><div class="swatch-label">500</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:#a8503b"></div><div class="swatch-label">600</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:#8c3f2d"></div><div class="swatch-label">700</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:#733122"></div><div class="swatch-label">800</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:#5c261a"></div><div class="swatch-label">900</div></div>
+  </div>
+</div>
+
+<!-- Secondary (Person 2 — Gold) -->
+<div class="section">
+  <div class="section-title">secondary — Person 2 (Gold)</div>
+  <div class="scale">
+    <div class="swatch"><div class="swatch-block" style="background:#fefbf0"></div><div class="swatch-label">50</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:#fdf4d3"></div><div class="swatch-label">100</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:#fae89e"></div><div class="swatch-label">200</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:#f5d560"></div><div class="swatch-label">300</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:#e8ba3a"></div><div class="swatch-label">400</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:#c8922a"></div><div class="swatch-label">500</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:#a87520"></div><div class="swatch-label">600</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:#8a5c17"></div><div class="swatch-label">700</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:#6e470f"></div><div class="swatch-label">800</div></div>
+    <div class="swatch"><div class="swatch-block" style="background:#57370a"></div><div class="swatch-label">900</div></div>
+  </div>
+</div>
+
+<!-- Frequency tokens -->
+<div class="section">
+  <div class="section-title">frequency — new token group</div>
+  <div style="display:flex;flex-direction:column;">
+    <div class="token-row">
+      <div class="token-dot" style="background:#1a7f8e"></div>
+      <div class="token-name">frequency.daily</div>
+      <div class="token-hex">#1a7f8e</div>
+      <div class="token-desc">Teal — used for daily cadence chips &amp; badges</div>
+    </div>
+    <div class="token-row">
+      <div class="token-dot" style="background:#f0fafb"></div>
+      <div class="token-name">frequency.daily.light</div>
+      <div class="token-hex">#f0fafb</div>
+      <div class="token-desc">Teal tint — chip background in light mode</div>
+    </div>
+    <div class="token-row">
+      <div class="token-dot" style="background:#1e3a5f"></div>
+      <div class="token-name">frequency.weekly</div>
+      <div class="token-hex">#1e3a5f</div>
+      <div class="token-desc">Navy — weekly cadence</div>
+    </div>
+    <div class="token-row">
+      <div class="token-dot" style="background:#edf2f8"></div>
+      <div class="token-name">frequency.weekly.light</div>
+      <div class="token-hex">#edf2f8</div>
+      <div class="token-desc">Navy tint — chip background</div>
+    </div>
+    <div class="token-row">
+      <div class="token-dot" style="background:#3a6644"></div>
+      <div class="token-name">frequency.asNeeded</div>
+      <div class="token-hex">#3a6644</div>
+      <div class="token-desc">Forest green — as needed</div>
+    </div>
+    <div class="token-row" style="border-bottom:none">
+      <div class="token-dot" style="background:#f0f7f1"></div>
+      <div class="token-name">frequency.asNeeded.light</div>
+      <div class="token-hex">#f0f7f1</div>
+      <div class="token-desc">Forest tint — chip background</div>
+    </div>
+  </div>
+</div>
+
+<!-- Surface + Border + Text -->
+<div class="section">
+  <div class="section-title">surface / border / text — warmed up</div>
+  <div style="display:flex;flex-direction:column;">
+    <div class="token-row"><div class="token-dot" style="background:#fdf8f3;border:1px solid #e4d5c4"></div><div class="token-name">surface.DEFAULT</div><div class="token-hex">#fdf8f3</div><div class="token-desc">Warm cream white (was #ffffff)</div></div>
+    <div class="token-row"><div class="token-dot" style="background:#f5f0ea;border:1px solid #e4d5c4"></div><div class="token-name">surface.muted</div><div class="token-hex">#f5f0ea</div><div class="token-desc">Linen — page background (was #f9fafb)</div></div>
+    <div class="token-row"><div class="token-dot" style="background:#f7f2ec;border:1px solid #e4d5c4"></div><div class="token-name">surface.dim</div><div class="token-hex">#f7f2ec</div><div class="token-desc">Warm dim (was #fafafa)</div></div>
+    <div class="token-row"><div class="token-dot" style="background:#ede5d8;border:1px solid #e4d5c4"></div><div class="token-name">surface.hover</div><div class="token-hex">#ede5d8</div><div class="token-desc">Warm hover (was #f3f4f6)</div></div>
+    <div class="token-row"><div class="token-dot" style="background:#e4d5c4"></div><div class="token-name">border.DEFAULT</div><div class="token-hex">#e4d5c4</div><div class="token-desc">Warm border (was #e5e7eb)</div></div>
+    <div class="token-row"><div class="token-dot" style="background:#2c1f10"></div><div class="token-name">text.DEFAULT</div><div class="token-hex">#2c1f10</div><div class="token-desc">Warm dark brown (was #111827)</div></div>
+    <div class="token-row" style="border-bottom:none"><div class="token-dot" style="background:#7a6150"></div><div class="token-name">text.secondary</div><div class="token-hex">#7a6150</div><div class="token-desc">Warm medium (was #6b7280)</div></div>
+  </div>
+</div>
+
+<!-- Live Preview -->
+<div class="section">
+  <div class="section-title">Preview</div>
+  <div class="grid-2">
+    <div>
+      <div class="preview-area">
+        <div class="mock-card">
+          <div class="mock-card-title">Grocery shopping</div>
+          <div class="mock-card-meta">
+            <span class="chip" style="background:#c0634c">You</span>
+            <span class="chip" style="background:#1a7f8e">Daily</span>
+          </div>
+        </div>
+        <div class="mock-card">
+          <div class="mock-card-title">Pay utility bills</div>
+          <div class="mock-card-meta">
+            <span class="chip" style="background:#c8922a">Partner</span>
+            <span class="chip" style="background:#1e3a5f">Weekly</span>
+          </div>
+        </div>
+        <div class="mock-card">
+          <div class="mock-card-title">Car maintenance</div>
+          <div class="mock-card-meta">
+            <span class="chip" style="background:#c0634c">You</span>
+            <span class="chip" style="background:#3a6644">As Needed</span>
+          </div>
+        </div>
+        <button class="mock-btn">Add card</button>
+      </div>
+    </div>
+    <div>
+      <div style="background:#fdf8f3;border:1px solid #e4d5c4;border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:12px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#7a6150;">Inbox</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #e4d5c4;">
+          <div style="width:32px;height:32px;border-radius:999px;background:#fde8e3;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#c0634c;">S</div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:600;color:#2c1f10;">Laundry assigned to you</div>
+            <div style="font-size:11px;color:#7a6150;">2 min ago</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;">
+          <div style="width:32px;height:32px;border-radius:999px;background:#fdf4d3;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#c8922a;">J</div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:600;color:#2c1f10;">Partner completed dishes</div>
+            <div style="font-size:11px;color:#7a6150;">1 hr ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

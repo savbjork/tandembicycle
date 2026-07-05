@@ -25,12 +25,15 @@ Fair Play is built using **Clean Architecture** principles, ensuring a maintaina
 ## Directory Structure
 
 ### `/src/app` - Application Entry & Configuration
+
 - **Navigation**: All navigation configuration (Stack, Tab, Auth navigators)
 - **Providers**: Context providers (QueryClient, etc.)
 - **Entry Point**: App initialization and setup
 
 ### `/src/features` - Feature Modules
+
 Each feature is self-contained with:
+
 - **components/**: Feature-specific UI components
 - **screens/**: Screen components
 - **hooks/**: Feature-specific custom hooks
@@ -38,6 +41,7 @@ Each feature is self-contained with:
 - **types.ts**: Feature-specific TypeScript types
 
 #### Features:
+
 - `auth/`: Authentication (sign in, sign up, password reset)
 - `household/`: Household management (create, join, members)
 - `cards/`: Card library and assignment
@@ -45,7 +49,9 @@ Each feature is self-contained with:
 - `home/`: Dashboard and overview
 
 ### `/src/shared` - Shared Resources
+
 Reusable code across features:
+
 - **components/ui**: Base UI components (Button, Input, Card, etc.)
 - **components/layout**: Layout components (Screen, Container, etc.)
 - **hooks/**: Shared custom hooks
@@ -54,14 +60,18 @@ Reusable code across features:
 - **types/**: Shared TypeScript types
 
 ### `/src/core` - Core Domain Layer
+
 Pure business logic with no external dependencies:
+
 - **models/**: Domain models (User, Household, Card, etc.)
 - **repositories/**: Repository interfaces (abstractions)
 - **services/**: Core business services
 - **config/**: App configuration
 
 ### `/src/infrastructure` - Infrastructure Layer
+
 External service implementations:
+
 - **firebase/**: Firebase configuration and implementations
   - `config.ts`: Firebase initialization
   - `converters.ts`: Firestore data converters
@@ -70,12 +80,15 @@ External service implementations:
 - **storage/**: Local storage adapters
 
 ### `/src/store` - Global State
+
 Zustand stores for global state:
+
 - **slices/**: Store slices (authStore, householdStore, uiStore)
 
 ## Design Patterns
 
 ### 1. Repository Pattern
+
 All data access goes through repository interfaces, abstracting the data source:
 
 ```typescript
@@ -92,11 +105,13 @@ class UserRepository implements IUserRepository {
 ```
 
 **Benefits**:
+
 - Testable (can mock repositories)
 - Swappable data sources
 - Centralized data access logic
 
 ### 2. Dependency Injection
+
 Components and hooks receive dependencies (repositories, services) rather than importing them directly:
 
 ```typescript
@@ -113,6 +128,7 @@ const useAuth = () => {
 ```
 
 ### 3. Branded Types
+
 Use TypeScript branded types for type-safe IDs:
 
 ```typescript
@@ -120,17 +136,16 @@ type UserId = string & { readonly brand: unique symbol };
 type HouseholdId = string & { readonly brand: unique symbol };
 
 // Prevents mixing different ID types at compile time
-function getUser(userId: UserId) { }
+function getUser(userId: UserId) {}
 getUser(householdId); // ❌ TypeScript error
 ```
 
 ### 4. Result Pattern
+
 Operations that can fail return a `Result<T, E>` type:
 
 ```typescript
-type Result<T, E = Error> =
-  | { success: true; data: T }
-  | { success: false; error: E };
+type Result<T, E = Error> = { success: true; data: T } | { success: false; error: E };
 
 // Usage
 const result = await userRepository.getById(userId);
@@ -144,6 +159,7 @@ if (result.success) {
 ## Data Flow
 
 ### Read Flow (Query)
+
 1. **Screen/Component** → triggers data fetch
 2. **Custom Hook** → uses TanStack Query
 3. **Service Layer** → business logic
@@ -153,6 +169,7 @@ if (result.success) {
 7. **Component** → renders data
 
 ### Write Flow (Command)
+
 1. **Screen/Component** → triggers action (form submit)
 2. **Custom Hook** → validation
 3. **Service Layer** → business rules
@@ -164,18 +181,21 @@ if (result.success) {
 ## State Management Strategy
 
 ### Local State (useState, useReducer)
+
 - Component-specific UI state
 - Form input values
 - Modal open/closed
 - Local loading states
 
 ### Server State (TanStack Query)
+
 - Data from Firebase
 - Cached and synchronized
 - Automatic refetching
 - Optimistic updates
 
 ### Global State (Zustand)
+
 - Authentication state
 - Current household selection
 - UI preferences (theme, etc.)
@@ -184,19 +204,24 @@ if (result.success) {
 ## Type Safety
 
 ### Strict TypeScript Configuration
+
 - `strict: true`
 - `noImplicitAny: true`
 - `noUnusedLocals: true`
 - No `any` types allowed
 
 ### Domain Models
+
 All models are strongly typed with interfaces:
+
 - Branded IDs prevent mixing types
 - DTOs for creation/updates
 - Enums for constants
 
 ### Navigation Type Safety
+
 React Navigation provides full type safety:
+
 ```typescript
 type RootStackParamList = {
   Dashboard: undefined;
@@ -210,23 +235,27 @@ navigation.navigate('CardDetail', { cardId: '123' });
 ## Testing Strategy
 
 ### Unit Tests
+
 - Test utilities and helper functions
 - Test business logic in services
 - Test data transformations
 - Target: 80%+ coverage on core logic
 
 ### Integration Tests
+
 - Test repository implementations
 - Test service layer with mocked repositories
 - Test hooks with mocked services
 
 ### Component Tests
+
 - React Native Testing Library
 - Test user interactions
 - Test rendering logic
 - Mock navigation and stores
 
 ### E2E Tests (Future)
+
 - Detox for critical user flows
 - Test authentication flow
 - Test card assignment flow
@@ -234,16 +263,19 @@ navigation.navigate('CardDetail', { cardId: '123' });
 ## Performance Considerations
 
 ### Code Splitting
+
 - Lazy load screens with React.lazy
 - Feature-based code splitting
 - Reduce initial bundle size
 
 ### Memoization
+
 - React.memo for expensive components
 - useMemo for expensive computations
 - useCallback for event handlers
 
 ### Optimization
+
 - FlatList for long lists
 - Image optimization
 - Firestore query optimization
@@ -252,16 +284,19 @@ navigation.navigate('CardDetail', { cardId: '123' });
 ## Security
 
 ### Authentication
+
 - Firebase Authentication
 - Secure token storage (Expo SecureStore)
 - Session management
 
 ### Authorization
+
 - Firestore Security Rules
 - Role-based access control
 - Household membership verification
 
 ### Data Validation
+
 - Client-side with Zod schemas
 - Server-side with Firestore rules
 - Input sanitization
@@ -269,16 +304,19 @@ navigation.navigate('CardDetail', { cardId: '123' });
 ## Scalability
 
 ### Feature Modules
+
 - Self-contained features
 - Easy to add new features
 - Clear boundaries
 
 ### Repository Pattern
+
 - Easy to add new data sources
 - Can switch from Firebase to another backend
 - Centralized data access
 
 ### Clean Architecture
+
 - Business logic independent of frameworks
 - Easy to test
 - Easy to maintain
@@ -286,23 +324,26 @@ navigation.navigate('CardDetail', { cardId: '123' });
 ## Best Practices
 
 ### Code Organization
+
 - One component per file
 - Colocate related files
 - Barrel exports (index.ts files)
 
 ### Naming Conventions
+
 - PascalCase for components
 - camelCase for functions
 - UPPER_SNAKE_CASE for constants
 - Descriptive, meaningful names
 
 ### Component Structure
+
 ```typescript
 // 1. Imports
 import React from 'react';
 
 // 2. Types
-interface Props { }
+interface Props {}
 
 // 3. Component
 export const Component: React.FC<Props> = () => {
@@ -314,6 +355,7 @@ export const Component: React.FC<Props> = () => {
 ```
 
 ### Error Handling
+
 - Custom error classes
 - Error boundaries
 - User-friendly messages
@@ -322,12 +364,14 @@ export const Component: React.FC<Props> = () => {
 ## Documentation
 
 ### JSDoc Comments
+
 - Document all public APIs
 - Include parameter descriptions
 - Include return value descriptions
 - Include examples for complex functions
 
 ### README Files
+
 - Each major directory has a README
 - Explains purpose and usage
 - Includes examples
@@ -335,6 +379,7 @@ export const Component: React.FC<Props> = () => {
 ## Future Enhancements
 
 ### Planned Features
+
 - Offline-first support
 - Push notifications
 - Real-time updates
@@ -342,6 +387,7 @@ export const Component: React.FC<Props> = () => {
 - A/B testing
 
 ### Technical Debt
+
 - Add comprehensive test coverage
 - Implement CI/CD pipeline
 - Add performance monitoring
@@ -354,4 +400,3 @@ export const Component: React.FC<Props> = () => {
 - [React Native Best Practices](https://reactnative.dev/docs/performance)
 - [TypeScript Best Practices](https://www.typescriptlang.org/docs/handbook/declaration-files/do-s-and-don-ts.html)
 - [Fair Play Book](https://www.fairplaylife.com/)
-

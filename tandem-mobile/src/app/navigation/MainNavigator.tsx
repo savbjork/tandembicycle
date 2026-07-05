@@ -1,71 +1,55 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
 import { MainTabParamList } from './types';
-import { HomeStackNavigator } from './stacks/HomeStackNavigator';
-import { CardsStackNavigator } from './stacks/CardsStackNavigator';
-import { HouseholdStackNavigator } from './stacks/HouseholdStackNavigator';
-import { ProfileStackNavigator } from './stacks/ProfileStackNavigator';
-// Icons would come from a library like react-native-heroicons or expo/vector-icons
-// For now using placeholder Text
+import { MainStackNavigator } from './stacks/MainStackNavigator';
+import { InboxScreen } from '@features/inbox/screens/InboxScreen';
+import { ProfileScreen } from '@features/profile/screens/ProfileScreen';
+import { COLORS } from '@shared/constants/colors';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
-/**
- * Main tab navigator - primary navigation after authentication
- */
 export const MainNavigator: React.FC = () => {
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#0284c7',
-        tabBarInactiveTintColor: '#9CA3AF',
+        tabBarActiveTintColor: COLORS.primary[600],
+        tabBarInactiveTintColor: COLORS.text.muted,
         tabBarStyle: {
-          borderTopWidth: 1,
-          borderTopColor: '#E5E7EB',
-          paddingBottom: 8,
-          paddingTop: 8,
-          height: 60,
+          display: 'none',
         },
         tabBarLabelStyle: {
+          fontFamily: 'Barriecito-Regular',
           fontSize: 12,
           fontWeight: '600',
         },
       }}
     >
       <Tab.Screen
+        name="RosterTab"
+        component={MainStackNavigator}
+        options={{
+          tabBarLabel: 'Roster',
+          tabBarIcon: ({ color, size }) => <Ionicons name="people" size={size} color={color} />,
+        }}
+      />
+      <Tab.Screen
+        name="InboxTab"
+        component={InboxScreen}
+        options={{
+          tabBarLabel: 'Inbox',
+          tabBarIcon: ({ color, size }) => <Ionicons name="mail" size={size} color={color} />,
+        }}
+      />
+      <Tab.Screen
         name="HomeTab"
-        component={HomeStackNavigator}
+        component={ProfileScreen}
         options={{
           tabBarLabel: 'Home',
-          // TODO: Add icon
-        }}
-      />
-      <Tab.Screen
-        name="CardsTab"
-        component={CardsStackNavigator}
-        options={{
-          tabBarLabel: 'Cards',
-          // TODO: Add icon
-        }}
-      />
-      <Tab.Screen
-        name="HouseholdTab"
-        component={HouseholdStackNavigator}
-        options={{
-          tabBarLabel: 'Household',
-          // TODO: Add icon
-        }}
-      />
-      <Tab.Screen
-        name="ProfileTab"
-        component={ProfileStackNavigator}
-        options={{
-          tabBarLabel: 'Profile',
-          // TODO: Add icon
+          tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
         }}
       />
     </Tab.Navigator>
   );
 };
-

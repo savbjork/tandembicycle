@@ -1,47 +1,34 @@
+const tokens = require('./src/shared/constants/tokens');
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./App.{js,jsx,ts,tsx}",
-    "./src/**/*.{js,jsx,ts,tsx}"
+  content: ['./App.{js,jsx,ts,tsx}', './src/**/*.{js,jsx,ts,tsx}'],
+  safelist: [
+    // primary (teal) — shell
+    'bg-primary-50', 'bg-primary-600', 'border-primary-200',
+    // secondary (plum) — people
+    'bg-secondary-50', 'bg-secondary-600', 'border-secondary-200',
+    // cranberry — frequency
+    'bg-cranberry-50', 'bg-cranberry-600', 'border-cranberry-200',
+    'text-cranberry-600', 'text-cranberry-500', 'text-cranberry-300',
+    // evergreen — task actions
+    'bg-evergreen-600', 'border-evergreen-600', 'bg-evergreen-50',
+    // error — danger/validation
+    'bg-error-50', 'bg-error-100', 'border-error-200', 'text-error-600', 'text-error-500',
+    'border-error-600',
+    // evergreen text (used in TaskDetailScreen done state)
+    'text-evergreen-600',
+    // neutral
+    'bg-neutral-500',
   ],
-  presets: [require("nativewind/preset")],
+  presets: [require('nativewind/preset')],
   theme: {
     extend: {
-      colors: {
-        // Fair Play brand colors - tandem bicycle red theme
-        primary: {
-          50: '#fef2f2',
-          100: '#fee2e2',
-          200: '#fecaca',
-          300: '#fca5a5',
-          400: '#f87171',
-          500: '#ef4444',
-          600: '#dc2626',
-          700: '#b91c1c',
-          800: '#991b1b',
-          900: '#7f1d1d',
-        },
-        secondary: {
-          50: '#fdf4ff',
-          100: '#fae8ff',
-          200: '#f5d0fe',
-          300: '#f0abfc',
-          400: '#e879f9',
-          500: '#d946ef',
-          600: '#c026d3',
-          700: '#a21caf',
-          800: '#86198f',
-          900: '#701a75',
-        },
-        // Category colors (subtle)
-        'home-care': '#e0f2fe',
-        'food-meals': '#fef3c7',
-        'childcare': '#ddd6fe',
-        'financial': '#d1fae5',
-        'social-family': '#fce7f3',
-        'personal-care': '#e0e7ff',
+      fontFamily: {
+        nanum: ['NanumMyeongjo-Regular'],
       },
+      colors: tokens,
     },
   },
   plugins: [],
-}
+};
