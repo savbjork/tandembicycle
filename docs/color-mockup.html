@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tandem — Jewel Tone Mockup</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* ── Jewel Tone Base ── */
+      --plum:       #5C3D7A;
+      --plum-light: #9B7BC0;
+      --plum-tint:  #EDE6F5;
+
+      --cranberry:       #8B1A2F;
+      --cranberry-mid:   #C4566A;
+      --cranberry-light: #E8A0AB;
+      --cranberry-tint:  #FCF0F2;
+      --cranberry-tint2: #FEF5F7;
+
+      --teal:      #0F4C5C;
+      --teal-mid:  #3D8FA3;
+      --teal-tint: #E5F0F3;
+
+      --evergreen:      #1B4D3E;
+      --evergreen-mid:  #3D8A72;
+      --evergreen-tint: #E5F0ED;
+
+      /* ── Neutrals ── */
+      --bg:          #F5F5F5;
+      --surface:     #FFFFFF;
+      --surface-dim: #FAFAFA;
+      --border:      #E5E7EB;
+      --border-light:#F0F0F0;
+      --text:        #111827;
+      --text-2:      #6B7280;
+      --text-3:      #9CA3AF;
+    }
+
+    body {
+      background: #E8E8E8;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 24px 80px;
+      gap: 48px;
+    }
+
+    h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #111;
+      text-align: center;
+    }
+
+    /* ── Phone Frame ── */
+    .phone {
+      width: 390px;
+      background: var(--surface-dim);
+      border-radius: 52px;
+      box-shadow: 0 0 0 10px #1a1a1a, 0 30px 80px rgba(0,0,0,0.4);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Status bar */
+    .status-bar {
+      background: var(--surface);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 28px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .status-icons { display: flex; gap: 4px; align-items: center; font-size: 11px; }
+
+    /* Screen header */
+    .screen-header {
+      background: var(--surface);
+      padding: 8px 20px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .screen-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      font-family: Georgia, serif;
+    }
+    .header-actions { display: flex; gap: 8px; }
+    .icon-btn {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; color: var(--text-2); cursor: pointer;
+    }
+    .icon-btn.add {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: white;
+      font-size: 20px;
+      font-weight: 300;
+    }
+
+    /* Scroll content */
+    .scroll-content {
+      padding: 12px 20px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* Search bar */
+    .search-bar {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      font-size: 15px;
+      color: var(--text-3);
+    }
+
+    /* Nav row */
+    .nav-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .nav-chip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-2);
+      white-space: nowrap;
+    }
+
+    /* Balance meter */
+    .balance-meter {
+      background: var(--surface);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .balance-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .balance-title { font-size: 15px; font-weight: 600; color: var(--text); }
+    .balance-subtitle { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+    .balance-bar {
+      height: 8px;
+      background: var(--border-light);
+      border-radius: 99px;
+      overflow: hidden;
+      display: flex;
+      margin-bottom: 14px;
+    }
+    .bar-p1 { background: var(--plum-light); }
+    .bar-p2 { background: var(--plum); }
+    .balance-scores {
+      display: flex;
+      justify-content: space-around;
+    }
+    .score-item { text-align: center; }
+    .score-num { font-size: 22px; font-weight: 700; }
+    .score-num.p1 { color: var(--plum-light); }
+    .score-num.p2 { color: var(--plum); }
+    .score-name { font-size: 12px; color: var(--text-2); margin-top: 2px; }
+
+    /* Section label */
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 8px;
+      margin-top: 4px;
+    }
+
+    /* Card list item */
+    .card-item {
+      border-radius: 14px;
+      padding: 14px 14px 12px;
+      margin-bottom: 10px;
+      border: 0.5px solid;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .card-item.daily {
+      background: var(--cranberry-tint);
+      border-color: var(--cranberry-light);
+    }
+    .card-item.weekly {
+      background: var(--cranberry-tint2);
+      border-color: #F0C5CC;
+    }
+    .card-item.as-needed {
+      background: var(--surface);
+      border-color: var(--border-light);
+    }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .card-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      font-family: Georgia, serif;
+    }
+
+    /* Owner badge */
+    .owner-badge {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+    .owner-badge.p1 { background: var(--plum-light); }
+    .owner-badge.p2 { background: var(--plum); }
+
+    /* Frequency chip */
+    .freq-chip {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 99px;
+      margin-bottom: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .freq-chip.daily { background: var(--cranberry-tint); color: var(--cranberry); border: 1px solid var(--cranberry-light); }
+    .freq-chip.weekly { background: var(--cranberry-tint2); color: var(--cranberry-mid); border: 1px solid #F0C5CC; }
+    .freq-chip.as-needed { background: #F3F4F6; color: var(--text-3); border: 1px solid var(--border); }
+
+    /* Task row */
+    .task-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 5px 0;
+    }
+    .task-check {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      border: 1.5px solid var(--evergreen-mid);
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .task-check.done {
+      background: var(--evergreen);
+      border-color: var(--evergreen);
+      color: white;
+      font-size: 10px;
+    }
+    .task-text {
+      font-size: 13px;
+      color: var(--text-2);
+      flex: 1;
+    }
+    .task-text.done {
+      text-decoration: line-through;
+      color: var(--text-3);
+    }
+    .task-due {
+      font-size: 11px;
+      color: var(--text-3);
+    }
+    .task-owner {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8px;
+      font-weight: 700;
+      color: white;
+    }
+    .task-owner.p1 { background: var(--plum-light); }
+    .task-owner.p2 { background: var(--plum); }
+
+    .more-tasks {
+      font-size: 11px;
+      color: var(--text-3);
+      font-style: italic;
+      padding-left: 28px;
+      margin-top: 2px;
+    }
+
+    /* Tab bar */
+    .tab-bar {
+      background: var(--surface);
+      border-top: 1px solid var(--border-light);
+      padding: 12px 20px 28px;
+      display: flex;
+      justify-content: space-around;
+    }
+    .tab-item {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      font-size: 10px; font-weight: 500;
+    }
+    .tab-item.active { color: var(--teal); }
+    .tab-item:not(.active) { color: var(--text-3); }
+    .tab-icon { font-size: 22px; }
+
+    /* ── Color Legend ── */
+    .legend {
+      width: 390px;
+      background: white;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    .legend h2 { font-size: 14px; font-weight: 700; margin-bottom: 20px; color: #111; text-transform: uppercase; letter-spacing: 0.06em; }
+    .legend-section { margin-bottom: 20px; }
+    .legend-section-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #aaa; margin-bottom: 10px; }
+    .swatch-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .swatch-item { display: flex; flex-direction: column; gap: 4px; align-items: center; }
+    .swatch { width: 48px; height: 48px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.08); }
+    .swatch-label { font-size: 10px; color: #888; text-align: center; max-width: 56px; line-height: 1.3; }
+  </style>
+</head>
+<body>
+
+  <h1>Tandem — Jewel Tone Palette Mockup</h1>
+
+  <!-- Phone mockup -->
+  <div class="phone">
+
+    <!-- Status bar -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <div class="status-icons">
+        <span>●●●</span>
+        <span>WiFi</span>
+        <span>🔋</span>
+      </div>
+    </div>
+
+    <!-- Screen header -->
+    <div class="screen-header">
+      <span class="screen-title">Cards</span>
+      <div class="header-actions">
+        <div class="icon-btn">⇄</div>
+        <div class="icon-btn">≡</div>
+        <div class="icon-btn add">+</div>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="scroll-content">
+
+      <!-- Search -->
+      <div class="search-bar">
+        <span>🔍</span>
+        <span>Search cards...</span>
+      </div>
+
+      <!-- Nav row -->
+      <div class="nav-row">
+        <div class="nav-chip">My Tasks</div>
+        <div class="nav-chip">Inbox</div>
+        <div class="nav-chip">Profile</div>
+      </div>
+
+      <!-- Balance meter -->
+      <div class="balance-meter">
+        <div class="balance-header">
+          <div>
+            <div class="balance-title">Balance</div>
+            <div class="balance-subtitle">42 pts total</div>
+          </div>
+        </div>
+        <div class="balance-bar">
+          <div class="bar-p1" style="width: 52%"></div>
+          <div class="bar-p2" style="width: 48%"></div>
+        </div>
+        <div class="balance-scores">
+          <div class="score-item">
+            <div class="score-num p1">22</div>
+            <div class="score-name">Savannah</div>
+          </div>
+          <div class="score-item">
+            <div class="score-num p2">20</div>
+            <div class="score-name">Kevin</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Daily card -->
+      <div class="card-item daily">
+        <div class="card-header">
+          <span class="card-name">Meals</span>
+          <div class="owner-badge p1">S</div>
+        </div>
+        <div class="freq-chip daily">● Daily</div>
+        <div class="task-row">
+          <div class="task-check"></div>
+          <span class="task-text">Plan dinners for the week</span>
+          <div class="task-owner p1">S</div>
+        </div>
+        <div class="task-row">
+          <div class="task-check done">✓</div>
+          <span class="task-text done">Grocery run</span>
+          <div class="task-owner p1">S</div>
+        </div>
+      </div>
+
+      <!-- Daily card 2 -->
+      <div class="card-item daily">
+        <div class="card-header">
+          <span class="card-name">Tidying</span>
+          <div class="owner-badge p2">K</div>
+        </div>
+        <div class="freq-chip daily">● Daily</div>
+        <div class="task-row">
+          <div class="task-check"></div>
+          <span class="task-text">Wipe counters</span>
+          <div class="task-owner p2">K</div>
+        </div>
+        <div class="task-row">
+          <div class="task-check"></div>
+          <span class="task-text">Sweep kitchen</span>
+          <div class="task-owner p2">K</div>
+        </div>
+        <div class="more-tasks">+ 2 more tasks</div>
+      </div>
+
+      <!-- Weekly card -->
+      <div class="card-item weekly">
+        <div class="card-header">
+          <span class="card-name">Laundry</span>
+          <div class="owner-badge p1">S</div>
+        </div>
+        <div class="freq-chip weekly">● Weekly</div>
+        <div class="task-row">
+          <div class="task-check"></div>
+          <span class="task-text">Wash & dry</span>
+          <span class="task-due">Thu</span>
+        </div>
+        <div class="task-row">
+          <div class="task-check"></div>
+          <span class="task-text">Put away clothes</span>
+          <span class="task-due">Fri</span>
+        </div>
+      </div>
+
+      <!-- As-needed card -->
+      <div class="card-item as-needed">
+        <div class="card-header">
+          <span class="card-name">Car maintenance</span>
+          <div class="owner-badge p2">K</div>
+        </div>
+        <div class="freq-chip as-needed">○ As needed</div>
+        <div class="task-row">
+          <div class="task-check"></div>
+          <span class="task-text">Oil change</span>
+          <span class="task-due">Apr 20</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tab bar -->
+    <div class="tab-bar">
+      <div class="tab-item active">
+        <span class="tab-icon">▦</span>
+        <span>Cards</span>
+      </div>
+      <div class="tab-item">
+        <span class="tab-icon">✓</span>
+        <span>Tasks</span>
+      </div>
+      <div class="tab-item">
+        <span class="tab-icon">◎</span>
+        <span>Profile</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Color legend -->
+  <div class="legend">
+    <h2>Color Map</h2>
+
+    <div class="legend-section">
+      <div class="legend-section-title">Partners — Plum</div>
+      <div class="swatch-row">
+        <div class="swatch-item">
+          <div class="swatch" style="background: #9B7BC0"></div>
+          <div class="swatch-label">#9B7BC0 Partner 1</div>
+        </div>
+        <div class="swatch-item">
+          <div class="swatch" style="background: #5C3D7A"></div>
+          <div class="swatch-label">#5C3D7A Partner 2</div>
+        </div>
+        <div class="swatch-item">
+          <div class="swatch" style="background: #EDE6F5"></div>
+          <div class="swatch-label">#EDE6F5 Tint</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="legend-section">
+      <div class="legend-section-title">Frequency — Cranberry</div>
+      <div class="swatch-row">
+        <div class="swatch-item">
+          <div class="swatch" style="background: #8B1A2F"></div>
+          <div class="swatch-label">#8B1A2F Daily</div>
+        </div>
+        <div class="swatch-item">
+          <div class="swatch" style="background: #C4566A"></div>
+          <div class="swatch-label">#C4566A Weekly</div>
+        </div>
+        <div class="swatch-item">
+          <div class="swatch" style="background: #E8A0AB"></div>
+          <div class="swatch-label">#E8A0AB As-needed</div>
+        </div>
+        <div class="swatch-item">
+          <div class="swatch" style="background: #FCF0F2"></div>
+          <div class="swatch-label">#FCF0F2 Daily bg</div>
+        </div>
+        <div class="swatch-item">
+          <div class="swatch" style="background: #FEF5F7"></div>
+          <div class="swatch-label">#FEF5F7 Weekly bg</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="legend-section">
+      <div class="legend-section-title">Card — Teal</div>
+      <div class="swatch-row">
+        <div class="swatch-item">
+          <div class="swatch" style="background: #0F4C5C"></div>
+          <div class="swatch-label">#0F4C5C Base</div>
+        </div>
+        <div class="swatch-item">
+          <div class="swatch" style="background: #3D8FA3"></div>
+          <div class="swatch-label">#3D8FA3 Mid</div>
+        </div>
+        <div class="swatch-item">
+          <div class="swatch" style="background: #E5F0F3"></div>
+          <div class="swatch-label">#E5F0F3 Tint</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="legend-section">
+      <div class="legend-section-title">Task — Evergreen</div>
+      <div class="swatch-row">
+        <div class="swatch-item">
+          <div class="swatch" style="background: #1B4D3E"></div>
+          <div class="swatch-label">#1B4D3E Base</div>
+        </div>
+        <div class="swatch-item">
+          <div class="swatch" style="background: #3D8A72"></div>
+          <div class="swatch-label">#3D8A72 Mid</div>
+        </div>
+        <div class="swatch-item">
+          <div class="swatch" style="background: #E5F0ED"></div>
+          <div class="swatch-label">#E5F0ED Tint</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
