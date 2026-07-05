@@ -67,10 +67,10 @@ create table cards (
     internal_id   bigint      generated always as identity unique,
     household_id  text        not null references households(id) on delete cascade,
     name          text        not null,
-    owner_id      uuid        not null references profiles(user_id) on delete restrict,
+    owner_id      uuid        references profiles(user_id) on delete restrict,
     note          text,
-    frequency     text        not null default 'as-needed'
-                              check (frequency in ('daily', 'weekly', 'as-needed')),
+    strain        text        check (strain in ('light', 'manageable', 'drowning')),
+    strain_at     timestamptz,
     is_archived   boolean     not null default false,
     archived_at   timestamptz,
     created_at    timestamptz not null default now()
@@ -97,18 +97,20 @@ create table tasks (
     updated_at   timestamptz not null default now()
 );
 
--- messages: inbox items sent between household members (formerly DropZoneItems).
--- status lifecycle: pending → converted | dismissed | archived
+-- messages: net items — raw thoughts captured, routed to a domain head, triaged.
+-- status lifecycle: unrouted → pending → accepted | done | someday | declined
 create table messages (
-    id           text        primary key default 'msg-' || gen_random_uuid()::text,
-    internal_id  bigint      generated always as identity unique,
-    household_id text        not null references households(id) on delete cascade,
-    sender_id    uuid        not null references profiles(user_id) on delete restrict,
-    receiver_id  uuid        not null references profiles(user_id) on delete restrict,
-    content      text        not null,
-    status       text        not null default 'pending'
-                             check (status in ('pending', 'converted', 'dismissed', 'archived')),
-    created_at   timestamptz not null default now()
+    id             text        primary key default 'msg-' || gen_random_uuid()::text,
+    internal_id    bigint      generated always as identity unique,
+    household_id   text        not null references households(id) on delete cascade,
+    sender_id      uuid        not null references profiles(user_id) on delete restrict,
+    receiver_id    uuid        references profiles(user_id) on delete restrict,
+    content        text        not null,
+    domain_id      text        references cards(id) on delete set null,
+    decline_reason text,
+    status         text        not null default 'unrouted'
+                               check (status in ('unrouted', 'pending', 'accepted', 'done', 'someday', 'declined')),
+    created_at     timestamptz not null default now()
 );
 
 -- push_tokens: Expo push tokens for each device a user is signed in on.
@@ -143,6 +145,7 @@ create index on tasks (source_message_id);
 create index on messages (household_id);
 create index on messages (sender_id);
 create index on messages (receiver_id);
+create index on messages (domain_id);
 create index on push_tokens (user_id);
 
 
