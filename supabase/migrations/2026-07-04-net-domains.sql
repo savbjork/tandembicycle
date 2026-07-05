@@ -34,3 +34,25 @@ create policy "messages: sender or receiver can update"
     on messages for update
     to authenticated
     using (sender_id = auth.uid() or receiver_id = auth.uid());
+
+-- Task-owner sync must fire on the claim transition (NULL → owner); <> is
+-- NULL-blind. Guard NULL new.owner_id: tasks.owner_id is NOT NULL, and an
+-- unclaimed domain keeps its tasks with the previous head until claimed.
+create or replace function sync_task_owners()
+returns trigger language plpgsql as $$
+begin
+    if new.owner_id is distinct from old.owner_id and new.owner_id is not null then
+        update tasks set owner_id = new.owner_id
+        where card_id = new.id;
+    end if;
+    return new;
+end;
+$$;
+
+-- Unclaimed cards (no head) must be deletable by household members
+-- (e.g. during the deal/swipe flow); the old policy could never match NULL.
+drop policy "cards: owner can delete" on cards;
+create policy "cards: owner can delete"
+    on cards for delete
+    to authenticated
+    using (owner_id = auth.uid() or (owner_id is null and is_household_member(household_id)));

@@ -188,10 +188,13 @@ create trigger tasks_updated_at
 
 
 -- When a card's owner changes, cascade the new owner_id to all tasks on that card.
+-- IS DISTINCT FROM (not <>) so the claim transition (NULL → owner) fires too.
+-- Guard against NULL new.owner_id: tasks.owner_id is NOT NULL, and an unclaimed
+-- domain keeps its tasks with the previous head until someone claims it.
 create or replace function sync_task_owners()
 returns trigger language plpgsql as $$
 begin
-    if new.owner_id <> old.owner_id then
+    if new.owner_id is distinct from old.owner_id and new.owner_id is not null then
         update tasks set owner_id = new.owner_id
         where card_id = new.id;
     end if;
@@ -362,10 +365,12 @@ create policy "cards: members can update"
 
 -- Only the card's own owner can delete it.
 -- (Not even household owners can delete another member's card.)
+-- The head can delete their own card; unclaimed cards (no head) can be
+-- deleted by any household member (e.g. during the deal/swipe flow).
 create policy "cards: owner can delete"
     on cards for delete
     to authenticated
-    using (owner_id = auth.uid());
+    using (owner_id = auth.uid() or (owner_id is null and is_household_member(household_id)));
 
 
 -- ── tasks ─────────────────────────────────────────────────────
