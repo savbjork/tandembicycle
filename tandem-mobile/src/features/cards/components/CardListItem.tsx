@@ -4,7 +4,13 @@ import { Text, OwnerBadge } from '@shared/components/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
 import { TaskRow } from '@shared/components/ui/SwipeableTaskRow';
-import { type Card, type Task } from '@shared/data/FakeDataStore';
+import { type Card, type Task, type DomainStrain } from '@shared/data/FakeDataStore';
+
+const STRAIN_DOT_CLASS: Record<DomainStrain, string> = {
+  light: 'bg-success-600',
+  manageable: 'bg-warning-500',
+  drowning: 'bg-error-600',
+};
 
 interface CardListItemProps {
   card: Card;
@@ -44,6 +50,9 @@ export const CardListItem: React.FC<CardListItemProps> = ({
               size={20}
               color={isSelected ? COLORS.primary[600] : COLORS.text.muted}
             />
+          )}
+          {!isSelecting && card.strain && (
+            <View className={`w-2 h-2 rounded-full ${STRAIN_DOT_CLASS[card.strain]}`} />
           )}
           <Text className="text-[17px] font-bold text-text">{card.name}</Text>
         </View>

@@ -7,13 +7,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import {
-  Text,
-  ScreenHeader,
-  FieldLabel,
-  EmptyState,
-  TextInput,
-} from '@shared/components/ui';
+import { Text, ScreenHeader, FieldLabel, EmptyState, TextInput } from '@shared/components/ui';
 import { EditableTitle } from '@shared/components/ui/EditableTitle';
 import { AddTaskSheet } from '@shared/components/ui/AddTaskSheet';
 import { Ionicons } from '@expo/vector-icons';

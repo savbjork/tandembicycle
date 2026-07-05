@@ -14,6 +14,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 // Decomposed Components
 import { CardListItem } from '../components/CardListItem';
+import { PartnerDomainRow } from '../components/PartnerDomainRow';
+import { UnclaimedDomainRow } from '../components/UnclaimedDomainRow';
 import { NavigationRow } from '../components/NavigationRow';
 import { CardFilterSheet } from '../components/CardFilterSheet';
 import { ShuffleModal } from '../components/ShuffleModal';
@@ -115,6 +117,20 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
     toggleTaskDone(taskId);
   };
 
+  const handleClaim = (name: string) => {
+    reassignCards([{ name, owner: currentUser }]);
+  };
+
+  const sortedCards = useMemo(
+    () =>
+      [...filteredCards].sort(
+        (a, b) =>
+          (a.owner === currentUser ? 0 : a.owner ? 2 : 1) -
+          (b.owner === currentUser ? 0 : b.owner ? 2 : 1)
+      ),
+    [filteredCards, currentUser]
+  );
+
   const listHeader = useMemo(
     () =>
       !isSelecting ? (
@@ -156,15 +172,12 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
     [isSelecting, searchQuery]
   );
 
-  const listFooter = useMemo(
-    () => <View className="h-20" />,
-    []
-  );
+  const listFooter = useMemo(() => <View className="h-20" />, []);
 
   return (
     <View className="flex-1 bg-surface-dim">
       <ScreenHeader
-        title={isSelecting ? 'Select Cards' : 'Cards'}
+        title={isSelecting ? 'Select Domains' : 'Domains'}
         rightAction={
           isSelecting ? (
             <TouchableOpacity
@@ -211,7 +224,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
         ref={flatListRef}
         className="flex-1 px-5"
         contentOffset={{ x: 0, y: SEARCH_BAR_HEIGHT }}
-        data={filteredCards}
+        data={sortedCards}
         keyExtractor={(card, i) => `${card.name}-${i}`}
         ListHeaderComponent={listHeader}
         ListFooterComponent={listFooter}
@@ -229,23 +242,32 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
             </View>
           ) : (
             <View className="items-center justify-center pt-20">
-              <Text className="text-text-muted text-base">No cards match your search</Text>
+              <Text className="text-text-muted text-base">No domains match your search</Text>
             </View>
           )
         }
-        renderItem={({ item: card }) => (
-          <CardListItem
-            card={card}
-            tasks={getCardTasks(card.name)}
-            isSelecting={isSelecting}
-            isSelected={selectedCardNames.includes(card.name)}
-            onPress={() => navigation.navigate('CardDetail', { cardName: card.name })}
-            onToggleSelection={() => toggleCardSelection(card.name)}
-            showOwnerBadge={filter === 'all'}
-            showTasks={taskTimeFilter !== 'hidden'}
-            onToggleTaskDone={(taskId) => handleToggleDone(taskId)}
-          />
-        )}
+        renderItem={({ item: card }) =>
+          card.owner === currentUser || isSelecting ? (
+            <CardListItem
+              card={card}
+              tasks={getCardTasks(card.name)}
+              isSelecting={isSelecting}
+              isSelected={selectedCardNames.includes(card.name)}
+              onPress={() => navigation.navigate('CardDetail', { cardName: card.name })}
+              onToggleSelection={() => toggleCardSelection(card.name)}
+              showOwnerBadge={filter === 'all'}
+              showTasks={taskTimeFilter !== 'hidden' && card.owner === currentUser}
+              onToggleTaskDone={(taskId) => handleToggleDone(taskId)}
+            />
+          ) : card.owner ? (
+            <PartnerDomainRow
+              card={card}
+              onPress={() => navigation.navigate('CardDetail', { cardName: card.name })}
+            />
+          ) : (
+            <UnclaimedDomainRow card={card} onClaim={() => handleClaim(card.name)} />
+          )
+        }
         contentContainerStyle={{ paddingBottom: isSelecting ? 160 : 0 }}
       />
 
