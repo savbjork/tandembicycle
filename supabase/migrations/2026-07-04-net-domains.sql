@@ -56,3 +56,20 @@ create policy "cards: owner can delete"
     on cards for delete
     to authenticated
     using (owner_id = auth.uid() or (owner_id is null and is_household_member(household_id)));
+
+-- Same NULL-guard for the move-task-to-card sync: tasks.owner_id is NOT NULL;
+-- moving a task onto an unclaimed card keeps the current owner instead of erroring.
+create or replace function sync_task_card_owner()
+returns trigger language plpgsql as $$
+declare
+    new_owner_id uuid;
+begin
+    if new.card_id <> old.card_id then
+        select owner_id into new_owner_id from cards where id = new.card_id;
+        if new_owner_id is not null then
+            new.owner_id := new_owner_id;
+        end if;
+    end if;
+    return new;
+end;
+$$;

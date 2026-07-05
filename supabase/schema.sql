@@ -209,6 +209,8 @@ create trigger cards_owner_sync
 
 -- When a task is moved to a different card, sync owner_id from the new card.
 -- This covers the TaskDetailScreen "Card" picker that lets users reassign tasks.
+-- NULL guard: tasks.owner_id is NOT NULL; moving a task onto an unclaimed card
+-- keeps the current owner instead of erroring.
 create or replace function sync_task_card_owner()
 returns trigger language plpgsql as $$
 declare
@@ -216,7 +218,9 @@ declare
 begin
     if new.card_id <> old.card_id then
         select owner_id into new_owner_id from cards where id = new.card_id;
-        new.owner_id := new_owner_id;
+        if new_owner_id is not null then
+            new.owner_id := new_owner_id;
+        end if;
     end if;
     return new;
 end;
@@ -411,7 +415,7 @@ create policy "messages: sender can insert"
     to authenticated
     with check (is_household_member(household_id) and sender_id = auth.uid());
 
--- The sender or receiver can update the status (convert, dismiss, archive).
+-- The capturer (sender) routes; the head (receiver) triages.
 create policy "messages: sender or receiver can update"
     on messages for update
     to authenticated
