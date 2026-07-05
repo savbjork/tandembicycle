@@ -110,6 +110,19 @@ export const useDataStore = create<DataState>((set, get) => ({
           fakeData.cards = newCards;
           return { cards: newCards };
         });
+
+        // Repair net items routed to this card before its id back-filled:
+        // their DB rows have domain_id null (see routeNetItem).
+        const { netItems, userIdByName } = get();
+        const headId = card.owner ? (userIdByName[card.owner] ?? null) : null;
+        netItems
+          .filter((i) => i.domain === card.name && i.id.startsWith('msg-'))
+          .forEach((i) => {
+            supabase
+              .from('messages')
+              .update({ domain_id: data.id, receiver_id: headId })
+              .eq('id', i.id);
+          });
       });
   },
 
