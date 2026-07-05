@@ -278,6 +278,10 @@ export const useDataStore = create<DataState>((set, get) => ({
     const capturerId = userIdByName[item.capturer];
     if (!householdId || !capturerId) return;
 
+    // Invariant: while the DB id is back-filling, mutations against the temp id
+    // (routeNetItem/triageNetItem/declineNetItem/removeNetItem) stay local-only.
+    // Once the insert resolves, we replay the item's final local state against
+    // the real DB id so those races aren't lost.
     supabase
       .from('messages')
       .insert({
@@ -291,13 +295,40 @@ export const useDataStore = create<DataState>((set, get) => ({
       .single()
       .then(({ data }) => {
         if (!data?.id) return;
+        let synced: NetItem | undefined;
         set((state) => {
-          const newItems = state.netItems.map((i) =>
-            i.id === item.id ? { ...i, id: data.id } : i
-          );
+          const newItems = state.netItems.map((i) => {
+            if (i.id !== item.id) return i;
+            synced = { ...i, id: data.id };
+            return synced;
+          });
           fakeData.netItems = newItems;
           return { netItems: newItems };
         });
+
+        // Item was removed locally before the insert resolved — delete the DB row.
+        if (!synced) {
+          supabase.from('messages').delete().eq('id', data.id);
+          return;
+        }
+
+        // Replay mutations that raced the id back-fill (their updates no-op'd on the temp id).
+        const syncedItem = synced;
+        if (syncedItem.status !== 'unrouted') {
+          const { cards, userIdByName } = get();
+          const card = syncedItem.domain
+            ? cards.find((c) => c.name === syncedItem.domain)
+            : undefined;
+          supabase
+            .from('messages')
+            .update({
+              status: syncedItem.status,
+              domain_id: card?.dbId ?? null,
+              receiver_id: card?.owner ? (userIdByName[card.owner] ?? null) : null,
+              decline_reason: syncedItem.declineReason ?? null,
+            })
+            .eq('id', data.id);
+        }
       });
   },
 
@@ -317,10 +348,12 @@ export const useDataStore = create<DataState>((set, get) => ({
     });
 
     const headId = userIdByName[card.owner] ?? null;
-    supabase
-      .from('messages')
-      .update({ domain_id: card.dbId ?? null, receiver_id: headId, status: 'pending' })
-      .eq('id', id);
+    if (id.startsWith('msg-')) {
+      supabase
+        .from('messages')
+        .update({ domain_id: card.dbId ?? null, receiver_id: headId, status: 'pending' })
+        .eq('id', id);
+    }
   },
 
   triageNetItem: (id, outcome) => {
@@ -333,7 +366,9 @@ export const useDataStore = create<DataState>((set, get) => ({
       return { netItems: newItems };
     });
 
-    supabase.from('messages').update({ status: outcome }).eq('id', id);
+    if (id.startsWith('msg-')) {
+      supabase.from('messages').update({ status: outcome }).eq('id', id);
+    }
   },
 
   declineNetItem: (id, reason) => {
@@ -348,7 +383,9 @@ export const useDataStore = create<DataState>((set, get) => ({
       return { netItems: newItems };
     });
 
-    supabase.from('messages').update({ status: 'declined', decline_reason: reason }).eq('id', id);
+    if (id.startsWith('msg-')) {
+      supabase.from('messages').update({ status: 'declined', decline_reason: reason }).eq('id', id);
+    }
   },
 
   removeNetItem: (id) =>
@@ -356,7 +393,9 @@ export const useDataStore = create<DataState>((set, get) => ({
       const newItems = state.netItems.filter((item) => item.id !== id);
       fakeData.netItems = newItems;
 
-      supabase.from('messages').delete().eq('id', id);
+      if (id.startsWith('msg-')) {
+        supabase.from('messages').delete().eq('id', id);
+      }
 
       return { netItems: newItems };
     }),
