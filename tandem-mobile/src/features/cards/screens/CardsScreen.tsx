@@ -21,6 +21,7 @@ import { CardFilterSheet } from '../components/CardFilterSheet';
 import { ShuffleModal } from '../components/ShuffleModal';
 import { SwipeModeScreen } from '../components/SwipeModeScreen';
 import { AddCardModal } from '../components/AddCardModal';
+import { StrainCheckBanner } from '../components/StrainCheckBanner';
 
 // Custom Hooks
 import { useCardsFiltering } from '../hooks/useCardsFiltering';
@@ -167,9 +168,10 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
             onNavigateInbox={() => navigation.navigate('Inbox')}
             onNavigateHome={() => navigation.navigate('Profile')}
           />
+          {filter === 'all' && <StrainCheckBanner />}
         </View>
       ) : null,
-    [isSelecting, searchQuery]
+    [isSelecting, searchQuery, filter]
   );
 
   const listFooter = useMemo(() => <View className="h-20" />, []);

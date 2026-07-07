@@ -14,6 +14,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { MainStackParamList } from '@app/navigation/types';
 import { CardFilterSheet } from '@features/cards/components/CardFilterSheet';
+import { selectVisibleTasks } from '@features/net/logic/netItemLogic';
 
 export const TasksScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
@@ -26,22 +27,19 @@ export const TasksScreen: React.FC = () => {
   const [hideCompleted, setHideCompleted] = useState(false);
   const [hideUndated, setHideUndated] = useState(false);
 
-  const myTasks = useMemo(
-    () => tasks.filter((t: Task) => t.owner === currentUser),
-    [tasks, currentUser]
-  );
+  const visibleTasks = useMemo(() => selectVisibleTasks(tasks, currentUser), [tasks, currentUser]);
 
   const pendingTasks = useMemo(
     () =>
-      myTasks.filter(
+      visibleTasks.filter(
         (t: Task) => !t.isDone && isDateInTimeFrame(t.dueDate, taskTimeFilter, hideUndated)
       ),
-    [myTasks, taskTimeFilter, hideUndated]
+    [visibleTasks, taskTimeFilter, hideUndated]
   );
 
   const completedTasks = useMemo(
-    () => (hideCompleted ? [] : myTasks.filter((t: Task) => t.isDone)),
-    [myTasks, hideCompleted]
+    () => (hideCompleted ? [] : visibleTasks.filter((t: Task) => t.isDone)),
+    [visibleTasks, hideCompleted]
   );
 
   const handleToggleDone = (taskId: string, _isDone: boolean) => {
