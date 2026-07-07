@@ -19,6 +19,8 @@ interface AddTaskSheetProps {
   initialCard?: string;
   initialNote?: string;
   onTaskAdded?: (task: Task) => void;
+  // Locked when creating a task from an already-routed net item — re-routing happens in the Net, not here.
+  lockCard?: boolean;
 }
 
 export const AddTaskSheet: React.FC<AddTaskSheetProps> = ({
@@ -27,6 +29,7 @@ export const AddTaskSheet: React.FC<AddTaskSheetProps> = ({
   initialCard,
   initialNote,
   onTaskAdded,
+  lockCard,
 }) => {
   const { currentUser } = useCurrentUser();
   const { cards, addTask } = useDataStore();
@@ -84,7 +87,13 @@ export const AddTaskSheet: React.FC<AddTaskSheetProps> = ({
 
         <FieldLabel>Card</FieldLabel>
         <View className="mb-4">
-          <CardPickerField options={cardOptions} value={taskCard} onChange={setTaskCard} />
+          {lockCard && taskCard ? (
+            <View className="py-3 px-4 rounded-xl bg-surface-dim border border-border">
+              <Text className="text-base text-text">{taskCard}</Text>
+            </View>
+          ) : (
+            <CardPickerField options={cardOptions} value={taskCard} onChange={setTaskCard} />
+          )}
         </View>
 
         <FieldLabel>Due Date</FieldLabel>

@@ -279,6 +279,7 @@ export const NetScreen: React.FC = () => {
         initialNote={taskFromItem?.content}
         initialCard={taskFromItem?.domain}
         onTaskAdded={() => taskFromItem && triageNetItem(taskFromItem.id, 'accepted')}
+        lockCard={taskFromItem !== null}
       />
     </View>
   );

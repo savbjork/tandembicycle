@@ -305,6 +305,7 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         initialCard={card.name}
         initialNote={somedayItem?.content}
         onTaskAdded={handleTaskAdded}
+        lockCard={somedayItem !== null}
       />
     </View>
   );
