@@ -74,6 +74,7 @@ interface UseCardShuffleProps {
   reassignCards: (assignments: { name: string; owner: Person }[]) => void;
   resetToDefaults: (freshCards: Card[], freshTasks: Task[]) => void;
   removeCard: (name: string) => void;
+  addCard: (card: Card) => void;
   onShuffleEnd?: () => void;
 }
 
@@ -82,6 +83,7 @@ export const useCardShuffle = ({
   reassignCards,
   resetToDefaults,
   removeCard,
+  addCard,
   onShuffleEnd,
 }: UseCardShuffleProps) => {
   const { currentUser } = useCurrentUser();
@@ -91,10 +93,12 @@ export const useCardShuffle = ({
   const [shuffledCards, setShuffledCards] = useState<{ name: string; owner?: Person }[]>([]);
   const [isDefaultsMode, setIsDefaultsMode] = useState(false);
   const [deletedCardNames, setDeletedCardNames] = useState<string[]>([]);
+  const [splitCardNames, setSplitCardNames] = useState<string[]>([]);
 
   const startSwipeShuffle = useCallback(
     (cardsToShuffle: Card[] = cards) => {
       setDeletedCardNames([]);
+      setSplitCardNames([]);
       setIsDefaultsMode(false);
       setShowShuffleModal(false);
       setShuffledCards([...cardsToShuffle]);
@@ -106,6 +110,7 @@ export const useCardShuffle = ({
 
   const startWithDefaults = useCallback(() => {
     setDeletedCardNames([]);
+    setSplitCardNames([]);
     const defaultCardObjects = DEFAULT_CARDS.map((name) => ({ name, owner: currentUser }));
     setIsDefaultsMode(true);
     setShuffledCards(defaultCardObjects);
@@ -135,9 +140,25 @@ export const useCardShuffle = ({
     [shuffledCards]
   );
 
+  // Domains have exactly one head by design; a split replaces the card with
+  // one possessively-named copy per member instead of assigning it to one
+  // owner. Recorded here (like delete) and only materialized at finishShuffle.
+  const markCardSplit = useCallback(
+    (cardIndex: number) => {
+      const cardName = shuffledCards[cardIndex]?.name;
+      if (cardName) {
+        setSplitCardNames((prev) => [...prev, cardName]);
+      }
+      setCurrentCardIndex(cardIndex + 1);
+    },
+    [shuffledCards]
+  );
+
   const finishShuffle = useCallback(
-    (updatedCards: typeof shuffledCards) => {
-      const keptCards = updatedCards.filter((c) => !deletedCardNames.includes(c.name));
+    (updatedCards: typeof shuffledCards, members: Person[] = []) => {
+      const keptCards = updatedCards.filter(
+        (c) => !deletedCardNames.includes(c.name) && !splitCardNames.includes(c.name)
+      );
 
       if (isDefaultsMode) {
         const freshCards: Card[] = keptCards.map((c) => ({
@@ -154,19 +175,46 @@ export const useCardShuffle = ({
             .map((c) => ({ name: c.name, owner: c.owner }))
         );
         deletedCardNames.forEach((name) => removeCard(name));
+
+        splitCardNames.forEach((name) => {
+          const original = updatedCards.find((c) => c.name === name);
+          if (!original) return;
+          removeCard(name);
+          members.forEach((member) => {
+            const splitName = `${member}'s ${original.name}`;
+            // Card name is the identity key in this app — if a card with the
+            // target name already exists, skip creating that copy (no
+            // duplicates, no renaming). The original is still removed.
+            const collides = cards.some((c) => c.name === splitName);
+            if (collides) return;
+            addCard({ name: splitName, owner: member });
+          });
+        });
       }
 
       setDeletedCardNames([]);
+      setSplitCardNames([]);
       setIsDefaultsMode(false);
       setShowSwipeMode(false);
       setCurrentCardIndex(0);
       if (onShuffleEnd) onShuffleEnd();
     },
-    [isDefaultsMode, deletedCardNames, reassignCards, resetToDefaults, removeCard, onShuffleEnd]
+    [
+      isDefaultsMode,
+      deletedCardNames,
+      splitCardNames,
+      reassignCards,
+      resetToDefaults,
+      removeCard,
+      addCard,
+      cards,
+      onShuffleEnd,
+    ]
   );
 
   const cancelSwipe = useCallback(() => {
     setDeletedCardNames([]);
+    setSplitCardNames([]);
     setIsDefaultsMode(false);
     setShowSwipeMode(false);
   }, []);
@@ -200,6 +248,7 @@ export const useCardShuffle = ({
     cancelSwipe,
     assignCard,
     markCardDeleted,
+    markCardSplit,
     finishShuffle,
     handleFreshStart,
   };

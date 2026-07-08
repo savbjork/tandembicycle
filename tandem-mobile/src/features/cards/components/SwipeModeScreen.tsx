@@ -13,7 +13,8 @@ interface SwipeModeScreenProps {
   members: Person[];
   onAssign: (cardIndex: number, owner: Person) => void;
   onDelete: (cardIndex: number) => void;
-  onSwipedAll: (updatedCards: { name: string; owner?: Person }[]) => void;
+  onSplit: (cardIndex: number) => void;
+  onSwipedAll: (updatedCards: { name: string; owner?: Person }[], members: Person[]) => void;
 }
 
 export const SwipeModeScreen: React.FC<SwipeModeScreenProps> = ({
@@ -24,10 +25,14 @@ export const SwipeModeScreen: React.FC<SwipeModeScreenProps> = ({
   members,
   onAssign,
   onDelete,
+  onSplit,
   onSwipedAll,
 }) => {
   const isLastCard = currentCardIndex === shuffledCards.length - 1;
   const currentCard = shuffledCards[currentCardIndex];
+  // Split only makes sense for the exactly-two-member household this app
+  // targets: it replaces the card with one pre-claimed copy per side.
+  const canSplit = members.length === 2;
 
   const onSwipedAllRef = useRef(onSwipedAll);
   useEffect(() => {
@@ -39,7 +44,7 @@ export const SwipeModeScreen: React.FC<SwipeModeScreenProps> = ({
 
     if (isLastCard) {
       setTimeout(() => {
-        onSwipedAllRef.current(shuffledCards);
+        onSwipedAllRef.current(shuffledCards, members);
       }, 100);
     }
   };
@@ -49,7 +54,17 @@ export const SwipeModeScreen: React.FC<SwipeModeScreenProps> = ({
 
     if (isLastCard) {
       setTimeout(() => {
-        onSwipedAllRef.current(shuffledCards);
+        onSwipedAllRef.current(shuffledCards, members);
+      }, 100);
+    }
+  };
+
+  const handleSplit = () => {
+    onSplit(currentCardIndex);
+
+    if (isLastCard) {
+      setTimeout(() => {
+        onSwipedAllRef.current(shuffledCards, members);
       }, 100);
     }
   };
@@ -97,6 +112,19 @@ export const SwipeModeScreen: React.FC<SwipeModeScreenProps> = ({
                 <Text className="text-white text-xl font-bold">{member}</Text>
               </TouchableOpacity>
             ))}
+
+            {canSplit && (
+              <TouchableOpacity
+                onPress={handleSplit}
+                className="py-4 rounded-2xl flex-row items-center justify-center gap-2 border border-border bg-surface active:opacity-80"
+              >
+                <Ionicons name="git-branch-outline" size={18} color={COLORS.text.secondary} />
+                <View className="items-center">
+                  <Text className="text-text-secondary text-base font-semibold">Split</Text>
+                  <Text className="text-text-muted text-xs">One copy per side, each claimed</Text>
+                </View>
+              </TouchableOpacity>
+            )}
 
             <TouchableOpacity
               onPress={handleDelete}
