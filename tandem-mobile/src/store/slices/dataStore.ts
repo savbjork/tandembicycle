@@ -45,7 +45,7 @@ interface DataState {
   setNetItems: (items: NetItem[]) => void;
 
   // ── Bulk / Shuffle Actions ────────────────────────────
-  reassignCards: (assignments: Array<{ name: string; owner: Person }>) => void;
+  reassignCards: (assignments: { name: string; owner: Person }[]) => void;
   resetToDefaults: (cards: Card[], tasks: Task[]) => void;
 
   // ── Household Context Setter ──────────────────────────

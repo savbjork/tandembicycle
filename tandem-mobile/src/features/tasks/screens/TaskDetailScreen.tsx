@@ -73,7 +73,12 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         note,
       });
     });
-  }, [navigation, task]);
+  }, [navigation, task, taskId, updateTask]);
+
+  const cardOptions = useMemo(
+    () => cards.filter((c) => c.owner === currentUser).map((c) => ({ key: c.name, label: c.name })),
+    [cards, currentUser]
+  );
 
   if (!task) {
     return (
@@ -117,11 +122,6 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const handleToggleDone = () => {
     toggleTaskDone(taskId);
   };
-
-  const cardOptions = useMemo(
-    () => cards.filter((c) => c.owner === currentUser).map((c) => ({ key: c.name, label: c.name })),
-    [cards, currentUser]
-  );
 
   return (
     <View className="flex-1 bg-surface-dim">

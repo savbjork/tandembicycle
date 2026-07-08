@@ -71,7 +71,7 @@ export const DEFAULT_CARDS = [
 
 interface UseCardShuffleProps {
   cards: Card[];
-  reassignCards: (assignments: Array<{ name: string; owner: Person }>) => void;
+  reassignCards: (assignments: { name: string; owner: Person }[]) => void;
   resetToDefaults: (freshCards: Card[], freshTasks: Task[]) => void;
   removeCard: (name: string) => void;
   onShuffleEnd?: () => void;
@@ -88,7 +88,7 @@ export const useCardShuffle = ({
   const [showShuffleModal, setShowShuffleModal] = useState(false);
   const [showSwipeMode, setShowSwipeMode] = useState(false);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
-  const [shuffledCards, setShuffledCards] = useState<Array<{ name: string; owner?: Person }>>([]);
+  const [shuffledCards, setShuffledCards] = useState<{ name: string; owner?: Person }[]>([]);
   const [isDefaultsMode, setIsDefaultsMode] = useState(false);
   const [deletedCardNames, setDeletedCardNames] = useState<string[]>([]);
 

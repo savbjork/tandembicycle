@@ -171,7 +171,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
           {filter === 'all' && <StrainCheckBanner />}
         </View>
       ) : null,
-    [isSelecting, searchQuery, filter]
+    [isSelecting, searchQuery, filter, navigation]
   );
 
   const listFooter = useMemo(() => <View className="h-20" />, []);

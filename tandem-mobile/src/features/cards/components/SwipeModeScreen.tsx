@@ -8,12 +8,12 @@ import { Ionicons } from '@expo/vector-icons';
 interface SwipeModeScreenProps {
   visible: boolean;
   onClose: () => void;
-  shuffledCards: Array<{ name: string; owner?: Person }>;
+  shuffledCards: { name: string; owner?: Person }[];
   currentCardIndex: number;
   members: Person[];
   onAssign: (cardIndex: number, owner: Person) => void;
   onDelete: (cardIndex: number) => void;
-  onSwipedAll: (updatedCards: Array<{ name: string; owner?: Person }>) => void;
+  onSwipedAll: (updatedCards: { name: string; owner?: Person }[]) => void;
 }
 
 export const SwipeModeScreen: React.FC<SwipeModeScreenProps> = ({

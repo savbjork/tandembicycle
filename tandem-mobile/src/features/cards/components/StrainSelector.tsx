@@ -8,7 +8,7 @@ interface StrainSelectorProps {
   onChange: (strain: DomainStrain) => void;
 }
 
-const OPTIONS: Array<{ value: DomainStrain; label: string; activeClass: string }> = [
+const OPTIONS: { value: DomainStrain; label: string; activeClass: string }[] = [
   { value: 'light', label: 'Light', activeClass: 'bg-success-600' },
   { value: 'manageable', label: 'Manageable', activeClass: 'bg-warning-500' },
   { value: 'drowning', label: 'Drowning', activeClass: 'bg-error-600' },

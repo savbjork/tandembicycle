@@ -44,7 +44,8 @@ export const useCurrentUser = () => {
       const partner = members
         .filter((m) => m.user_id !== user.id)
         .map(
-          (m) => (m.profiles as unknown as { display_name: string } | null)?.display_name ?? 'Unknown'
+          (m) =>
+            (m.profiles as unknown as { display_name: string } | null)?.display_name ?? 'Unknown'
         )[0];
 
       if (partner) setPartnerName(partner);
