@@ -5,7 +5,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
 import { TaskRow } from '@shared/components/ui/SwipeableTaskRow';
 import { type Card, type Task, type DomainStrain } from '@shared/data/FakeDataStore';
-import { domainHue, HUE_CARD_CLASS, HUE_TITLE_CLASS, HUE_SUB_CLASS } from '@shared/utils';
+import {
+  domainHue,
+  HUE_FILL_CLASS,
+  HUE_BORDER_CLASS,
+  HUE_TITLE_CLASS,
+  HUE_SUB_CLASS,
+} from '@shared/utils';
 
 const STRAIN_DOT_CLASS: Record<DomainStrain, string> = {
   light: 'bg-success-600',
@@ -40,8 +46,8 @@ export const CardListItem: React.FC<CardListItemProps> = ({
 
   return (
     <TouchableOpacity
-      className={`p-4 rounded-xl mb-3 border-[0.5px] shadow-sm ${HUE_CARD_CLASS[hue]} ${
-        isSelecting && isSelected ? 'border-primary-600' : ''
+      className={`p-4 rounded-xl mb-3 border-[0.5px] shadow-sm ${HUE_FILL_CLASS[hue]} ${
+        isSelecting && isSelected ? 'border-primary-600' : HUE_BORDER_CLASS[hue]
       }`}
       onPress={isSelecting ? onToggleSelection : onPress}
     >

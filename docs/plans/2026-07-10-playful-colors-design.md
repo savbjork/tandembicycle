@@ -84,7 +84,8 @@ strings (`Record<HueFamily, string>`), the same pattern as `STRAIN_DOT_CLASS` in
 - **All screen roots:** `bg-surface-dim` → cream.
 - **Domains (CardsScreen):** own-domain `CardListItem` gets its family fill +
   border + title/sub text colors; task-count chip becomes white pill with family
-  mid text. Section labels (`Yours` / `Unclaimed` / partner name) in `label-warm`.
+  mid text. (CardsScreen renders a flat sorted list — no section-label elements
+  exist; `label-warm` applies to NetScreen's section labels only.)
   Add (+) header button filled pink. UnclaimedDomainRow: cream bg, dashed neutral
   border, Claim button coral. PartnerDomainRow: unchanged white.
 - **StrainCheckBanner:** butter tint fill + butter border/text; Rate button purple.
