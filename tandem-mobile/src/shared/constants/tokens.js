@@ -72,6 +72,29 @@ module.exports = {
     muted: '#f3f4f6',
     strong: '#d1d5db',
   },
+  // Playful skin — page chrome (spec: 2026-07-10-playful-colors-design.md)
+  cream: '#FBF6ED',
+  warm: {
+    border: '#E5DFD2',
+    label: '#A2542B',
+  },
+  // Sherbet domain hue families — all-warm pastels, one lightness band.
+  // Title = darkest stop, sub = mid stop; never plain gray/black on a tinted fill.
+  sherbet: {
+    mint: { fill: '#E8F5E9', line: '#93CFA0', title: '#1F5C34', sub: '#2F7A4A' },
+    peach: { fill: '#FDEBE0', line: '#F2A67E', title: '#7A3617', sub: '#A2542B' },
+    lilac: { fill: '#F3ECFA', line: '#C3A6E8', title: '#4A2C73', sub: '#6C4A9E' },
+    butter: { fill: '#FCF1D8', line: '#EDC35F', title: '#6E4A08', sub: '#96690F' },
+    blush: { fill: '#FCE9EE', line: '#F0A0B8', title: '#7C2742', sub: '#A84064' },
+    coral: { fill: '#FDE8E4', line: '#F09D8C', title: '#7D2B1C', sub: '#A64530' },
+  },
+  // Saturated action accents — the ONLY loud elements on screen.
+  // Additions; do not touch primary (teal) / secondary (plum).
+  accent: {
+    catch: '#D4537E',
+    action: '#7C5CBF',
+    claim: '#CE6A4A',
+  },
   text: {
     DEFAULT: '#111827',
     secondary: '#6b7280',
