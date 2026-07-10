@@ -12,7 +12,7 @@ type Props = NativeStackScreenProps<AuthStackParamList, 'Welcome'>;
  */
 export const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
   return (
-    <SafeAreaView className="flex-1 bg-surface-dim">
+    <SafeAreaView className="flex-1 bg-cream">
       <View className="flex-1 px-8 justify-between pt-20 pb-12">
         {/* Top Section: Branding */}
         <View className="items-center">

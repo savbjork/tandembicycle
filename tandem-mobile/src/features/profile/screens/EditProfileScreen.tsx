@@ -28,7 +28,7 @@ export const EditProfileScreen: React.FC = () => {
   };
 
   return (
-    <View className="flex-1 bg-surface-dim">
+    <View className="flex-1 bg-cream">
       <ScreenHeader title="Edit Profile" showBack onBack={() => navigation.goBack()} />
 
       <KeyboardAvoidingView

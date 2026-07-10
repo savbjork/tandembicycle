@@ -76,7 +76,7 @@ export const SwipeModeScreen: React.FC<SwipeModeScreenProps> = ({
       presentationStyle="fullScreen"
       onRequestClose={onClose}
     >
-      <View className="flex-1 bg-surface-dim pt-16 pb-12 px-6">
+      <View className="flex-1 bg-cream pt-16 pb-12 px-6">
         <View className="flex-row justify-between items-center mb-10">
           <Text className="text-sm font-semibold text-text-muted">
             {Math.min(currentCardIndex + 1, shuffledCards.length)} / {shuffledCards.length}

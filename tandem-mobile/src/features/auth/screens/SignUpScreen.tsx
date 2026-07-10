@@ -22,7 +22,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <KeyboardAvoidingView
-      className="flex-1 bg-surface-dim"
+      className="flex-1 bg-cream"
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView

@@ -55,7 +55,7 @@ export const ProfileScreen: React.FC = () => {
   };
 
   return (
-    <View className="flex-1 bg-surface-dim">
+    <View className="flex-1 bg-cream">
       <ScreenHeader title="Home" showBack onBack={() => navigation.goBack()} />
 
       <ScrollView className="flex-1 px-5 pb-5">
