@@ -17,13 +17,12 @@ import type { NetItem } from '@shared/data/FakeDataStore';
 import { selectUnrouted, selectTriage, selectReturned } from '@features/net/logic/netItemLogic';
 import { formatRelativeTime } from '@shared/utils/date';
 import { useNavigation } from '@react-navigation/native';
-import { domainHue, HUE_CHIP_CLASS } from '@shared/utils';
+import { domainHue, HUE_FILL_CLASS, HUE_TITLE_CLASS } from '@shared/utils';
 
-// Sherbet lilac "sub" stop (tokens.sherbet.lilac.sub) — matches the lilac tint
-// used for unrouted/returned items, which have no domain yet so can't use the
-// per-hue chip lookup. Kept as a named constant rather than a literal inline
-// hex so the source of truth is traceable back to the token.
-const LILAC_SUB = '#6C4A9E';
+// Sherbet lilac "sub" stop — matches the lilac tint used for unrouted/returned
+// items, which have no domain yet so can't use the per-hue chip lookup.
+// Ionicons takes a raw color prop, so this reads the token directly.
+const LILAC_SUB = COLORS.sherbet.lilac.sub;
 
 export const NetScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -188,47 +187,46 @@ export const NetScreen: React.FC = () => {
                 <Text className="text-sm text-text-secondary">Nothing waiting on you</Text>
               </View>
             ) : (
-              triage.map((item) => (
-                <View
-                  key={item.id}
-                  className="bg-surface rounded-xl p-4 mb-2 border border-warm-border shadow-sm"
-                >
-                  <Text className="text-base text-text">{item.content}</Text>
-                  {/* item.domain is guaranteed non-null here — selectTriage requires it. */}
-                  <View className="flex-row items-center flex-wrap gap-x-1 mt-1">
-                    <View
-                      className={`rounded-full px-2 py-0.5 ${HUE_CHIP_CLASS[domainHue(item.domain!)]}`}
-                    >
-                      <Text
-                        className={`text-[11px] font-semibold ${HUE_CHIP_CLASS[domainHue(item.domain!)]}`}
-                      >
-                        {item.domain}
+              triage.map((item) => {
+                // item.domain is guaranteed non-null here — selectTriage requires it.
+                const hue = domainHue(item.domain!);
+                return (
+                  <View
+                    key={item.id}
+                    className="bg-surface rounded-xl p-4 mb-2 border border-warm-border shadow-sm"
+                  >
+                    <Text className="text-base text-text">{item.content}</Text>
+                    <View className="flex-row items-center flex-wrap gap-x-1 mt-1">
+                      <View className={`rounded-full px-2 py-0.5 ${HUE_FILL_CLASS[hue]}`}>
+                        <Text className={`text-[11px] font-semibold ${HUE_TITLE_CLASS[hue]}`}>
+                          {item.domain}
+                        </Text>
+                      </View>
+                      <Text className="text-[11px] text-text-muted">
+                        • from {item.capturer} • {formatRelativeTime(item.createdAt)}
                       </Text>
                     </View>
-                    <Text className="text-[11px] text-text-muted">
-                      • from {item.capturer} • {formatRelativeTime(item.createdAt)}
-                    </Text>
+                    <View className="flex-row gap-2 mt-3">
+                      <TriageButton
+                        label="Task"
+                        onPress={() => setTaskFromItem(item)}
+                        variant="primary"
+                      />
+                      <TriageButton
+                        label="Done"
+                        onPress={() => triageNetItem(item.id, 'done')}
+                        variant="mint"
+                      />
+                      <TriageButton
+                        label="Someday"
+                        onPress={() => triageNetItem(item.id, 'someday')}
+                        variant="butter"
+                      />
+                      <TriageButton label="Decline" onPress={() => setDecliningItem(item)} />
+                    </View>
                   </View>
-                  <View className="flex-row gap-2 mt-3">
-                    <TriageButton
-                      label="Task"
-                      onPress={() => setTaskFromItem(item)}
-                      variant="primary"
-                    />
-                    <TriageButton
-                      label="Done"
-                      onPress={() => triageNetItem(item.id, 'done')}
-                      variant="mint"
-                    />
-                    <TriageButton
-                      label="Someday"
-                      onPress={() => triageNetItem(item.id, 'someday')}
-                      variant="butter"
-                    />
-                    <TriageButton label="Decline" onPress={() => setDecliningItem(item)} />
-                  </View>
-                </View>
-              ))
+                );
+              })
             )}
           </View>
 
