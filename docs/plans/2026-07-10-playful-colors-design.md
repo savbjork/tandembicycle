@@ -23,7 +23,7 @@ a Tailwind palette extension. Builds on the `netDomains` branch (branch:
 |---|---|---|
 | `cream` (page bg) | `#FBF6ED` | `surface-dim` usage on screen roots |
 | `border-warm` | `#E5DFD2` | `border-light` on cream surfaces |
-| `label-warm` (section labels) | `#993C1D` | gray section-label text |
+| `label-warm` (section labels) | `#A2542B` | gray section-label text (peach sub stop, matches Sherbet) |
 
 White card surfaces (`bg-surface`) stay white.
 
