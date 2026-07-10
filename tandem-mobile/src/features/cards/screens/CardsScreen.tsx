@@ -147,7 +147,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
               })
             }
           >
-            <View className="flex-row items-center bg-surface border border-border rounded-xl px-3 py-2 gap-2">
+            <View className="flex-row items-center bg-surface border border-warm-border rounded-xl px-3 py-2 gap-2">
               <Ionicons name="search" size={18} color={COLORS.text.muted} />
               <TextInput
                 value={searchQuery}
@@ -179,7 +179,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
   const listFooter = useMemo(() => <View className="h-20" />, []);
 
   return (
-    <View className="flex-1 bg-surface-dim">
+    <View className="flex-1 bg-cream">
       <ScreenHeader
         title={isSelecting ? 'Select Domains' : 'Domains'}
         rightAction={
@@ -217,7 +217,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
                   <View className="absolute top-0 right-0 w-3.5 h-3.5 rounded-full bg-primary-600 border-2 border-surface" />
                 )}
               </TouchableOpacity>
-              <AddButton onPress={() => setShowAddCard(true)} />
+              <AddButton bgClassName="bg-accent-catch" onPress={() => setShowAddCard(true)} />
               {onClose && <DoneButton onPress={onClose} />}
             </View>
           )

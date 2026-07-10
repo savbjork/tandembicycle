@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
 import { TaskRow } from '@shared/components/ui/SwipeableTaskRow';
 import { type Card, type Task, type DomainStrain } from '@shared/data/FakeDataStore';
+import { domainHue, HUE_CARD_CLASS, HUE_TITLE_CLASS, HUE_SUB_CLASS } from '@shared/utils';
 
 const STRAIN_DOT_CLASS: Record<DomainStrain, string> = {
   light: 'bg-success-600',
@@ -35,10 +36,12 @@ export const CardListItem: React.FC<CardListItemProps> = ({
   showTasks,
   onToggleTaskDone,
 }) => {
+  const hue = domainHue(card.name);
+
   return (
     <TouchableOpacity
-      className={`bg-surface p-4 rounded-xl mb-3 border-[0.5px] shadow-sm ${
-        isSelecting && isSelected ? 'border-primary-600' : 'border-border-light'
+      className={`p-4 rounded-xl mb-3 border-[0.5px] shadow-sm ${HUE_CARD_CLASS[hue]} ${
+        isSelecting && isSelected ? 'border-primary-600' : ''
       }`}
       onPress={isSelecting ? onToggleSelection : onPress}
     >
@@ -54,7 +57,7 @@ export const CardListItem: React.FC<CardListItemProps> = ({
           {!isSelecting && card.strain && (
             <View className={`w-2 h-2 rounded-full ${STRAIN_DOT_CLASS[card.strain]}`} />
           )}
-          <Text className="text-[17px] font-bold text-text">{card.name}</Text>
+          <Text className={`text-[17px] font-bold ${HUE_TITLE_CLASS[hue]}`}>{card.name}</Text>
         </View>
         {!isSelecting && showOwnerBadge && <OwnerBadge name={card.owner ?? 'Unclaimed'} />}
       </View>
@@ -73,7 +76,7 @@ export const CardListItem: React.FC<CardListItemProps> = ({
             />
           ))}
           {tasks.length > 3 && (
-            <Text className="text-[11px] text-text-muted italic ml-14">
+            <Text className={`text-[11px] italic ml-14 ${HUE_SUB_CLASS[hue]}`}>
               + {tasks.length - 3} more tasks
             </Text>
           )}

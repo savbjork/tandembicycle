@@ -25,15 +25,15 @@ export const StrainCheckBanner: React.FC = () => {
 
   return (
     <>
-      <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm flex-row items-center">
+      <View className="bg-sherbet-butter-fill rounded-xl p-4 mb-4 border border-sherbet-butter-line shadow-sm flex-row items-center">
         <View className="flex-1 mr-3">
-          <Text className="text-sm font-semibold text-text">Weekly check-in</Text>
-          <Text className="text-[13px] text-text-secondary mt-0.5">
+          <Text className="text-sm font-semibold text-sherbet-butter-title">Weekly check-in</Text>
+          <Text className="text-[13px] text-sherbet-butter-sub mt-0.5">
             How heavy do your domains feel right now?
           </Text>
         </View>
         <TouchableOpacity
-          className="bg-primary-600 px-3.5 py-2 rounded-lg mr-2"
+          className="bg-accent-action px-3.5 py-2 rounded-lg mr-2"
           onPress={() => setSheetOpen(true)}
         >
           <Text className="text-white text-[13px] font-semibold">Rate</Text>
