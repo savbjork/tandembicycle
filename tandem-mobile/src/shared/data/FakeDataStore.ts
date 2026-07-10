@@ -2,20 +2,17 @@
 
 export type Person = string;
 
-export type CardFrequency = 'daily' | 'weekly' | 'as-needed';
+export type DomainStrain = 'light' | 'manageable' | 'drowning';
 
-export const FREQUENCY_WEIGHT: Record<CardFrequency, number> = {
-  daily: 3,
-  weekly: 2,
-  'as-needed': 1,
-};
-
+// A Card is a domain of responsibility. `owner` is the domain's head;
+// undefined means the domain is unclaimed.
 export interface Card {
   dbId?: string;
   name: string;
-  owner: Person;
-  frequency: CardFrequency;
+  owner?: Person;
   note?: string;
+  strain?: DomainStrain;
+  strainAt?: string; // ISO timestamp of last strain self-rating
 }
 
 export interface Task {
@@ -28,28 +25,27 @@ export interface Task {
   note?: string;
 }
 
-export type DropZoneItemStatus = 'pending' | 'converted' | 'dismissed' | 'archived';
+// NetItem lifecycle:
+//   unrouted → pending → accepted | done | someday | declined
+//   declined → pending (re-route)   someday → accepted | done
+export type NetItemStatus = 'unrouted' | 'pending' | 'accepted' | 'done' | 'someday' | 'declined';
 
-export interface DropZoneItem {
+export interface NetItem {
   id: string;
-  sender: Person;
-  receiver: Person;
+  capturer: Person;
   content: string;
-  status: DropZoneItemStatus;
+  domain?: string; // card name, set at routing
+  status: NetItemStatus;
+  declineReason?: string;
   createdAt: Date;
 }
 
 // ─── Fake Data Store ─────────────────────────────────────────
 
 class FakeDataStore {
-  // ── Cards ──────────────────────────────────────────────
   cards: Card[] = [];
-
-  // ── Tasks ──────────────────────────────────────────────
   tasks: Task[] = [];
-
-  // ── Drop Zone Items ─────────────────────────────────────
-  dropZoneItems: DropZoneItem[] = [];
+  netItems: NetItem[] = [];
 }
 
 // Singleton instance — shared across all screens

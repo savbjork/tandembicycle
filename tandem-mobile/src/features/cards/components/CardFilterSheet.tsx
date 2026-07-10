@@ -1,7 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
 import {
-  Text,
   Button,
   BottomSheet,
   Checkbox,
@@ -10,7 +9,6 @@ import {
   ChipOption,
 } from '@shared/components/ui';
 import { type TaskTimeFilter } from '@shared/utils/date';
-import { type CardFrequency } from '@shared/data/FakeDataStore';
 
 type CardsFilter = 'all' | 'me';
 
@@ -29,8 +27,6 @@ interface CardFilterSheetProps {
   hideEmptyCards?: boolean;
   onHideEmptyCardsChange?: (v: boolean) => void;
   showHiddenTimeOption?: boolean;
-  frequencyFilter?: CardFrequency | 'all';
-  onFrequencyFilterChange?: (v: CardFrequency | 'all') => void;
 }
 
 export const CardFilterSheet: React.FC<CardFilterSheetProps> = ({
@@ -47,19 +43,10 @@ export const CardFilterSheet: React.FC<CardFilterSheetProps> = ({
   hideEmptyCards,
   onHideEmptyCardsChange,
   showHiddenTimeOption = true,
-  frequencyFilter,
-  onFrequencyFilterChange,
 }) => {
   const ownershipOptions: ChipOption<CardsFilter>[] = [
     { key: 'all', label: 'Everyone' },
     { key: 'me', label: 'Just Me' },
-  ];
-
-  const frequencyOptions: ChipOption<CardFrequency | 'all'>[] = [
-    { key: 'all', label: 'All' },
-    { key: 'daily', label: 'Daily' },
-    { key: 'weekly', label: 'Weekly' },
-    { key: 'as-needed', label: 'As-needed' },
   ];
 
   const allTimeFilterOptions: ChipOption<TaskTimeFilter>[] = [
@@ -84,18 +71,6 @@ export const CardFilterSheet: React.FC<CardFilterSheetProps> = ({
             options={ownershipOptions}
             value={filter}
             onChange={onFilterChange}
-            className="mb-8"
-          />
-        </>
-      )}
-
-      {frequencyFilter !== undefined && onFrequencyFilterChange && (
-        <>
-          <FieldLabel>Card Frequency</FieldLabel>
-          <ChipGroup
-            options={frequencyOptions}
-            value={frequencyFilter}
-            onChange={onFrequencyFilterChange}
             className="mb-8"
           />
         </>

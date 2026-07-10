@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { Alert } from 'react-native';
-import { type Card, type Task, type Person, type CardFrequency } from '@shared/data/FakeDataStore';
+import { type Card, type Task, type Person } from '@shared/data/FakeDataStore';
 import { useCurrentUser } from '@shared/hooks/useCurrentUser';
 
 export const DEFAULT_CARDS = [
@@ -69,71 +69,12 @@ export const DEFAULT_CARDS = [
   'Pick up prescriptions',
 ] as const;
 
-export const DEFAULT_CARD_FREQUENCIES: Partial<
-  Record<(typeof DEFAULT_CARDS)[number], CardFrequency>
-> = {
-  // Daily
-  'Cook dinner': 'daily',
-  'Cook breakfast/lunch': 'daily',
-  Dishes: 'daily',
-  'Wipe down counters': 'daily',
-  'Water plants': 'daily',
-  'Sort mail & packages': 'daily',
-
-  // Weekly
-  'Take out trash': 'weekly',
-  'Recycling & compost': 'weekly',
-  Mop: 'weekly',
-  Sweep: 'weekly',
-  Vacuum: 'weekly',
-  Laundry: 'weekly',
-  'Wash bedding & linens': 'weekly',
-  'Meal planning': 'weekly',
-  'Grocery shopping': 'weekly',
-  'Buy cleaning supplies': 'weekly',
-  'Buy household consumables (TP, soap)': 'weekly',
-  'Yard work / Lawn care': 'weekly',
-  'Pay credit card bills': 'weekly',
-  'Pay utility bills': 'weekly',
-
-  // As-needed (everything else defaults here, but explicit for clarity)
-  'Bathroom deep clean': 'as-needed',
-  'Kitchen deep clean': 'as-needed',
-  'Clean out fridge': 'as-needed',
-  'Clean microwave/oven': 'as-needed',
-  'Clean windows & mirrors': 'as-needed',
-  Dusting: 'as-needed',
-  'Organize closets & drawers': 'as-needed',
-  'Decluttering/Donations': 'as-needed',
-  'House maintenance': 'as-needed',
-  'Snow removal / Seasonal exterior': 'as-needed',
-  'Car maintenance': 'as-needed',
-  'Vehicle registration': 'as-needed',
-  'Home tech support & wifi': 'as-needed',
-  'Manage budget': 'as-needed',
-  'Manage subscriptions': 'as-needed',
-  Taxes: 'as-needed',
-  Retirement: 'as-needed',
-  Investing: 'as-needed',
-  'Car insurance': 'as-needed',
-  'Rental/Homeowners Insurance': 'as-needed',
-  'Health insurance admin': 'as-needed',
-  Internet: 'as-needed',
-  'Plan dates': 'as-needed',
-  'Plan vacations & travel': 'as-needed',
-  'Family events': 'as-needed',
-  'Family holiday/birthday gifts': 'as-needed',
-  'Write thank you notes/cards': 'as-needed',
-  'Host guests/entertaining': 'as-needed',
-  'Schedule medical/dental appointments': 'as-needed',
-  'Pick up prescriptions': 'as-needed',
-};
-
 interface UseCardShuffleProps {
   cards: Card[];
-  reassignCards: (assignments: Array<{ name: string; owner: Person }>) => void;
+  reassignCards: (assignments: { name: string; owner: Person }[]) => void;
   resetToDefaults: (freshCards: Card[], freshTasks: Task[]) => void;
   removeCard: (name: string) => void;
+  addCard: (card: Card) => void;
   onShuffleEnd?: () => void;
 }
 
@@ -142,19 +83,22 @@ export const useCardShuffle = ({
   reassignCards,
   resetToDefaults,
   removeCard,
+  addCard,
   onShuffleEnd,
 }: UseCardShuffleProps) => {
   const { currentUser } = useCurrentUser();
   const [showShuffleModal, setShowShuffleModal] = useState(false);
   const [showSwipeMode, setShowSwipeMode] = useState(false);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
-  const [shuffledCards, setShuffledCards] = useState<Array<{ name: string; owner: Person }>>([]);
+  const [shuffledCards, setShuffledCards] = useState<{ name: string; owner?: Person }[]>([]);
   const [isDefaultsMode, setIsDefaultsMode] = useState(false);
   const [deletedCardNames, setDeletedCardNames] = useState<string[]>([]);
+  const [splitCardNames, setSplitCardNames] = useState<string[]>([]);
 
   const startSwipeShuffle = useCallback(
     (cardsToShuffle: Card[] = cards) => {
       setDeletedCardNames([]);
+      setSplitCardNames([]);
       setIsDefaultsMode(false);
       setShowShuffleModal(false);
       setShuffledCards([...cardsToShuffle]);
@@ -166,6 +110,7 @@ export const useCardShuffle = ({
 
   const startWithDefaults = useCallback(() => {
     setDeletedCardNames([]);
+    setSplitCardNames([]);
     const defaultCardObjects = DEFAULT_CARDS.map((name) => ({ name, owner: currentUser }));
     setIsDefaultsMode(true);
     setShuffledCards(defaultCardObjects);
@@ -195,34 +140,81 @@ export const useCardShuffle = ({
     [shuffledCards]
   );
 
+  // Domains have exactly one head by design; a split replaces the card with
+  // one possessively-named copy per member instead of assigning it to one
+  // owner. Recorded here (like delete) and only materialized at finishShuffle.
+  const markCardSplit = useCallback(
+    (cardIndex: number) => {
+      const cardName = shuffledCards[cardIndex]?.name;
+      if (cardName) {
+        setSplitCardNames((prev) => [...prev, cardName]);
+      }
+      setCurrentCardIndex(cardIndex + 1);
+    },
+    [shuffledCards]
+  );
+
   const finishShuffle = useCallback(
-    (updatedCards: typeof shuffledCards) => {
-      const keptCards = updatedCards.filter((c) => !deletedCardNames.includes(c.name));
+    (updatedCards: typeof shuffledCards, members: Person[] = []) => {
+      const keptCards = updatedCards.filter(
+        (c) => !deletedCardNames.includes(c.name) && !splitCardNames.includes(c.name)
+      );
 
       if (isDefaultsMode) {
         const freshCards: Card[] = keptCards.map((c) => ({
           name: c.name,
           owner: c.owner,
-          frequency:
-            DEFAULT_CARD_FREQUENCIES[c.name as (typeof DEFAULT_CARDS)[number]] ?? 'as-needed',
         }));
         resetToDefaults(freshCards, []);
       } else {
-        reassignCards(keptCards.map((c) => ({ name: c.name, owner: c.owner })));
+        // Every kept card was swiped and assigned a concrete owner before reaching
+        // this point (assignCard always sets one), so owner is never undefined here.
+        reassignCards(
+          keptCards
+            .filter((c): c is { name: string; owner: Person } => c.owner !== undefined)
+            .map((c) => ({ name: c.name, owner: c.owner }))
+        );
         deletedCardNames.forEach((name) => removeCard(name));
+
+        splitCardNames.forEach((name) => {
+          const original = updatedCards.find((c) => c.name === name);
+          if (!original) return;
+          removeCard(name);
+          members.forEach((member) => {
+            const splitName = `${member}'s ${original.name}`;
+            // Card name is the identity key in this app — if a card with the
+            // target name already exists, skip creating that copy (no
+            // duplicates, no renaming). The original is still removed.
+            const collides = cards.some((c) => c.name === splitName);
+            if (collides) return;
+            addCard({ name: splitName, owner: member });
+          });
+        });
       }
 
       setDeletedCardNames([]);
+      setSplitCardNames([]);
       setIsDefaultsMode(false);
       setShowSwipeMode(false);
       setCurrentCardIndex(0);
       if (onShuffleEnd) onShuffleEnd();
     },
-    [isDefaultsMode, deletedCardNames, reassignCards, resetToDefaults, removeCard, onShuffleEnd]
+    [
+      isDefaultsMode,
+      deletedCardNames,
+      splitCardNames,
+      reassignCards,
+      resetToDefaults,
+      removeCard,
+      addCard,
+      cards,
+      onShuffleEnd,
+    ]
   );
 
   const cancelSwipe = useCallback(() => {
     setDeletedCardNames([]);
+    setSplitCardNames([]);
     setIsDefaultsMode(false);
     setShowSwipeMode(false);
   }, []);
@@ -256,6 +248,7 @@ export const useCardShuffle = ({
     cancelSwipe,
     assignCard,
     markCardDeleted,
+    markCardSplit,
     finishShuffle,
     handleFreshStart,
   };

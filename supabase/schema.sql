@@ -67,10 +67,10 @@ create table cards (
     internal_id   bigint      generated always as identity unique,
     household_id  text        not null references households(id) on delete cascade,
     name          text        not null,
-    owner_id      uuid        not null references profiles(user_id) on delete restrict,
+    owner_id      uuid        references profiles(user_id) on delete restrict,
     note          text,
-    frequency     text        not null default 'as-needed'
-                              check (frequency in ('daily', 'weekly', 'as-needed')),
+    strain        text        check (strain in ('light', 'manageable', 'drowning')),
+    strain_at     timestamptz,
     is_archived   boolean     not null default false,
     archived_at   timestamptz,
     created_at    timestamptz not null default now()
@@ -97,18 +97,20 @@ create table tasks (
     updated_at   timestamptz not null default now()
 );
 
--- messages: inbox items sent between household members (formerly DropZoneItems).
--- status lifecycle: pending → converted | dismissed | archived
+-- messages: net items — raw thoughts captured, routed to a domain head, triaged.
+-- status lifecycle: unrouted → pending → accepted | done | someday | declined
 create table messages (
-    id           text        primary key default 'msg-' || gen_random_uuid()::text,
-    internal_id  bigint      generated always as identity unique,
-    household_id text        not null references households(id) on delete cascade,
-    sender_id    uuid        not null references profiles(user_id) on delete restrict,
-    receiver_id  uuid        not null references profiles(user_id) on delete restrict,
-    content      text        not null,
-    status       text        not null default 'pending'
-                             check (status in ('pending', 'converted', 'dismissed', 'archived')),
-    created_at   timestamptz not null default now()
+    id             text        primary key default 'msg-' || gen_random_uuid()::text,
+    internal_id    bigint      generated always as identity unique,
+    household_id   text        not null references households(id) on delete cascade,
+    sender_id      uuid        not null references profiles(user_id) on delete restrict,
+    receiver_id    uuid        references profiles(user_id) on delete restrict,
+    content        text        not null,
+    domain_id      text        references cards(id) on delete set null,
+    decline_reason text,
+    status         text        not null default 'unrouted'
+                               check (status in ('unrouted', 'pending', 'accepted', 'done', 'someday', 'declined')),
+    created_at     timestamptz not null default now()
 );
 
 -- push_tokens: Expo push tokens for each device a user is signed in on.
@@ -143,6 +145,7 @@ create index on tasks (source_message_id);
 create index on messages (household_id);
 create index on messages (sender_id);
 create index on messages (receiver_id);
+create index on messages (domain_id);
 create index on push_tokens (user_id);
 
 
@@ -185,10 +188,13 @@ create trigger tasks_updated_at
 
 
 -- When a card's owner changes, cascade the new owner_id to all tasks on that card.
+-- IS DISTINCT FROM (not <>) so the claim transition (NULL → owner) fires too.
+-- Guard against NULL new.owner_id: tasks.owner_id is NOT NULL, and an unclaimed
+-- domain keeps its tasks with the previous head until someone claims it.
 create or replace function sync_task_owners()
 returns trigger language plpgsql as $$
 begin
-    if new.owner_id <> old.owner_id then
+    if new.owner_id is distinct from old.owner_id and new.owner_id is not null then
         update tasks set owner_id = new.owner_id
         where card_id = new.id;
     end if;
@@ -203,6 +209,8 @@ create trigger cards_owner_sync
 
 -- When a task is moved to a different card, sync owner_id from the new card.
 -- This covers the TaskDetailScreen "Card" picker that lets users reassign tasks.
+-- NULL guard: tasks.owner_id is NOT NULL; moving a task onto an unclaimed card
+-- keeps the current owner instead of erroring.
 create or replace function sync_task_card_owner()
 returns trigger language plpgsql as $$
 declare
@@ -210,7 +218,9 @@ declare
 begin
     if new.card_id <> old.card_id then
         select owner_id into new_owner_id from cards where id = new.card_id;
-        new.owner_id := new_owner_id;
+        if new_owner_id is not null then
+            new.owner_id := new_owner_id;
+        end if;
     end if;
     return new;
 end;
@@ -359,10 +369,12 @@ create policy "cards: members can update"
 
 -- Only the card's own owner can delete it.
 -- (Not even household owners can delete another member's card.)
+-- The head can delete their own card; unclaimed cards (no head) can be
+-- deleted by any household member (e.g. during the deal/swipe flow).
 create policy "cards: owner can delete"
     on cards for delete
     to authenticated
-    using (owner_id = auth.uid());
+    using (owner_id = auth.uid() or (owner_id is null and is_household_member(household_id)));
 
 
 -- ── tasks ─────────────────────────────────────────────────────
@@ -403,7 +415,7 @@ create policy "messages: sender can insert"
     to authenticated
     with check (is_household_member(household_id) and sender_id = auth.uid());
 
--- The sender or receiver can update the status (convert, dismiss, archive).
+-- The capturer (sender) routes; the head (receiver) triages.
 create policy "messages: sender or receiver can update"
     on messages for update
     to authenticated

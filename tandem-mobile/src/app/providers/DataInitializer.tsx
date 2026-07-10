@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useAuthStore, useDataStore } from '@store';
 import { supabase } from '@lib/supabase';
-import type { Card, Task, DropZoneItem, CardFrequency } from '@shared/data/FakeDataStore';
+import type { Card, Task, NetItem } from '@shared/data/FakeDataStore';
 
 /**
  * Loads cards and tasks from Supabase into the data store when the user is authenticated.
@@ -9,7 +9,7 @@ import type { Card, Task, DropZoneItem, CardFrequency } from '@shared/data/FakeD
  */
 export const DataInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isAuthenticated } = useAuthStore();
-  const { setCards, setTasks, setDropZoneItems, setHouseholdContext } = useDataStore();
+  const { setCards, setTasks, setNetItems, setHouseholdContext } = useDataStore();
 
   useEffect(() => {
     if (!isAuthenticated || !user?.id) return;
@@ -45,7 +45,7 @@ export const DataInitializer: React.FC<{ children: React.ReactNode }> = ({ child
       // 3. Fetch cards
       const { data: cardsData } = await supabase
         .from('cards')
-        .select('id, name, note, owner_id, frequency')
+        .select('id, name, note, owner_id, strain, strain_at')
         .eq('household_id', householdId)
         .eq('is_archived', false)
         .order('created_at');
@@ -53,9 +53,10 @@ export const DataInitializer: React.FC<{ children: React.ReactNode }> = ({ child
       const cards: Card[] = (cardsData ?? []).map((c) => ({
         dbId: c.id as string,
         name: c.name as string,
-        owner: nameByUserId[c.owner_id as string] ?? 'Unknown',
-        frequency: (c.frequency as CardFrequency) ?? 'as-needed',
+        owner: c.owner_id ? (nameByUserId[c.owner_id as string] ?? 'Unknown') : undefined,
         note: (c.note as string | null) ?? undefined,
+        strain: (c.strain as Card['strain']) ?? undefined,
+        strainAt: (c.strain_at as string | null) ?? undefined,
       }));
 
       setCards(cards);
@@ -88,24 +89,27 @@ export const DataInitializer: React.FC<{ children: React.ReactNode }> = ({ child
       // 6. Fetch messages (inbox)
       const { data: messagesData } = await supabase
         .from('messages')
-        .select('id, sender_id, receiver_id, content, status, created_at')
+        .select(
+          'id, sender_id, receiver_id, content, status, created_at, domain_id, decline_reason'
+        )
         .eq('household_id', householdId)
         .order('created_at', { ascending: false });
 
-      const dropZoneItems: DropZoneItem[] = (messagesData ?? []).map((m) => ({
-        id: m.id as string,
-        sender: nameByUserId[m.sender_id as string] ?? 'Unknown',
-        receiver: nameByUserId[m.receiver_id as string] ?? 'Unknown',
-        content: m.content as string,
-        status: m.status as DropZoneItem['status'],
-        createdAt: new Date(m.created_at as string),
+      const netItems: NetItem[] = (messagesData ?? []).map((m) => ({
+        id: m.id,
+        capturer: nameByUserId[m.sender_id] ?? 'Unknown',
+        content: m.content,
+        domain: m.domain_id ? (cardsData ?? []).find((c) => c.id === m.domain_id)?.name : undefined,
+        status: m.status as NetItem['status'],
+        declineReason: m.decline_reason ?? undefined,
+        createdAt: new Date(m.created_at),
       }));
 
-      setDropZoneItems(dropZoneItems);
+      setNetItems(netItems);
     };
 
     loadData();
-  }, [isAuthenticated, user?.id, setCards, setTasks, setDropZoneItems, setHouseholdContext]);
+  }, [isAuthenticated, user?.id, setCards, setTasks, setNetItems, setHouseholdContext]);
 
   return <>{children}</>;
 };

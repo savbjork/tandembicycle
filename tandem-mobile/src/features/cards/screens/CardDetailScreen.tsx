@@ -7,73 +7,36 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import {
-  Text,
-  ScreenHeader,
-  FieldLabel,
-  Badge,
-  EmptyState,
-  TextInput,
-} from '@shared/components/ui';
+import { Text, ScreenHeader, FieldLabel, EmptyState, TextInput } from '@shared/components/ui';
 import { EditableTitle } from '@shared/components/ui/EditableTitle';
 import { AddTaskSheet } from '@shared/components/ui/AddTaskSheet';
+import { StrainSelector } from '@features/cards/components/StrainSelector';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
 import { TaskRow } from '@shared/components/ui/SwipeableTaskRow';
 import { useDataStore } from '@store';
 import { useCurrentUser } from '@shared/hooks/useCurrentUser';
-import type { Task, CardFrequency } from '@shared/data/FakeDataStore';
+import type { Task, NetItem } from '@shared/data/FakeDataStore';
+import { selectSomedayForDomain } from '@features/net/logic/netItemLogic';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { MainStackParamList } from '@app/navigation/types';
 
 type Props = NativeStackScreenProps<MainStackParamList, 'CardDetail'>;
 
-const FREQUENCY_OPTIONS: { label: string; value: CardFrequency }[] = [
-  { label: 'Daily', value: 'daily' },
-  { label: 'Weekly', value: 'weekly' },
-  { label: 'As needed', value: 'as-needed' },
-];
-
-const FREQUENCY_ACTIVE_STYLE: Record<CardFrequency, string> = {
-  daily: 'bg-cranberry-600',
-  weekly: 'bg-cranberry-500',
-  'as-needed': 'bg-cranberry-300',
-};
-
-interface FrequencySelectorProps {
-  value: CardFrequency;
-  onChange: (v: CardFrequency) => void;
-}
-
-const FrequencySelector: React.FC<FrequencySelectorProps> = ({ value, onChange }) => (
-  <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
-    <FieldLabel>Frequency</FieldLabel>
-    <View className="flex-row rounded-lg overflow-hidden border border-border-light mt-1">
-      {FREQUENCY_OPTIONS.map((opt, i) => (
-        <TouchableOpacity
-          key={opt.value}
-          onPress={() => onChange(opt.value)}
-          className={`flex-1 py-2 items-center ${
-            value === opt.value ? FREQUENCY_ACTIVE_STYLE[opt.value] : 'bg-surface'
-          } ${i > 0 ? 'border-l border-border-light' : ''}`}
-        >
-          <Text
-            className={`text-sm font-semibold ${
-              value === opt.value ? 'text-white' : 'text-text-secondary'
-            }`}
-          >
-            {opt.label}
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  </View>
-);
-
 export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const { cardName } = route.params;
   const { currentUser } = useCurrentUser();
-  const { cards, tasks, toggleTaskDone, updateCard, renameCard, removeCard } = useDataStore();
+  const {
+    cards,
+    tasks,
+    netItems,
+    toggleTaskDone,
+    updateCard,
+    renameCard,
+    removeCard,
+    triageNetItem,
+    reassignCards,
+  } = useDataStore();
 
   const card = useMemo(() => cards.find((c) => c.name === cardName), [cards, cardName]);
 
@@ -86,9 +49,12 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const [editCardName, setEditCardName] = useState(card?.name || '');
   const [isEditingName, setIsEditingName] = useState(false);
   const [editNote, setEditNote] = useState(card?.note || '');
+  const [somedayItem, setSomedayItem] = useState<NetItem | null>(null);
 
   const scrollViewRef = useRef<ScrollView>(null);
   const noteInputY = useRef<number>(0);
+
+  const someday = useMemo(() => selectSomedayForDomain(netItems, cardName), [netItems, cardName]);
 
   if (!card) {
     return (
@@ -104,7 +70,8 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     );
   }
 
-  const isOwner = card.owner === currentUser;
+  const isHead = card.owner === currentUser;
+  const isUnclaimed = !card.owner;
 
   const handleRename = () => {
     if (editCardName.trim() && editCardName !== card.name) {
@@ -130,6 +97,53 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       },
     ]);
   };
+
+  const handleTaskAdded = () => {
+    if (somedayItem) {
+      triageNetItem(somedayItem.id, 'accepted');
+      setSomedayItem(null);
+    }
+  };
+
+  const handleAddTaskClose = () => {
+    setShowAddTask(false);
+    setSomedayItem(null);
+  };
+
+  // ─── Unclaimed: nothing to show but a claim action ─────────────
+  if (isUnclaimed) {
+    return (
+      <View className="flex-1 bg-surface-dim">
+        <ScreenHeader title={card.name} showBack onBack={() => navigation.goBack()} />
+        <EmptyState
+          title="Unclaimed"
+          description="No one heads this domain yet."
+          actionLabel="Claim"
+          onAction={() => reassignCards([{ name: card.name, owner: currentUser }])}
+        />
+      </View>
+    );
+  }
+
+  // ─── Non-head: the wall. No tasks, notes, someday, or actions leak through. ─
+  if (!isHead) {
+    return (
+      <View className="flex-1 bg-surface-dim">
+        <ScreenHeader title={card.name} showBack onBack={() => navigation.goBack()} />
+        <View className="flex-1 items-center justify-center px-6 py-12">
+          <Text className="text-xl font-semibold text-text text-center mb-2">{card.owner}</Text>
+          <Text className="text-text-secondary text-center">
+            {card.owner} heads this — nothing for you to track here.
+          </Text>
+          {card.strain && (
+            <Text className="text-sm text-text-secondary text-center mt-4">
+              Feels {card.strain} to {card.owner}
+            </Text>
+          )}
+        </View>
+      </View>
+    );
+  }
 
   const pendingTasks = cardTasks.filter((t) => !t.isDone);
   const completedTasks = cardTasks.filter((t) => t.isDone);
@@ -159,32 +173,13 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             onSave={handleRename}
           />
 
-          {/* Not Owner Banner */}
-          {!isOwner && (
-            <View className="bg-warning-50 rounded-xl p-4 mb-4 flex-row items-center gap-3 border border-warning-100">
-              <Ionicons name="lock-closed" size={18} color={COLORS.warning[600]} />
-              <Text className="text-sm text-warning-800 flex-1">
-                This card belongs to {card.owner}. You can view but not edit.
-              </Text>
-            </View>
-          )}
-
-          {/* Frequency */}
-          {isOwner ? (
-            <FrequencySelector
-              value={card.frequency}
-              onChange={(v) => updateCard(card.name, { frequency: v })}
-            />
-          ) : (
-            <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
-              <FieldLabel>Frequency</FieldLabel>
-              <Text className="text-base text-text py-1">
-                {card.frequency === 'as-needed'
-                  ? 'As needed'
-                  : card.frequency.charAt(0).toUpperCase() + card.frequency.slice(1)}
-              </Text>
-            </View>
-          )}
+          {/* Strain */}
+          <StrainSelector
+            value={card.strain}
+            onChange={(s) =>
+              updateCard(card.name, { strain: s, strainAt: new Date().toISOString() })
+            }
+          />
 
           {/* Pending Tasks */}
           <View className="mb-4">
@@ -237,6 +232,27 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             </View>
           )}
 
+          {/* Someday */}
+          {someday.length > 0 && (
+            <View className="mb-4">
+              <View className="flex-row items-center gap-2 mb-3">
+                <FieldLabel className="mb-0">Someday</FieldLabel>
+              </View>
+              {someday.map((item) => (
+                <View
+                  key={item.id}
+                  className="bg-surface rounded-xl p-4 mb-2 border border-border-light shadow-sm"
+                >
+                  <Text className="text-base text-text">{item.content}</Text>
+                  <View className="flex-row gap-2 mt-3">
+                    <TriageButton label="Task" onPress={() => setSomedayItem(item)} primary />
+                    <TriageButton label="Done" onPress={() => triageNetItem(item.id, 'done')} />
+                  </View>
+                </View>
+              ))}
+            </View>
+          )}
+
           {/* Notes */}
           <View
             className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm"
@@ -245,55 +261,71 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             }}
           >
             <FieldLabel>Notes</FieldLabel>
-            {isOwner ? (
-              <TextInput
-                className="text-base text-text py-2 min-h-[120px]"
-                value={editNote}
-                onChangeText={setEditNote}
-                placeholder="Add notes..."
-                placeholderTextColor={COLORS.text.muted}
-                multiline
-                textAlignVertical="top"
-                onFocus={() => {
-                  setTimeout(() => {
-                    scrollViewRef.current?.scrollTo({ y: noteInputY.current, animated: true });
-                  }, 100);
-                }}
-                onBlur={() => updateCard(card.name, { note: editNote })}
-              />
-            ) : (
-              <Text className="text-base text-text py-2">{card.note || 'No notes'}</Text>
-            )}
+            <TextInput
+              className="text-base text-text py-2 min-h-[120px]"
+              value={editNote}
+              onChangeText={setEditNote}
+              placeholder="Add notes..."
+              placeholderTextColor={COLORS.text.muted}
+              multiline
+              textAlignVertical="top"
+              onFocus={() => {
+                setTimeout(() => {
+                  scrollViewRef.current?.scrollTo({ y: noteInputY.current, animated: true });
+                }, 100);
+              }}
+              onBlur={() => updateCard(card.name, { note: editNote })}
+            />
           </View>
 
           {/* Card Actions */}
-          {isOwner && (
-            <View className="flex-row gap-3 mt-2 mb-10">
-              <TouchableOpacity
-                onPress={() => setShowAddTask(true)}
-                className="flex-1 flex-row items-center justify-center gap-2 py-4 bg-primary-50 rounded-xl border border-primary-200"
-              >
-                <Ionicons name="add" size={18} color={COLORS.primary[600]} />
-                <Text className="text-sm font-bold text-primary-600">Add Task</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleDelete}
-                className="flex-1 flex-row items-center justify-center gap-2 py-4 bg-error-50 rounded-xl border border-error-200"
-              >
-                <Ionicons name="trash-outline" size={18} color={COLORS.error[600]} />
-                <Text className="text-sm font-bold text-error-600">Delete</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+          <View className="flex-row gap-3 mt-2 mb-10">
+            <TouchableOpacity
+              onPress={() => setShowAddTask(true)}
+              className="flex-1 flex-row items-center justify-center gap-2 py-4 bg-primary-50 rounded-xl border border-primary-200"
+            >
+              <Ionicons name="add" size={18} color={COLORS.primary[600]} />
+              <Text className="text-sm font-bold text-primary-600">Add Task</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleDelete}
+              className="flex-1 flex-row items-center justify-center gap-2 py-4 bg-error-50 rounded-xl border border-error-200"
+            >
+              <Ionicons name="trash-outline" size={18} color={COLORS.error[600]} />
+              <Text className="text-sm font-bold text-error-600">Delete</Text>
+            </TouchableOpacity>
+          </View>
           <View className="h-10" />
         </ScrollView>
       </KeyboardAvoidingView>
 
       <AddTaskSheet
-        visible={showAddTask}
-        onClose={() => setShowAddTask(false)}
+        visible={showAddTask || somedayItem !== null}
+        onClose={handleAddTaskClose}
         initialCard={card.name}
+        initialNote={somedayItem?.content}
+        onTaskAdded={handleTaskAdded}
+        lockCard={somedayItem !== null}
       />
     </View>
   );
 };
+
+// ─── Triage Button ────────────────────────────────────────────
+
+interface TriageButtonProps {
+  label: string;
+  onPress: () => void;
+  primary?: boolean;
+}
+
+const TriageButton: React.FC<TriageButtonProps> = ({ label, onPress, primary }) => (
+  <TouchableOpacity
+    className={`px-3 py-2 rounded-lg ${primary ? 'bg-primary-600' : 'border border-border'}`}
+    onPress={onPress}
+  >
+    <Text className={`text-[13px] font-semibold ${primary ? 'text-white' : 'text-text-secondary'}`}>
+      {label}
+    </Text>
+  </TouchableOpacity>
+);

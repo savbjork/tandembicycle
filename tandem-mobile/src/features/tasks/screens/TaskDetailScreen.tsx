@@ -22,6 +22,7 @@ import { COLORS } from '@shared/constants/colors';
 import { useDataStore } from '@store';
 import { useCurrentUser } from '@shared/hooks/useCurrentUser';
 import { toDateStringLocal } from '@shared/utils/date';
+import { selectVisibleTasks } from '@features/net/logic/netItemLogic';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@app/navigation/types';
 
@@ -32,7 +33,10 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const { currentUser } = useCurrentUser();
   const { tasks, cards, updateTask, removeTask, toggleTaskDone } = useDataStore();
 
-  const task = useMemo(() => tasks.find((t) => t.id === taskId), [tasks, taskId]);
+  const task = useMemo(
+    () => selectVisibleTasks(tasks, currentUser).find((t) => t.id === taskId),
+    [tasks, currentUser, taskId]
+  );
 
   const scrollViewRef = useRef<ScrollView>(null);
   const noteInputY = useRef<number>(0);
@@ -69,7 +73,12 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         note,
       });
     });
-  }, [navigation, task]);
+  }, [navigation, task, taskId, updateTask]);
+
+  const cardOptions = useMemo(
+    () => cards.filter((c) => c.owner === currentUser).map((c) => ({ key: c.name, label: c.name })),
+    [cards, currentUser]
+  );
 
   if (!task) {
     return (
@@ -84,8 +93,6 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       </View>
     );
   }
-
-  const isOwner = task.owner === currentUser;
 
   const handleSave = () => {
     navigation.goBack(); // beforeRemove listener handles saving
@@ -116,11 +123,6 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     toggleTaskDone(taskId);
   };
 
-  const cardOptions = useMemo(
-    () => cards.filter((c) => c.owner === currentUser).map((c) => ({ key: c.name, label: c.name })),
-    [cards, currentUser]
-  );
-
   return (
     <View className="flex-1 bg-surface-dim">
       <ScreenHeader title="" showBack={false} onBack={handleSave} compact />
@@ -144,19 +146,9 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             placeholder="Task name"
           />
 
-          {!isOwner && (
-            <View className="bg-warning-50 rounded-xl p-4 mb-4 flex-row items-center gap-3 border border-warning-100">
-              <Ionicons name="lock-closed" size={18} color={COLORS.warning[600]} />
-              <Text className="text-sm text-warning-800 flex-1">
-                This task belongs to {task.owner}. You can view but not edit.
-              </Text>
-            </View>
-          )}
-
           {/* Status - compact inline toggle */}
           <TouchableOpacity
-            onPress={isOwner ? handleToggleDone : undefined}
-            disabled={!isOwner}
+            onPress={handleToggleDone}
             className="flex-row items-center gap-2 mb-4 py-1"
           >
             <Ionicons
@@ -174,31 +166,21 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           {/* Card Assignment */}
           <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
             <FieldLabel>Card</FieldLabel>
-            {isOwner ? (
-              <CardPickerField options={cardOptions} value={editCard} onChange={setEditCard} />
-            ) : (
-              <Text className="text-base text-text py-2">{task.card}</Text>
-            )}
+            <CardPickerField options={cardOptions} value={editCard} onChange={setEditCard} />
           </View>
 
           {/* Due Date */}
           <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
             <FieldLabel>Due Date</FieldLabel>
-            {isOwner ? (
-              <TouchableOpacity
-                onPress={() => setShowDatePicker(true)}
-                className="py-2 flex-row items-center gap-3"
-              >
-                <Ionicons name="calendar-outline" size={18} color={COLORS.text.secondary} />
-                <Text className="text-base text-text">
-                  {editDueDate ? editDueDate.toLocaleDateString() : 'No due date'}
-                </Text>
-              </TouchableOpacity>
-            ) : (
-              <Text className="text-base text-text py-2">
-                {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No due date'}
+            <TouchableOpacity
+              onPress={() => setShowDatePicker(true)}
+              className="py-2 flex-row items-center gap-3"
+            >
+              <Ionicons name="calendar-outline" size={18} color={COLORS.text.secondary} />
+              <Text className="text-base text-text">
+                {editDueDate ? editDueDate.toLocaleDateString() : 'No due date'}
               </Text>
-            )}
+            </TouchableOpacity>
           </View>
 
           {/* Notes */}
@@ -209,37 +191,31 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             }}
           >
             <FieldLabel>Notes</FieldLabel>
-            {isOwner ? (
-              <TextInput
-                className="text-base text-text py-2 min-h-[120px]"
-                value={editNote}
-                onChangeText={setEditNote}
-                placeholder="Add notes..."
-                placeholderTextColor={COLORS.text.muted}
-                multiline
-                textAlignVertical="top"
-                onFocus={() => {
-                  setTimeout(() => {
-                    scrollViewRef.current?.scrollTo({ y: noteInputY.current, animated: true });
-                  }, 100);
-                }}
-              />
-            ) : (
-              <Text className="text-base text-text py-2">{task.note || 'No notes'}</Text>
-            )}
+            <TextInput
+              className="text-base text-text py-2 min-h-[120px]"
+              value={editNote}
+              onChangeText={setEditNote}
+              placeholder="Add notes..."
+              placeholderTextColor={COLORS.text.muted}
+              multiline
+              textAlignVertical="top"
+              onFocus={() => {
+                setTimeout(() => {
+                  scrollViewRef.current?.scrollTo({ y: noteInputY.current, animated: true });
+                }, 100);
+              }}
+            />
           </View>
 
-          {isOwner && (
-            <View className="flex-row gap-3 mt-2 mb-6">
-              <TouchableOpacity
-                onPress={handleDelete}
-                className="flex-1 flex-row items-center justify-center gap-2 py-4 bg-error-50 rounded-xl border border-error-200"
-              >
-                <Ionicons name="trash-outline" size={18} color={COLORS.error[600]} />
-                <Text className="text-sm font-bold text-error-600">Delete</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+          <View className="flex-row gap-3 mt-2 mb-6">
+            <TouchableOpacity
+              onPress={handleDelete}
+              className="flex-1 flex-row items-center justify-center gap-2 py-4 bg-error-50 rounded-xl border border-error-200"
+            >
+              <Ionicons name="trash-outline" size={18} color={COLORS.error[600]} />
+              <Text className="text-sm font-bold text-error-600">Delete</Text>
+            </TouchableOpacity>
+          </View>
           <View className="h-6" />
         </ScrollView>
       </KeyboardAvoidingView>

@@ -26,7 +26,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
 
   const handleAddCard = () => {
     if (!cardName.trim()) return;
-    addCard({ name: cardName.trim(), owner: selectedOwner, note: cardNote.trim() || undefined, frequency: 'as-needed' });
+    addCard({ name: cardName.trim(), owner: selectedOwner, note: cardNote.trim() || undefined });
     onClose();
   };
 
@@ -79,7 +79,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
               value={cardName}
               onChangeText={setCardName}
               multiline
-              placeholder="New Card"
+              placeholder="New Domain"
             />
 
             <View className="mb-6">
@@ -105,7 +105,7 @@ export const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
               className="bg-primary-600 py-4 rounded-2xl items-center shadow-sm"
               onPress={handleAddCard}
             >
-              <Text className="text-white font-bold text-base">Add Card</Text>
+              <Text className="text-white font-bold text-base">Add Domain</Text>
             </TouchableOpacity>
           </TouchableOpacity>
         </TouchableOpacity>

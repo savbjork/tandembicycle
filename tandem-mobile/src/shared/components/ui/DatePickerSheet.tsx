@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, TouchableOpacity, Modal, Platform } from 'react-native';
-import { Text } from './Text';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 interface DatePickerSheetProps {

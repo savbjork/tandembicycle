@@ -13,13 +13,15 @@ import { MainStackParamList, MainTabParamList } from '@app/navigation/types';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 // Decomposed Components
-import { BalanceMeter } from '../components/BalanceMeter';
 import { CardListItem } from '../components/CardListItem';
+import { PartnerDomainRow } from '../components/PartnerDomainRow';
+import { UnclaimedDomainRow } from '../components/UnclaimedDomainRow';
 import { NavigationRow } from '../components/NavigationRow';
 import { CardFilterSheet } from '../components/CardFilterSheet';
 import { ShuffleModal } from '../components/ShuffleModal';
 import { SwipeModeScreen } from '../components/SwipeModeScreen';
 import { AddCardModal } from '../components/AddCardModal';
+import { StrainCheckBanner } from '../components/StrainCheckBanner';
 
 // Custom Hooks
 import { useCardsFiltering } from '../hooks/useCardsFiltering';
@@ -37,8 +39,8 @@ type NavigationProp = CompositeNavigationProp<
 
 export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
   const navigation = useNavigation<NavigationProp>();
-  const { currentUser, partner, householdMembers } = useCurrentUser();
-  const { cards, tasks, toggleTaskDone, reassignCards, resetToDefaults, removeCard } =
+  const { currentUser, householdMembers } = useCurrentUser();
+  const { cards, tasks, toggleTaskDone, reassignCards, resetToDefaults, removeCard, addCard } =
     useDataStore();
 
   const [showFilterMenu, setShowFilterMenu] = useState(false);
@@ -52,7 +54,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
 
   // Filter states (persisted to AsyncStorage)
   const { prefs, update: updateFilter } = useCardsFilterPreferences();
-  const { filter, taskTimeFilter, hideCompleted, hideUndated, hideEmptyCards, frequencyFilter } = prefs;
+  const { filter, taskTimeFilter, hideCompleted, hideUndated, hideEmptyCards } = prefs;
 
   const { filteredCards, getCardTasks } = useCardsFiltering({
     cards,
@@ -64,7 +66,6 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
     hideUndated,
     currentUser,
     searchQuery,
-    frequencyFilter,
   });
 
   const onShuffleEnd = useCallback(() => {
@@ -84,6 +85,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
     cancelSwipe,
     assignCard,
     markCardDeleted,
+    markCardSplit,
     finishShuffle,
     handleFreshStart,
   } = useCardShuffle({
@@ -91,6 +93,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
     reassignCards,
     resetToDefaults,
     removeCard,
+    addCard,
     onShuffleEnd,
   });
 
@@ -116,6 +119,20 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
   const handleToggleDone = (taskId: string) => {
     toggleTaskDone(taskId);
   };
+
+  const handleClaim = (name: string) => {
+    reassignCards([{ name, owner: currentUser }]);
+  };
+
+  const sortedCards = useMemo(
+    () =>
+      [...filteredCards].sort(
+        (a, b) =>
+          (a.owner === currentUser ? 0 : a.owner ? 2 : 1) -
+          (b.owner === currentUser ? 0 : b.owner ? 2 : 1)
+      ),
+    [filteredCards, currentUser]
+  );
 
   const listHeader = useMemo(
     () =>
@@ -153,23 +170,18 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
             onNavigateInbox={() => navigation.navigate('Inbox')}
             onNavigateHome={() => navigation.navigate('Profile')}
           />
-          {filter === 'all' && (
-            <BalanceMeter cards={cards} currentUser={currentUser} partner={partner} />
-          )}
+          {filter === 'all' && <StrainCheckBanner />}
         </View>
       ) : null,
-    [isSelecting, searchQuery, filter, cards, currentUser, partner]
+    [isSelecting, searchQuery, filter, navigation]
   );
 
-  const listFooter = useMemo(
-    () => <View className="h-20" />,
-    []
-  );
+  const listFooter = useMemo(() => <View className="h-20" />, []);
 
   return (
     <View className="flex-1 bg-surface-dim">
       <ScreenHeader
-        title={isSelecting ? 'Select Cards' : 'Cards'}
+        title={isSelecting ? 'Select Domains' : 'Domains'}
         rightAction={
           isSelecting ? (
             <TouchableOpacity
@@ -201,8 +213,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
                   taskTimeFilter !== 'hidden' ||
                   hideEmptyCards ||
                   hideCompleted ||
-                  hideUndated ||
-                  frequencyFilter !== 'all') && (
+                  hideUndated) && (
                   <View className="absolute top-0 right-0 w-3.5 h-3.5 rounded-full bg-primary-600 border-2 border-surface" />
                 )}
               </TouchableOpacity>
@@ -217,8 +228,8 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
         ref={flatListRef}
         className="flex-1 px-5"
         contentOffset={{ x: 0, y: SEARCH_BAR_HEIGHT }}
-        data={filteredCards}
-        keyExtractor={(card, i) => `${card.name}-${i}`}
+        data={sortedCards}
+        keyExtractor={(card) => card.name}
         ListHeaderComponent={listHeader}
         ListFooterComponent={listFooter}
         ListEmptyComponent={
@@ -235,23 +246,32 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
             </View>
           ) : (
             <View className="items-center justify-center pt-20">
-              <Text className="text-text-muted text-base">No cards match your search</Text>
+              <Text className="text-text-muted text-base">No domains match your search</Text>
             </View>
           )
         }
-        renderItem={({ item: card }) => (
-          <CardListItem
-            card={card}
-            tasks={getCardTasks(card.name)}
-            isSelecting={isSelecting}
-            isSelected={selectedCardNames.includes(card.name)}
-            onPress={() => navigation.navigate('CardDetail', { cardName: card.name })}
-            onToggleSelection={() => toggleCardSelection(card.name)}
-            showOwnerBadge={filter === 'all'}
-            showTasks={taskTimeFilter !== 'hidden'}
-            onToggleTaskDone={(taskId) => handleToggleDone(taskId)}
-          />
-        )}
+        renderItem={({ item: card }) =>
+          card.owner === currentUser || isSelecting ? (
+            <CardListItem
+              card={card}
+              tasks={getCardTasks(card.name)}
+              isSelecting={isSelecting}
+              isSelected={selectedCardNames.includes(card.name)}
+              onPress={() => navigation.navigate('CardDetail', { cardName: card.name })}
+              onToggleSelection={() => toggleCardSelection(card.name)}
+              showOwnerBadge={filter === 'all'}
+              showTasks={taskTimeFilter !== 'hidden' && card.owner === currentUser}
+              onToggleTaskDone={(taskId) => handleToggleDone(taskId)}
+            />
+          ) : card.owner ? (
+            <PartnerDomainRow
+              card={card}
+              onPress={() => navigation.navigate('CardDetail', { cardName: card.name })}
+            />
+          ) : (
+            <UnclaimedDomainRow card={card} onClaim={() => handleClaim(card.name)} />
+          )
+        }
         contentContainerStyle={{ paddingBottom: isSelecting ? 160 : 0 }}
       />
 
@@ -293,8 +313,6 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
         onHideUndatedChange={(v) => updateFilter({ hideUndated: v })}
         hideEmptyCards={hideEmptyCards}
         onHideEmptyCardsChange={(v) => updateFilter({ hideEmptyCards: v })}
-        frequencyFilter={frequencyFilter}
-        onFrequencyFilterChange={(v) => updateFilter({ frequencyFilter: v })}
       />
 
       <ShuffleModal
@@ -317,6 +335,7 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
         members={householdMembers}
         onAssign={assignCard}
         onDelete={markCardDeleted}
+        onSplit={markCardSplit}
         onSwipedAll={finishShuffle}
       />
 

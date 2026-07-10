@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { MainTabParamList } from './types';
 import { MainStackNavigator } from './stacks/MainStackNavigator';
-import { InboxScreen } from '@features/inbox/screens/InboxScreen';
+import { NetScreen } from '@features/net';
 import { ProfileScreen } from '@features/profile/screens/ProfileScreen';
 import { COLORS } from '@shared/constants/colors';
 
@@ -36,9 +36,9 @@ export const MainNavigator: React.FC = () => {
       />
       <Tab.Screen
         name="InboxTab"
-        component={InboxScreen}
+        component={NetScreen}
         options={{
-          tabBarLabel: 'Inbox',
+          tabBarLabel: 'Net',
           tabBarIcon: ({ color, size }) => <Ionicons name="mail" size={size} color={color} />,
         }}
       />
