@@ -18,6 +18,7 @@ import { useDataStore } from '@store';
 import { useCurrentUser } from '@shared/hooks/useCurrentUser';
 import type { Task, NetItem } from '@shared/data/FakeDataStore';
 import { selectSomedayForDomain } from '@features/net/logic/netItemLogic';
+import { domainHue, HUE_CARD_CLASS } from '@shared/utils';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { MainStackParamList } from '@app/navigation/types';
 
@@ -58,7 +59,7 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
   if (!card) {
     return (
-      <View className="flex-1 bg-surface-dim">
+      <View className="flex-1 bg-cream">
         <ScreenHeader title="Card Details" showBack onBack={() => navigation.goBack()} />
         <EmptyState
           title="Card not found"
@@ -113,7 +114,7 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   // ─── Unclaimed: nothing to show but a claim action ─────────────
   if (isUnclaimed) {
     return (
-      <View className="flex-1 bg-surface-dim">
+      <View className="flex-1 bg-cream">
         <ScreenHeader title={card.name} showBack onBack={() => navigation.goBack()} />
         <EmptyState
           title="Unclaimed"
@@ -128,7 +129,7 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   // ─── Non-head: the wall. No tasks, notes, someday, or actions leak through. ─
   if (!isHead) {
     return (
-      <View className="flex-1 bg-surface-dim">
+      <View className="flex-1 bg-cream">
         <ScreenHeader title={card.name} showBack onBack={() => navigation.goBack()} />
         <View className="flex-1 items-center justify-center px-6 py-12">
           <Text className="text-xl font-semibold text-text text-center mb-2">{card.owner}</Text>
@@ -149,7 +150,7 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const completedTasks = cardTasks.filter((t) => t.isDone);
 
   return (
-    <View className="flex-1 bg-surface-dim">
+    <View className="flex-1 bg-cream">
       <ScreenHeader title="" showBack={false} onBack={() => navigation.goBack()} compact />
 
       <KeyboardAvoidingView
@@ -171,6 +172,7 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             }}
             onChangeText={setEditCardName}
             onSave={handleRename}
+            className={`${HUE_CARD_CLASS[domainHue(card.name)]} rounded-xl p-3 mb-4`}
           />
 
           {/* Strain */}
@@ -241,12 +243,20 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
               {someday.map((item) => (
                 <View
                   key={item.id}
-                  className="bg-surface rounded-xl p-4 mb-2 border border-border-light shadow-sm"
+                  className="bg-sherbet-butter-fill rounded-xl p-4 mb-2 border border-sherbet-butter-line shadow-sm"
                 >
-                  <Text className="text-base text-text">{item.content}</Text>
+                  <Text className="text-base text-sherbet-butter-title">{item.content}</Text>
                   <View className="flex-row gap-2 mt-3">
-                    <TriageButton label="Task" onPress={() => setSomedayItem(item)} primary />
-                    <TriageButton label="Done" onPress={() => triageNetItem(item.id, 'done')} />
+                    <TriageButton
+                      label="Task"
+                      onPress={() => setSomedayItem(item)}
+                      variant="primary"
+                    />
+                    <TriageButton
+                      label="Done"
+                      onPress={() => triageNetItem(item.id, 'done')}
+                      variant="mint"
+                    />
                   </View>
                 </View>
               ))}
@@ -282,10 +292,10 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           <View className="flex-row gap-3 mt-2 mb-10">
             <TouchableOpacity
               onPress={() => setShowAddTask(true)}
-              className="flex-1 flex-row items-center justify-center gap-2 py-4 bg-primary-50 rounded-xl border border-primary-200"
+              className="flex-1 flex-row items-center justify-center gap-2 py-4 bg-accent-action rounded-xl"
             >
-              <Ionicons name="add" size={18} color={COLORS.primary[600]} />
-              <Text className="text-sm font-bold text-primary-600">Add Task</Text>
+              <Ionicons name="add" size={18} color="white" />
+              <Text className="text-sm font-bold text-white">Add Task</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={handleDelete}
@@ -313,18 +323,32 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
 // ─── Triage Button ────────────────────────────────────────────
 
+type TriageButtonVariant = 'primary' | 'mint' | 'quiet';
+
 interface TriageButtonProps {
   label: string;
   onPress: () => void;
-  primary?: boolean;
+  variant?: TriageButtonVariant;
 }
 
-const TriageButton: React.FC<TriageButtonProps> = ({ label, onPress, primary }) => (
+const TRIAGE_BUTTON_CONTAINER_CLASS: Record<TriageButtonVariant, string> = {
+  primary: 'bg-accent-action',
+  mint: 'bg-sherbet-mint-fill',
+  quiet: 'border border-border',
+};
+
+const TRIAGE_BUTTON_TEXT_CLASS: Record<TriageButtonVariant, string> = {
+  primary: 'text-white',
+  mint: 'text-sherbet-mint-title',
+  quiet: 'text-text-secondary',
+};
+
+const TriageButton: React.FC<TriageButtonProps> = ({ label, onPress, variant = 'quiet' }) => (
   <TouchableOpacity
-    className={`px-3 py-2 rounded-lg ${primary ? 'bg-primary-600' : 'border border-border'}`}
+    className={`px-3 py-2 rounded-lg ${TRIAGE_BUTTON_CONTAINER_CLASS[variant]}`}
     onPress={onPress}
   >
-    <Text className={`text-[13px] font-semibold ${primary ? 'text-white' : 'text-text-secondary'}`}>
+    <Text className={`text-[13px] font-semibold ${TRIAGE_BUTTON_TEXT_CLASS[variant]}`}>
       {label}
     </Text>
   </TouchableOpacity>

@@ -82,7 +82,7 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
   if (!task) {
     return (
-      <View className="flex-1 bg-surface-dim">
+      <View className="flex-1 bg-cream">
         <ScreenHeader title="Task" showBack onBack={() => navigation.goBack()} />
         <EmptyState
           title="Task not found"
@@ -124,7 +124,7 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   };
 
   return (
-    <View className="flex-1 bg-surface-dim">
+    <View className="flex-1 bg-cream">
       <ScreenHeader title="" showBack={false} onBack={handleSave} compact />
 
       <KeyboardAvoidingView
@@ -164,13 +164,13 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           </TouchableOpacity>
 
           {/* Card Assignment */}
-          <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
+          <View className="bg-surface rounded-xl p-4 mb-4 border border-warm-border shadow-sm">
             <FieldLabel>Card</FieldLabel>
             <CardPickerField options={cardOptions} value={editCard} onChange={setEditCard} />
           </View>
 
           {/* Due Date */}
-          <View className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm">
+          <View className="bg-surface rounded-xl p-4 mb-4 border border-warm-border shadow-sm">
             <FieldLabel>Due Date</FieldLabel>
             <TouchableOpacity
               onPress={() => setShowDatePicker(true)}
@@ -185,7 +185,7 @@ export const TaskDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
           {/* Notes */}
           <View
-            className="bg-surface rounded-xl p-4 mb-4 border border-border-light shadow-sm"
+            className="bg-surface rounded-xl p-4 mb-4 border border-warm-border shadow-sm"
             onLayout={(e) => {
               noteInputY.current = e.nativeEvent.layout.y;
             }}

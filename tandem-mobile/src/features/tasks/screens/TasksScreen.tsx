@@ -49,7 +49,7 @@ export const TasksScreen: React.FC = () => {
   const hasActiveFilters = taskTimeFilter !== 'all' || hideCompleted || hideUndated;
 
   return (
-    <View className="flex-1 bg-surface-dim">
+    <View className="flex-1 bg-cream">
       <ScreenHeader
         title="My Tasks"
         showBack
