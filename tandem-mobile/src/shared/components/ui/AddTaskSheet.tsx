@@ -119,7 +119,7 @@ export const AddTaskSheet: React.FC<AddTaskSheetProps> = ({
         />
 
         <TouchableOpacity
-          className="bg-primary-600 py-4 rounded-2xl items-center shadow-sm"
+          className="bg-accent-action py-4 rounded-2xl items-center shadow-sm"
           onPress={handleAdd}
         >
           <Text className="text-white font-bold text-base">Add Task</Text>

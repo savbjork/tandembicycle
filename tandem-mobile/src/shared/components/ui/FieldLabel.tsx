@@ -2,8 +2,14 @@ import React from 'react';
 import { Text } from './Text';
 
 interface FieldLabelProps {
-  /** The label text to display */
-  children: string;
+  /**
+   * The label text to display. Accepts ReactNode (not just string) so callers
+   * can nest a colored <Text> span when they need a color override — appending
+   * a text-color className here is not reliable because NativeWind resolves
+   * competing same-property utility classes by generated-stylesheet order, not
+   * by string position (see src/shared/utils/hueClasses.ts for the same caveat).
+   */
+  children: React.ReactNode;
   /** Extra className to merge */
   className?: string;
 }

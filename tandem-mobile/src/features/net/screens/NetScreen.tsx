@@ -17,6 +17,13 @@ import type { NetItem } from '@shared/data/FakeDataStore';
 import { selectUnrouted, selectTriage, selectReturned } from '@features/net/logic/netItemLogic';
 import { formatRelativeTime } from '@shared/utils/date';
 import { useNavigation } from '@react-navigation/native';
+import { domainHue, HUE_CHIP_CLASS } from '@shared/utils';
+
+// Sherbet lilac "sub" stop (tokens.sherbet.lilac.sub) — matches the lilac tint
+// used for unrouted/returned items, which have no domain yet so can't use the
+// per-hue chip lookup. Kept as a named constant rather than a literal inline
+// hex so the source of truth is traceable back to the token.
+const LILAC_SUB = '#6C4A9E';
 
 export const NetScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -85,7 +92,7 @@ export const NetScreen: React.FC = () => {
   };
 
   return (
-    <View className="flex-1 bg-surface-dim">
+    <View className="flex-1 bg-cream">
       <ScreenHeader title="Net" showBack onBack={() => navigation.goBack()} />
 
       <KeyboardAvoidingView
@@ -94,7 +101,7 @@ export const NetScreen: React.FC = () => {
       >
         {/* Capture box — always on top, zero required fields */}
         <View className="px-5 pt-2 pb-4">
-          <View className="flex-row items-center bg-surface border border-border rounded-2xl pl-4 pr-2 py-2 gap-2 shadow-sm">
+          <View className="flex-row items-center bg-surface border border-warm-border rounded-2xl pl-4 pr-2 py-2 gap-2 shadow-sm">
             <TextInput
               className="flex-1 text-base text-text py-1.5"
               placeholder="Get it out of your head…"
@@ -104,7 +111,7 @@ export const NetScreen: React.FC = () => {
               multiline
             />
             <TouchableOpacity
-              className={`px-4 py-2.5 rounded-xl ${captureText.trim() ? 'bg-primary-600' : 'bg-border'}`}
+              className={`px-4 py-2.5 rounded-xl ${captureText.trim() ? 'bg-accent-catch' : 'bg-border'}`}
               disabled={!captureText.trim()}
               onPress={handleCapture}
             >
@@ -116,24 +123,22 @@ export const NetScreen: React.FC = () => {
         <ScrollView className="flex-1 px-5">
           {unrouted.length > 0 && (
             <View className="mb-6">
-              <FieldLabel>To route</FieldLabel>
+              <FieldLabel>
+                <Text className="text-warm-label">To route</Text>
+              </FieldLabel>
               {unrouted.map((item) => (
                 <TouchableOpacity
                   key={item.id}
-                  className="bg-surface rounded-xl p-4 mb-2 border border-border-light shadow-sm flex-row items-center"
+                  className="bg-sherbet-lilac-fill rounded-xl p-4 mb-2 border border-sherbet-lilac-line shadow-sm flex-row items-center"
                   onPress={() => setRoutingItem(item)}
                 >
                   <View className="flex-1 mr-3">
-                    <Text className="text-base text-text">{item.content}</Text>
-                    <Text className="text-[11px] text-text-muted mt-1">
+                    <Text className="text-base text-sherbet-lilac-title">{item.content}</Text>
+                    <Text className="text-[11px] text-sherbet-lilac-sub mt-1">
                       {formatRelativeTime(item.createdAt)} • tap to route
                     </Text>
                   </View>
-                  <Ionicons
-                    name="arrow-forward-circle-outline"
-                    size={22}
-                    color={COLORS.primary[600]}
-                  />
+                  <Ionicons name="arrow-forward-circle-outline" size={22} color={LILAC_SUB} />
                 </TouchableOpacity>
               ))}
             </View>
@@ -141,21 +146,23 @@ export const NetScreen: React.FC = () => {
 
           {returned.length > 0 && (
             <View className="mb-6">
-              <FieldLabel>Returned to you</FieldLabel>
+              <FieldLabel>
+                <Text className="text-warm-label">Returned to you</Text>
+              </FieldLabel>
               {returned.map((item) => (
                 <View
                   key={item.id}
-                  className="bg-surface rounded-xl p-4 mb-2 border border-border-light shadow-sm"
+                  className="bg-sherbet-lilac-fill rounded-xl p-4 mb-2 border border-sherbet-lilac-line shadow-sm"
                 >
-                  <Text className="text-base text-text">{item.content}</Text>
+                  <Text className="text-base text-sherbet-lilac-title">{item.content}</Text>
                   {item.declineReason && (
-                    <Text className="text-[13px] text-text-secondary mt-1 italic">
+                    <Text className="text-[13px] text-sherbet-lilac-sub mt-1 italic">
                       “{item.declineReason}”
                     </Text>
                   )}
                   <View className="flex-row gap-3 mt-3">
                     <TouchableOpacity
-                      className="bg-primary-600 px-4 py-2 rounded-lg"
+                      className="bg-accent-action px-4 py-2 rounded-lg"
                       onPress={() => setRoutingItem(item)}
                     >
                       <Text className="text-white text-sm font-semibold">Re-route</Text>
@@ -173,27 +180,50 @@ export const NetScreen: React.FC = () => {
           )}
 
           <View className="mb-6">
-            <FieldLabel>Your triage</FieldLabel>
+            <FieldLabel>
+              <Text className="text-warm-label">Your triage</Text>
+            </FieldLabel>
             {triage.length === 0 ? (
-              <View className="bg-surface rounded-2xl p-6 items-center border border-border-light">
+              <View className="bg-surface rounded-2xl p-6 items-center border border-warm-border">
                 <Text className="text-sm text-text-secondary">Nothing waiting on you</Text>
               </View>
             ) : (
               triage.map((item) => (
                 <View
                   key={item.id}
-                  className="bg-surface rounded-xl p-4 mb-2 border border-border-light shadow-sm"
+                  className="bg-surface rounded-xl p-4 mb-2 border border-warm-border shadow-sm"
                 >
                   <Text className="text-base text-text">{item.content}</Text>
-                  <Text className="text-[11px] text-text-muted mt-1">
-                    {item.domain} • from {item.capturer} • {formatRelativeTime(item.createdAt)}
-                  </Text>
+                  {/* item.domain is guaranteed non-null here — selectTriage requires it. */}
+                  <View className="flex-row items-center flex-wrap gap-x-1 mt-1">
+                    <View
+                      className={`rounded-full px-2 py-0.5 ${HUE_CHIP_CLASS[domainHue(item.domain!)]}`}
+                    >
+                      <Text
+                        className={`text-[11px] font-semibold ${HUE_CHIP_CLASS[domainHue(item.domain!)]}`}
+                      >
+                        {item.domain}
+                      </Text>
+                    </View>
+                    <Text className="text-[11px] text-text-muted">
+                      • from {item.capturer} • {formatRelativeTime(item.createdAt)}
+                    </Text>
+                  </View>
                   <View className="flex-row gap-2 mt-3">
-                    <TriageButton label="Task" onPress={() => setTaskFromItem(item)} primary />
-                    <TriageButton label="Done" onPress={() => triageNetItem(item.id, 'done')} />
+                    <TriageButton
+                      label="Task"
+                      onPress={() => setTaskFromItem(item)}
+                      variant="primary"
+                    />
+                    <TriageButton
+                      label="Done"
+                      onPress={() => triageNetItem(item.id, 'done')}
+                      variant="mint"
+                    />
                     <TriageButton
                       label="Someday"
                       onPress={() => triageNetItem(item.id, 'someday')}
+                      variant="butter"
                     />
                     <TriageButton label="Decline" onPress={() => setDecliningItem(item)} />
                   </View>
@@ -204,7 +234,9 @@ export const NetScreen: React.FC = () => {
 
           {recentlyCaught.length > 0 && (
             <View className="mb-6 opacity-60">
-              <FieldLabel>Caught</FieldLabel>
+              <FieldLabel>
+                <Text className="text-warm-label">Caught</Text>
+              </FieldLabel>
               {recentlyCaught.map((item) => (
                 <View key={item.id} className="flex-row items-center gap-2 py-1.5">
                   <Ionicons name="checkmark-done" size={16} color={COLORS.text.muted} />
@@ -263,7 +295,7 @@ export const NetScreen: React.FC = () => {
           multiline
         />
         <TouchableOpacity
-          className={`py-4 rounded-2xl items-center ${declineReason.trim() ? 'bg-primary-600' : 'bg-border'}`}
+          className={`py-4 rounded-2xl items-center ${declineReason.trim() ? 'bg-accent-action' : 'bg-border'}`}
           disabled={!declineReason.trim()}
           onPress={handleDecline}
         >
@@ -287,18 +319,34 @@ export const NetScreen: React.FC = () => {
 
 // ─── Triage Button ────────────────────────────────────────────
 
+type TriageButtonVariant = 'primary' | 'mint' | 'butter' | 'quiet';
+
 interface TriageButtonProps {
   label: string;
   onPress: () => void;
-  primary?: boolean;
+  variant?: TriageButtonVariant;
 }
 
-const TriageButton: React.FC<TriageButtonProps> = ({ label, onPress, primary }) => (
+const TRIAGE_BUTTON_CONTAINER_CLASS: Record<TriageButtonVariant, string> = {
+  primary: 'bg-accent-action',
+  mint: 'bg-sherbet-mint-fill',
+  butter: 'bg-sherbet-butter-fill',
+  quiet: 'border border-border',
+};
+
+const TRIAGE_BUTTON_TEXT_CLASS: Record<TriageButtonVariant, string> = {
+  primary: 'text-white',
+  mint: 'text-sherbet-mint-title',
+  butter: 'text-sherbet-butter-title',
+  quiet: 'text-text-secondary',
+};
+
+const TriageButton: React.FC<TriageButtonProps> = ({ label, onPress, variant = 'quiet' }) => (
   <TouchableOpacity
-    className={`px-3 py-2 rounded-lg ${primary ? 'bg-primary-600' : 'border border-border'}`}
+    className={`px-3 py-2 rounded-lg ${TRIAGE_BUTTON_CONTAINER_CLASS[variant]}`}
     onPress={onPress}
   >
-    <Text className={`text-[13px] font-semibold ${primary ? 'text-white' : 'text-text-secondary'}`}>
+    <Text className={`text-[13px] font-semibold ${TRIAGE_BUTTON_TEXT_CLASS[variant]}`}>
       {label}
     </Text>
   </TouchableOpacity>
