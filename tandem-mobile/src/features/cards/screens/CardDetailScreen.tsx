@@ -18,7 +18,7 @@ import { useDataStore } from '@store';
 import { useCurrentUser } from '@shared/hooks/useCurrentUser';
 import type { Task, NetItem } from '@shared/data/FakeDataStore';
 import { selectSomedayForDomain } from '@features/net/logic/netItemLogic';
-import { domainHue, HUE_CARD_CLASS } from '@shared/utils';
+import { domainHue, HUE_CARD_CLASS, HUE_TITLE_CLASS } from '@shared/utils';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { MainStackParamList } from '@app/navigation/types';
 
@@ -120,6 +120,7 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           title="Unclaimed"
           description="No one heads this domain yet."
           actionLabel="Claim"
+          actionVariant="claim"
           onAction={() => reassignCards([{ name: card.name, owner: currentUser }])}
         />
       </View>
@@ -173,6 +174,7 @@ export const CardDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             onChangeText={setEditCardName}
             onSave={handleRename}
             className={`${HUE_CARD_CLASS[domainHue(card.name)]} rounded-xl p-3 mb-4`}
+            textClassName={HUE_TITLE_CLASS[domainHue(card.name)]}
           />
 
           {/* Strain */}

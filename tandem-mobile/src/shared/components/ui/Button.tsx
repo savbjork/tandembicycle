@@ -3,9 +3,9 @@ import { TouchableOpacity, ActivityIndicator, TouchableOpacityProps } from 'reac
 import { Text } from '@shared/components/ui/Text';
 import { COLORS } from '@shared/constants/colors';
 
-interface ButtonProps extends TouchableOpacityProps {
+export interface ButtonProps extends TouchableOpacityProps {
   title: string;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'claim';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
   leftIcon?: React.ReactNode;
@@ -17,6 +17,7 @@ const variantClasses: Record<string, string> = {
   secondary: 'bg-secondary-600',
   outline: 'bg-transparent border-2 border-primary-600',
   ghost: 'bg-transparent',
+  claim: 'bg-accent-claim',
 };
 
 const sizeClasses: Record<string, string> = {

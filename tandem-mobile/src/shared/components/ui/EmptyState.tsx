@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Text } from '@shared/components/ui/Text';
-import { Button } from './Button';
+import { Button, type ButtonProps } from './Button';
 
 interface EmptyStateProps {
   icon?: React.ReactNode;
@@ -9,6 +9,7 @@ interface EmptyStateProps {
   description?: string;
   actionLabel?: string;
   onAction?: () => void;
+  actionVariant?: ButtonProps['variant'];
 }
 
 /**
@@ -20,6 +21,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   description,
   actionLabel,
   onAction,
+  actionVariant = 'primary',
 }) => {
   return (
     <View className="flex-1 items-center justify-center px-6 py-12">
@@ -29,7 +31,9 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 
       {description && <Text className="text-text-secondary text-center mb-6">{description}</Text>}
 
-      {actionLabel && onAction && <Button title={actionLabel} onPress={onAction} size="md" />}
+      {actionLabel && onAction && (
+        <Button title={actionLabel} onPress={onAction} size="md" variant={actionVariant} />
+      )}
     </View>
   );
 };

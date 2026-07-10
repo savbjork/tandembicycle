@@ -11,6 +11,7 @@ interface EditableTitleProps {
   onSave: () => void;
   subtitle?: string;
   className?: string;
+  textClassName?: string;
   placeholder?: string;
 }
 
@@ -22,13 +23,14 @@ export const EditableTitle: React.FC<EditableTitleProps> = ({
   onSave,
   subtitle,
   className = '',
+  textClassName = 'text-text',
   placeholder = 'Enter title...',
 }) => {
   return (
     <View className={`mb-4 ${className}`}>
       {isEditing ? (
         <TextInput
-          className="text-[32px] font-bold text-text tracking-tight mb-1 py-1 px-0"
+          className={`text-[32px] font-bold ${textClassName} tracking-tight mb-1 py-1 px-0`}
           value={value}
           onChangeText={onChangeText}
           onBlur={onSave}
@@ -39,7 +41,9 @@ export const EditableTitle: React.FC<EditableTitleProps> = ({
         />
       ) : (
         <TouchableOpacity onPress={() => setIsEditing(true)}>
-          <Text className="text-[32px] font-bold text-text tracking-tight mb-1">{value}</Text>
+          <Text className={`text-[32px] font-bold ${textClassName} tracking-tight mb-1`}>
+            {value}
+          </Text>
         </TouchableOpacity>
       )}
       {subtitle && <Text className="text-base text-text-secondary">{subtitle}</Text>}
