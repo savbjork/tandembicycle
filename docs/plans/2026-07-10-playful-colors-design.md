@@ -1,7 +1,7 @@
 # Playful Colors Skin — Design
 
 **Date:** 2026-07-10
-**Status:** Approved (mockup round 2, colors-only)
+**Status:** Approved (mockup round 2 colors-only; palette round 3 — "Sherbet" family chosen over stock ramps, muted Garden, and bright Confetti options)
 
 ## Overview
 
@@ -27,32 +27,38 @@ a Tailwind palette extension. Builds on the `netDomains` branch (branch:
 
 White card surfaces (`bg-surface`) stay white.
 
-### Domain hue families (6)
+### Domain hue families (6) — "Sherbet"
 
-Assigned per domain, used for the domain's list card, its chip on triage items,
-and a tint block on its detail screen.
+All-warm pastels: fills share one lightness band, borders one saturation band,
+and every hue carries the cream's warm undertone (this cohesion rule is why the
+stock-ramp palette from mockup round 2 was replaced). Assigned per domain, used
+for the domain's list card, its chip on triage items, and a tint block on its
+detail screen.
 
 | Family | Fill (bg) | Border | Text (title) | Text (chip/sub) |
 |---|---|---|---|---|
-| mint | `#E1F5EE` | `#5DCAA5` | `#04342C` | `#0F6E56` |
-| sky | `#E6F1FB` | `#85B7EB` | `#042C53` | `#185FA5` |
-| lilac | `#EEEDFE` | `#AFA9EC` | `#26215C` | `#534AB7` |
-| butter | `#FAEEDA` | `#EF9F27` | `#412402` | `#854F0B` |
-| blush | `#FBEAF0` | `#ED93B1` | `#4B1528` | `#993556` |
-| peach | `#FAECE7` | `#F0997B` | `#4A1B0C` | `#993C1D` |
+| mint | `#E8F5E9` | `#93CFA0` | `#1F5C34` | `#2F7A4A` |
+| peach | `#FDEBE0` | `#F2A67E` | `#7A3617` | `#A2542B` |
+| lilac | `#F3ECFA` | `#C3A6E8` | `#4A2C73` | `#6C4A9E` |
+| butter | `#FCF1D8` | `#EDC35F` | `#6E4A08` | `#96690F` |
+| blush | `#FCE9EE` | `#F0A0B8` | `#7C2742` | `#A84064` |
+| coral | `#FDE8E4` | `#F09D8C` | `#7D2B1C` | `#A64530` |
 
 Rule: title text always the darkest stop of the same family; secondary text the
 mid stop of the same family; never plain black/gray on a tinted fill.
 
 ### Buttons (filled pills, same sizes/positions as today)
 
+Buttons are the only saturated elements on screen — deliberately, so actions pop
+above the ambient pastel domain tints.
+
 | Action | Style |
 |---|---|
 | Catch, Add (+) | filled `#D4537E` (pink), white text |
-| Rate, Task | filled existing `secondary-600` purple, white text |
-| Claim | filled `#D85A30` (coral), white text |
-| Done | mint tint fill, mint dark text |
-| Someday | butter tint fill, butter dark text |
+| Rate, Task | filled `#7C5CBF` (warm purple accent — new token, does NOT replace the global `secondary` scale), white text |
+| Claim | filled `#CE6A4A` (warm coral accent), white text |
+| Done | mint tint fill, mint title text |
+| Someday | butter tint fill, butter title text |
 | Decline, Cancel | white/outline neutral (deliberately quiet) |
 
 ### Unchanged
