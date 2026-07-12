@@ -229,7 +229,10 @@ export const CardsScreen: React.FC<CardsScreenProps> = ({ onClose }) => {
         className="flex-1 px-5"
         contentOffset={{ x: 0, y: SEARCH_BAR_HEIGHT }}
         data={sortedCards}
-        keyExtractor={(card) => card.name}
+        {/* dbId is the unique row identity (DB default 'card-<uuid>'); name can
+            collide when e.g. defaults were seeded twice. Name-only fallback covers
+            the brief window before a new card's insert back-fills its dbId. */}
+        keyExtractor={(card) => card.dbId ?? card.name}
         ListHeaderComponent={listHeader}
         ListFooterComponent={listFooter}
         ListEmptyComponent={
