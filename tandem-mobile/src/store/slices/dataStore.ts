@@ -9,6 +9,7 @@ import {
 } from '@shared/data/FakeDataStore';
 import { supabase } from '@lib/supabase';
 import { canTransition } from '@features/net/logic/netItemLogic';
+import { dedupeByName } from '@shared/utils/cards';
 
 // ─── State Interface ─────────────────────────────────────────
 
@@ -61,6 +62,11 @@ interface DataState {
 
 // ─── Store ───────────────────────────────────────────────────
 
+// Two overlapping resetToDefaults runs interleave their DB wipe+inserts and
+// leave duplicate card rows behind, so runs are chained and stale ones no-op.
+let resetRunSeq = 0;
+let resetInFlight: Promise<void> = Promise.resolve();
+
 export const useDataStore = create<DataState>((set, get) => ({
   // Initialize from fake data
   cards: [...fakeData.cards],
@@ -79,6 +85,10 @@ export const useDataStore = create<DataState>((set, get) => ({
   // ── Card Actions ──────────────────────────────────────────
 
   addCard: (card) => {
+    // Name is the identity key app-wide — adding a second card with the same
+    // name corrupts every name-based lookup and breaks React list keys.
+    if (get().cards.some((c) => c.name === card.name)) return;
+
     // Optimistic local update
     set((state) => {
       const newCards = [...state.cards, card];
@@ -166,8 +176,11 @@ export const useDataStore = create<DataState>((set, get) => ({
 
   setCards: (cards) =>
     set(() => {
-      fakeData.cards = [...cards];
-      return { cards: [...cards] };
+      // The DB can hold duplicate names if a reset raced (see resetToDefaults);
+      // never let a duplicate reach the store, where name is the identity key.
+      const unique = dedupeByName(cards);
+      fakeData.cards = [...unique];
+      return { cards: unique };
     }),
 
   renameCard: (oldName, newName) =>
@@ -495,7 +508,11 @@ export const useDataStore = create<DataState>((set, get) => ({
     const { householdId, userIdByName } = get();
     if (!householdId) return;
 
-    (async () => {
+    const seq = ++resetRunSeq;
+    resetInFlight = resetInFlight.then(async () => {
+      // A newer reset was requested while this one waited — let it win.
+      if (seq !== resetRunSeq) return;
+
       // Wipe existing cards and tasks for this household
       await supabase.from('tasks').delete().eq('household_id', householdId);
       await supabase.from('cards').delete().eq('household_id', householdId);
@@ -527,6 +544,6 @@ export const useDataStore = create<DataState>((set, get) => ({
           });
         }
       }
-    })();
+    });
   },
 }));

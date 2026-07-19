@@ -6,6 +6,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   PanResponder,
+  Alert,
 } from 'react-native';
 import { Text, FieldLabel, ChipGroup, ChipOption, TextInput } from '@shared/components/ui';
 import { COLORS } from '@shared/constants/colors';
@@ -19,14 +20,19 @@ interface AddCardModalProps {
 
 export const AddCardModal: React.FC<AddCardModalProps> = ({ onClose }) => {
   const { currentUser, partner } = useCurrentUser();
-  const { addCard } = useDataStore();
+  const { cards, addCard } = useDataStore();
   const [cardName, setCardName] = React.useState('');
   const [cardNote, setCardNote] = React.useState('');
   const [selectedOwner, setSelectedOwner] = React.useState<Person>(currentUser);
 
   const handleAddCard = () => {
-    if (!cardName.trim()) return;
-    addCard({ name: cardName.trim(), owner: selectedOwner, note: cardNote.trim() || undefined });
+    const name = cardName.trim();
+    if (!name) return;
+    if (cards.some((c) => c.name === name)) {
+      Alert.alert('Domain already exists', `There is already a domain named "${name}".`);
+      return;
+    }
+    addCard({ name, owner: selectedOwner, note: cardNote.trim() || undefined });
     onClose();
   };
 

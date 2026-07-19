@@ -39,34 +39,37 @@ export const SwipeModeScreen: React.FC<SwipeModeScreenProps> = ({
     onSwipedAllRef.current = onSwipedAll;
   }, [onSwipedAll]);
 
-  const handleAssign = (member: Person) => {
-    onAssign(currentCardIndex, member);
+  // A double-tap on the last card fires the handler twice before the index
+  // updates, which would run the finish flow (and its DB writes) twice.
+  const hasFinishedRef = useRef(false);
+  useEffect(() => {
+    if (visible) hasFinishedRef.current = false;
+  }, [visible]);
 
-    if (isLastCard) {
-      setTimeout(() => {
-        onSwipedAllRef.current(shuffledCards, members);
-      }, 100);
-    }
+  const finishIfLastCard = () => {
+    if (!isLastCard || hasFinishedRef.current) return;
+    hasFinishedRef.current = true;
+    setTimeout(() => {
+      onSwipedAllRef.current(shuffledCards, members);
+    }, 100);
+  };
+
+  const handleAssign = (member: Person) => {
+    if (hasFinishedRef.current) return;
+    onAssign(currentCardIndex, member);
+    finishIfLastCard();
   };
 
   const handleDelete = () => {
+    if (hasFinishedRef.current) return;
     onDelete(currentCardIndex);
-
-    if (isLastCard) {
-      setTimeout(() => {
-        onSwipedAllRef.current(shuffledCards, members);
-      }, 100);
-    }
+    finishIfLastCard();
   };
 
   const handleSplit = () => {
+    if (hasFinishedRef.current) return;
     onSplit(currentCardIndex);
-
-    if (isLastCard) {
-      setTimeout(() => {
-        onSwipedAllRef.current(shuffledCards, members);
-      }, 100);
-    }
+    finishIfLastCard();
   };
 
   return (
