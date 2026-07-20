@@ -4,9 +4,9 @@ const tokens = require('./src/shared/constants/tokens');
 module.exports = {
   content: ['./App.{js,jsx,ts,tsx}', './src/**/*.{js,jsx,ts,tsx}'],
   safelist: [
-    // primary (teal) — shell
+    // primary (cobalt) — shell
     'bg-primary-50', 'bg-primary-600', 'border-primary-200',
-    // secondary (plum) — people
+    // secondary (cobalt, consolidated) — people
     'bg-secondary-50', 'bg-secondary-600', 'border-secondary-200',
     // cranberry (now tangerine) — accent / strain
     'bg-cranberry-50', 'bg-cranberry-200', 'bg-cranberry-500', 'bg-cranberry-700',

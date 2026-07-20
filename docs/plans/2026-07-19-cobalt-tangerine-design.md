@@ -54,7 +54,8 @@ Token *names* are retained; only values change. Two new ramps:
 | `success` | cobalt equivalents (50 `#EDF0FD`, 100 `#DDE3FA`, 600 `#1F3AB8`, 700 `#182D8F`) | Success is a brand moment, not a third hue |
 | `warning` | tangerine equivalents (50/100/500/600/700/800 from ramp) | Warnings are attention signals |
 | `info` | 100 `#DDE3FA`, 700 `#182D8F` | Cobalt tint |
-| `surface`, `border`, `text`, `neutral`, `error` | **unchanged** | Explicit decision: don't touch neutrals for now |
+| `surface`, `border`, `text`, `error` | **unchanged** | Explicit decision: don't touch neutrals for now |
+| `neutral` | gains `300: #d1d5db` (alias of `border.strong`) | Convenience shade for the strain "light" dot; no new hue |
 
 `COLORS` in `colors.ts` and the Tailwind config consume `tokens.js`, so the swap itself requires no component changes; the visual pass (below) may then demote individual elements to neutral where a lost color distinction mattered. The `safelist` in `tailwind.config.js` keeps working since class names don't change.
 
