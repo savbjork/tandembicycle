@@ -9,19 +9,27 @@ const TANGERINE = [
   '#FFF3EB', '#FFE1D1', '#FFC7A3', '#FFA269', '#FF873F',
   '#FF6B2B', '#E25812', '#C24308', '#93330A', '#632205',
 ];
-const ALLOWED = new Set([...COBALT, ...TANGERINE].map((h) => h.toLowerCase()));
 
-// Every hue-bearing family. surface/border/text/neutral/error are exempt neutrals.
-const HUE_FAMILIES = [
-  'primary', 'secondary', 'cranberry', 'evergreen', 'success', 'warning', 'info',
-] as const;
+// Every hue-bearing family, mapped to the ONE ramp it must draw from.
+// surface/border/text/neutral/error are exempt neutrals.
+const EXPECTED_RAMP: Record<string, string[]> = {
+  primary: COBALT,
+  secondary: COBALT,
+  evergreen: COBALT,
+  success: COBALT,
+  info: COBALT,
+  cranberry: TANGERINE,
+  warning: TANGERINE,
+};
 
 describe('two-hue palette discipline', () => {
-  for (const family of HUE_FAMILIES) {
-    it(`${family} only uses cobalt or tangerine values`, () => {
-      const offenders = Object.entries(tokens[family]).filter(
-        ([, hex]) => !ALLOWED.has(String(hex).toLowerCase())
-      );
+  for (const [family, ramp] of Object.entries(EXPECTED_RAMP)) {
+    const rampName = ramp === COBALT ? 'cobalt' : 'tangerine';
+    it(`${family} only uses ${rampName} values`, () => {
+      const allowed = new Set(ramp.map((h) => h.toLowerCase()));
+      const offenders = Object.entries(
+        tokens[family as keyof typeof tokens]
+      ).filter(([, hex]) => !allowed.has(String(hex).toLowerCase()));
       expect(offenders).toEqual([]);
     });
   }
