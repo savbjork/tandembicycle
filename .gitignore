@@ -4,3 +4,6 @@
 .idea/
 *.iml
 .worktrees/
+
+# brainstorming visual companion
+.superpowers/

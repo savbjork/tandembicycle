@@ -1,57 +1,42 @@
+// The two approved hue ramps (docs/plans/2026-07-19-cobalt-tangerine-design.md).
+const COBALT = {
+  50: '#EDF0FD',
+  100: '#DDE3FA',
+  200: '#B8C4F4',
+  300: '#8FA0EC',
+  400: '#5C74E6',
+  500: '#2B4BE0',
+  600: '#1F3AB8',
+  700: '#182D8F',
+  800: '#112066',
+  900: '#0A1340',
+};
+const TANGERINE = {
+  50: '#FFF3EB',
+  100: '#FFE1D1',
+  200: '#FFC7A3',
+  300: '#FFA269',
+  400: '#FF873F',
+  500: '#FF6B2B',
+  600: '#E25812',
+  700: '#C24308',
+  800: '#93330A',
+  900: '#632205',
+};
+
 module.exports = {
-  // App shell — Teal (replaces red "primary")
-  primary: {
-    50: '#e5f3f7',
-    100: '#c2e4ec',
-    200: '#8fcdd9',
-    300: '#5cb5c7',
-    400: '#2e9eb5',
-    500: '#1a7a8f',
-    600: '#0f4c5c',
-    700: '#0a3a47',
-    800: '#062830',
-    900: '#03151a',
-  },
-  // People — Plum (replaces fuchsia "secondary")
-  secondary: {
-    50: '#ede6f5',
-    100: '#d5c4e8',
-    200: '#bba0d9',
-    300: '#a07bcb',
-    400: '#8558bc',
-    500: '#6d46a0',
-    600: '#5c3d7a',
-    700: '#472f5f',
-    800: '#322244',
-    900: '#1e132a',
-  },
-  // Frequency classification — Cranberry
-  cranberry: {
-    50: '#fcf0f2',
-    100: '#f8d4da',
-    200: '#f0a8b3',
-    300: '#e77c8d',
-    400: '#d95070',
-    500: '#a8304c',
-    600: '#8b1a2f',
-    700: '#6f1526',
-    800: '#53101c',
-    900: '#380b12',
-  },
-  // Task actions / completion — Evergreen
-  evergreen: {
-    50: '#e5f0ed',
-    100: '#c2ddd6',
-    200: '#94c4b7',
-    300: '#66ab99',
-    400: '#3d8a72',
-    500: '#2a6b59',
-    600: '#1b4d3e',
-    700: '#163d32',
-    800: '#0f2d25',
-    900: '#081e18',
-  },
-  // Validation errors / danger / destructive actions
+  // Brand — Cobalt: buttons, nav, selection, links, focus (replaces teal)
+  primary: COBALT,
+  // People — consolidated into brand cobalt (replaces plum); the visual
+  // pass may demote individual elements to neutral where the old
+  // primary/secondary contrast carried meaning.
+  secondary: COBALT,
+  // Accent — Tangerine: strain, Net badge, celebration (replaces cranberry)
+  cranberry: TANGERINE,
+  // Task actions — consolidated into brand cobalt (replaces evergreen)
+  evergreen: COBALT,
+  // Validation errors / danger / destructive actions — functional
+  // exception, deliberately NOT part of the two-hue brand palette.
   error: {
     50: '#fef2f2',
     100: '#fee2e2',
@@ -78,25 +63,28 @@ module.exports = {
     muted: '#9ca3af',
     light: '#374151',
   },
+  // Success is a brand moment, not a third hue
   success: {
-    50: '#f0fdf4',
-    100: '#dcfce7',
-    600: '#16a34a',
-    700: '#15803d',
+    50: COBALT[50],
+    100: COBALT[100],
+    600: COBALT[600],
+    700: COBALT[700],
   },
+  // Warnings are attention signals — tangerine
   warning: {
-    50: '#fffbeb',
-    100: '#fef3c7',
-    500: '#f59e0b',
-    600: '#d97706',
-    700: '#b45309',
-    800: '#92400e',
+    50: TANGERINE[50],
+    100: TANGERINE[100],
+    500: TANGERINE[500],
+    600: TANGERINE[600],
+    700: TANGERINE[700],
+    800: TANGERINE[800],
   },
   neutral: {
+    300: '#d1d5db', // strain "light" dot (see strainColors, Task 3)
     500: '#6b7280',
   },
   info: {
-    100: '#dbeafe',
-    700: '#1d4ed8',
+    100: COBALT[100],
+    700: COBALT[700],
   },
 };

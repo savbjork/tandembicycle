@@ -4,13 +4,14 @@ const tokens = require('./src/shared/constants/tokens');
 module.exports = {
   content: ['./App.{js,jsx,ts,tsx}', './src/**/*.{js,jsx,ts,tsx}'],
   safelist: [
-    // primary (teal) — shell
+    // primary (cobalt) — shell
     'bg-primary-50', 'bg-primary-600', 'border-primary-200',
-    // secondary (plum) — people
+    // secondary (cobalt, consolidated) — people
     'bg-secondary-50', 'bg-secondary-600', 'border-secondary-200',
-    // cranberry — frequency
-    'bg-cranberry-50', 'bg-cranberry-600', 'border-cranberry-200',
-    'text-cranberry-600', 'text-cranberry-500', 'text-cranberry-300',
+    // cranberry (now tangerine) — accent / strain
+    'bg-cranberry-50', 'bg-cranberry-200', 'bg-cranberry-500', 'bg-cranberry-700',
+    'border-cranberry-200',
+    'text-cranberry-600', 'text-cranberry-500', 'text-cranberry-300', 'text-cranberry-800',
     // evergreen — task actions
     'bg-evergreen-600', 'border-evergreen-600', 'bg-evergreen-50',
     // error — danger/validation
@@ -19,7 +20,7 @@ module.exports = {
     // evergreen text (used in TaskDetailScreen done state)
     'text-evergreen-600',
     // neutral
-    'bg-neutral-500',
+    'bg-neutral-300', 'bg-neutral-500',
   ],
   presets: [require('nativewind/preset')],
   theme: {
