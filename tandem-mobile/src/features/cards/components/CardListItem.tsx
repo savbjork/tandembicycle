@@ -4,13 +4,8 @@ import { Text, OwnerBadge } from '@shared/components/ui';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '@shared/constants/colors';
 import { TaskRow } from '@shared/components/ui/SwipeableTaskRow';
-import { type Card, type Task, type DomainStrain } from '@shared/data/FakeDataStore';
-
-const STRAIN_DOT_CLASS: Record<DomainStrain, string> = {
-  light: 'bg-success-600',
-  manageable: 'bg-warning-500',
-  drowning: 'bg-error-600',
-};
+import { type Card, type Task } from '@shared/data/FakeDataStore';
+import { STRAIN_DOT_CLASS } from './strainColors';
 
 interface CardListItemProps {
   card: Card;
