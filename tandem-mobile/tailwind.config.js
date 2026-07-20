@@ -9,7 +9,7 @@ module.exports = {
     // secondary (plum) — people
     'bg-secondary-50', 'bg-secondary-600', 'border-secondary-200',
     // cranberry (now tangerine) — accent / strain
-    'bg-cranberry-50', 'bg-cranberry-200', 'bg-cranberry-500', 'bg-cranberry-600',
+    'bg-cranberry-50', 'bg-cranberry-200', 'bg-cranberry-500', 'bg-cranberry-700',
     'border-cranberry-200',
     'text-cranberry-600', 'text-cranberry-500', 'text-cranberry-300', 'text-cranberry-800',
     // evergreen — task actions
